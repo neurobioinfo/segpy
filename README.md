@@ -18,7 +18,7 @@ The segregation can do done using the  `seganalyis` module in python, if you hav
 ### seganalyis
 `seganalyis` is a python module developed to run segregation, 
 
-|![<img src="segpy.png" width="250"/>](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segpy.png)|
+|![</img src="segpy.png" width="250"/>](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segpy.png)|
 |:--:|
 | _segpy workflow_ |
 
