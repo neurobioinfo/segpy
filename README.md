@@ -4,8 +4,8 @@ This repository includes module and pipeline for segregation analysis, which can
 ## Contents
 -  [Segregation Analysis](#segregation-Analysis)
 -  [How to run](#how-to-run)
- - [seganalyis](#workflow)
- - [segrun.svn](#scrnaboxsvn)
+  - [seganalyis](#workflow)
+  - [segrun.svn](#scrnaboxsvn)
 - [References](#references)
 
 
