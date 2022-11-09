@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Amiri"
+  given-names: "Saeid"
+  orcid: "https://orcid.org/0000-0003-2028-092X"
+- family-names: "Thomas"
+  given-names: "Rhalena"
+- family-names: "Larivière"
+  given-names: "Roxanne"
+title: "scrnabox: A pipeline for scRNA"
+version: 0.1.25
+date-released: 2022-11-06
+url: "https://github.com/neurobioinfo/scrnabox"

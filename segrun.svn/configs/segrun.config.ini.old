@@ -1,0 +1,31 @@
+#Segrun Config parameters
+#Created on: 2022-06-12T00:40:00
+
+#[DEFAULT]
+cluster_server=beluga
+cluster_submit_cmd=sbatch
+ACCOUNT=rrg-grouleau-ac
+R_LIB_PATH=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/R/x86_64-pc-linux-gnu-library/4.1
+PYTHON_LIB_PATH=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/hail_env/bin/python3.8
+PYTHON_ENV_PATH=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/hail_env
+BASEFOLDER=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail
+NCOL=7
+SPARKMEM=4g
+
+GRCH=GRCh38
+cluster_walltime=--time=1-0
+cluster_cpu=-c1
+cluster_queue=--mem-per-cpu=4g
+declare -A  WALLTIME_ARRAY
+declare -A  THREADS_ARRAY
+#[step1] generate mt matrix 
+WALLTIME_ARRAY["step_1"]=00-01:00 
+THREADS_ARRAY["step_1"]=4
+
+#[step2] seg run 
+WALLTIME_ARRAY["step_2"]=00-02:00 
+THREADS_ARRAY["step_2"]=4
+
+#[step3] clean 
+WALLTIME_ARRAY["step_3"]=00-01:00 
+THREADS_ARRAY["step_3"]=4
