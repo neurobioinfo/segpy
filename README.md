@@ -21,7 +21,7 @@ The segregation can do done using the  `seganalyis` module in python, if you hav
 
 ### segrun.svn
 `segrun.svn` is a pipeline (shield) developed to run step 1 to step 3 under HPC system, the pipeline has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga),  the detail of using it is discussed in [segrun.svn](https://github.com/neurobioinfo/segregation/tree/main/segrun.svn)
-![segrun.svn](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segrub.png)
+![segrun.svn](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segrun.png)
 
 ## References
 
