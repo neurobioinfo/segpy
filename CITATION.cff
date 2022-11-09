@@ -6,6 +6,7 @@ authors:
   orcid: "https://orcid.org/0000-0003-2028-092X"
 - family-names: "Spiegelman"
   given-names: "Dan"
+  orcid: "https://orcid.org/0000-0003-4971-8868"  
 - family-names: "Farhan"
   given-names: "Sali"
 title: "segregation: A pipeline for segregation analysis"
