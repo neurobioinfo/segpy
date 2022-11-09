@@ -4,11 +4,11 @@ authors:
 - family-names: "Amiri"
   given-names: "Saeid"
   orcid: "https://orcid.org/0000-0003-2028-092X"
-- family-names: "Thomas"
-  given-names: "Rhalena"
-- family-names: "Larivière"
-  given-names: "Roxanne"
-title: "scrnabox: A pipeline for scRNA"
-version: 0.1.25
-date-released: 2022-11-06
+- family-names: "Spiegelman"
+  given-names: "Dan"
+- family-names: "Farhan"
+  given-names: "Sali"
+title: "segregation: A pipeline for segregation analysis"
+version: 0.1.0
+date-released: 2022-11-09
 url: "https://github.com/neurobioinfo/scrnabox"
