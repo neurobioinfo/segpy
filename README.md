@@ -17,10 +17,11 @@ The segregation can do done using the  `seganalyis` module in python, if you hav
 
 ### seganalyis
 `seganalyis` is a python module developed to run segregation, 
+![segregation](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segregation.png)
 
 ### segrun.svn
 `segrun.svn` is a pipeline (shield) developed to run step 1 to step 3 under HPC system, the pipeline has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga),  the detail of using it is discussed in [segrun.svn](https://github.com/neurobioinfo/segregation/tree/main/segrun.svn)
-![hashtag](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segregation.png)
+![segrun.svn](https://raw.githubusercontent.com/neurobioinfo/segregation/main/segrun.png)
 
 ## References
 
@@ -28,13 +29,12 @@ The segregation can do done using the  `seganalyis` module in python, if you hav
 This is an early version, any contribute or suggestion is appreciated, you can directly contact with [Saeid Amiri](https://github.com/saeidamiri1) or [Dan Spiegelman](https://github.com/danspiegelman).
 
 ## Citation
-Amiri, S., Spiegelman, D., & Farhan, S. (2022). segregation: A pipeline for segregation analysis (Version 0.1.0) [Computer software]. https://github.com/neurobioinfo/scrnabox
+Amiri, S., Spiegelman, D., & Farhan, S. (2022). segregation: A pipeline for segregation analysis (Version 0.1.0) [Computer software]. https://github.com/neurobioinfo/segregation
 
 ## Changelog
 Every release is documented on the [GitHub Releases page](https://github.com/neurobioinfo/segregation/releases).
 
 ## License
-
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/neurobioinfo/segregation/blob/main/LICENSE) file for details
 
 ## Acknowledgement
