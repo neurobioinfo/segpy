@@ -176,7 +176,7 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 This is an early version, any contribute or suggestion is appreciated, you can directly contact with [Saeid Amiri](https://github.com/saeidamiri1) or [Dan Spiegelman](https://github.com/danspiegelman).
 
 ## Citation
-Amiri, S., Spiegelman, D., & Farhan, S. (2022). segpy: A pipeline for segregation analysis (Version 0.1.0) [Computer software]. https://github.com/neurobioinfo/segregation
+Amiri, S., Spiegelman, D., & Farhan, S. (2022). segpy: A pipeline for segregation analysis (Version 0.1.0) [Computer software]. https://github.com/neurobioinfo/segpy
 
 ## Changelog
 Every release is documented on the [GitHub Releases page](https://github.com/neurobioinfo/segpy/releases).
