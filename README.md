@@ -112,7 +112,7 @@ cd ${SPARK_HOME}; ./sbin/stop-master.sh
 `segpy.svn` is a pipeline (shield) developed to run step 1 to step 4 under HPC system, the pipeline has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga) HPC that use slurm, the detail of using it is discussed in [segrun.svn](https://github.com/neurobioinfo/segregation/tree/main/segrun.svn). 
 
 
-|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segrun.png" width="300" height="500"/>|
+|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_svn.png" width="300" height="500"/>|
 |:--:|
 | _segrun workflow_ |
 
