@@ -2,14 +2,14 @@
 ***
 
 ## Contents
-- [segrun.svn](#segrun.svn)
+- [segpy.svn](#segpy.svn)
   - [Step 1: Setup](#step1:-setup)
   - [Step 2: Create table matrix](#step2:-create-table-matrix)
   - [step 3: Run segregation](#step3:-run-segregation)
   - [step 4: clean final data](#step4:-clean-final-data)
   - [Note](#note)
 
-## segrun.svn
+## segpy.svn
 To run the pipepline, you need 1) path of the pipeline (PIPELINE_HOME), 2) Working directory , 3) VCF, and 4) PED file
 ```
 export PIPELINE_HOME=~/segpy.svn

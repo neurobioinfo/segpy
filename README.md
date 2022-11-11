@@ -109,7 +109,7 @@ cd ${SPARK_HOME}; ./sbin/stop-master.sh
 
 
 ### segpy.svn
-`segpy.svn` is a shield developed to run the segpy pipline, it can be used to submit jobs (step 1 to step 4) under HPC system, it has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail of using it is discussed in [segrun.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
+`segpy.svn` is a shield developed to run the segpy pipline, it can be used to submit jobs (step 1 to step 4) under HPC system, it has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail of using it is discussed in [segpy.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
 
 
 |<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_svn.png" width="300" height="500"/>|
