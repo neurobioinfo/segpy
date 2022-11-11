@@ -18,7 +18,7 @@ The segregation can do done using the `segpy` module, if you have access to HPC,
 ### segpy
 `segpy` is a python module developed to run the segregation analysis, 
 
-|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy.png" width="500" height="400"/>|
+|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy.png" width="700" height="500"/>|
 |:--:|
 | _segpy workflow_ |
 
