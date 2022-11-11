@@ -1,0 +1,41 @@
+#!/bin/bash
+
+
+umask 002
+echo timestamp $(date +%s)
+
+
+echo "*******************************************"
+echo "* step2: generate Matrix file"
+echo "*******************************************"
+echo "* PIPELINE_HOME:        $PIPELINE_HOME"
+echo "* SPARK_HOME:           $SPARK_PATH"
+echo "* Virtual ENV:          $ENV_PATH"
+echo "* Java Module:          $JAVA_MODULE"
+echo "* Python module:        $PYTHON_MODULE"
+echo "* Python RUN:           $PYTHON_RUN"
+echo "* DIR:                  $OUTPUT_DIR"
+echo "* VCF:                  $VCF"
+echo "* GRCH:                 $GRCH"
+echo "*******************************************"
+
+#-----------------------------------------------------#
+# Step1: Create Matrix                                     #
+#-----------------------------------------------------#
+
+export SPARK_HOME=$SPARK_PATH
+export SPARK_LOG_DIR=$OUTPUT_DIR/logs/spark
+module load $JAVA_MODULE
+${SPARK_HOME}/sbin/start-master.sh
+source ${ENV_PATH}/bin/activate
+# export PYTHONPATH=${ENV_PATH}/lib/python3.8/site-packages
+echo "PYTHON_LIB_PATH"
+echo $PYTHON_LIB_PATH
+export PYTHONPATH=$PYTHON_LIB_PATH
+module load $PYTHON_MODULE
+
+file2=$(basename $VCF)
+MTFILE=$OUTPUT_DIR/${file2%.*}.mt
+
+${ENV_PATH}/bin/${PYTHON_RUN} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE  $VCF $GRCH
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+umask 002
+echo timestamp $(date +%s)
+
+echo "*******************************************"
+echo "* step4: clean data"
+echo "*******************************************"
+echo "* DIR:                  $OUTPUT_DIR"
+echo "*******************************************"
+
+#-----------------------------------------------------#
+# Clean Output file                                   #
+#-----------------------------------------------------#
+# 
+
+FINALFILE=$OUTPUT_DIR/finalseg.csv
+
+sed  -e "s/\"//g; s/\[//g; s/\]//g; s/\, /\|/g; s/\,/\|/g"  $OUTPUT_DIR/finalseg.csv  >  $OUTPUT_DIR/finalseg_modified.csv
+

@@ -46,7 +46,7 @@ hl.import_vcf('~/test/data/VEP.iPSC.vcf',force=True,reference_genome='GRCh38',ar
 mt = hl.read_matrix_table('~/test/output/VEP.iPSC.mt')
 ```
 
-#### Step 3: Run the module
+#### Step 3: Run segregation
 Run the following codes to generate the segregation. 
 ```
 from segpy import seg
@@ -109,42 +109,42 @@ cd ${SPARK_HOME}; ./sbin/stop-master.sh
 
 
 ### segpy.svn
-`segpy.svn` is a pipeline (shield) developed to run step 1 to step 4 under HPC system, the pipeline has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga) HPC that use slurm, the detail of using it is discussed in [segrun.svn](https://github.com/neurobioinfo/segregation/tree/main/segrun.svn). 
+`segpy.svn` is a shield developed to run the segpy pipline, it can be used to submit jobs (step 1 to step 4) under HPC system, it has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail of using it is discussed in [segrun.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
 
 
 |<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_svn.png" width="300" height="500"/>|
 |:--:|
-| _segrun workflow_ |
+| _segpy.svn workflow_ |
 
 
 To run the pipepline, you need 1) path of the pipeline (PIPELINE_HOME), 2) Working directory , 3) VCF, and 4) PED file
 ```
-export PIPELINE_HOME=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/segrun.svn
-PWD=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/practiceiPSC
-VCF=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/practiceiPSC/VCF_xy.vcf
-PED=/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/practiceiPSC/iPSC_PBMC.ped
+export PIPELINE_HOME=~/segpy.svn
+PWD=~/outfolder
+VCF=~/data/VEP_iPSC.vcf
+PED=~/data/iPSC_2.ped
 ```
 
 #### Step1: Setup
-First run runs the following code to setup the pipeline, you can change the the parameters in ${PWD}/job_output/segrun.config.ini
+First run the following code to setup the pipeline, you can change the the parameters in ${PWD}/job_output/segpy.config.ini
 ```
-sh $PIPELINE_HOME/launch_pipeline.segrun.sh \
+sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 1
 ```
 
-#### Step 2:  Create table matrix
-The following code, import VCF as a MatrixTable, 
+#### Step 2: Create table matrix
+The following code, create  MatrixTable from the VCF file
 ```
-sh $PIPELINE_HOME/launch_pipeline.segrun.sh \
+sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 2 \
 --vcf ${VCF}
 ```
 
-#### Step 3: Run the segregation 
+#### Step 3: Run segregation 
 ```
-sh $PIPELINE_HOME/launch_pipeline.segrun.sh \
+sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 3 \
 --vcf ${VCF} \
@@ -153,10 +153,21 @@ sh $PIPELINE_HOME/launch_pipeline.segrun.sh \
 
 #### Step 4: Clean final data
 ```
-sh $PIPELINE_HOME/launch_pipeline.segrun.sh \
+sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 4 
 ```
+
+#### Note
+You can easily run step 1 to 3 together, see below 
+```
+sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 2-4 \
+--vcf ${VCF} \
+--ped ${PED} 
+```
+
 
 
 ## References
