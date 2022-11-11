@@ -9,7 +9,7 @@ authors:
   orcid: "https://orcid.org/0000-0003-4971-8868"  
 - family-names: "Farhan"
   given-names: "Sali"
-title: "segregation: A pipeline for segregation analysis"
+title: "segpy: A pipeline for segregation analysis"
 version: 0.1.0
 date-released: 2022-11-09
-url: "https://github.com/neurobioinfo/scrnabox"
+url: "https://github.com/neurobioinfo/segpy"
