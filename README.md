@@ -16,7 +16,10 @@ Segregation is a process to explore the genetic variant in a sample of seguence 
 The segregation can do done using the `segpy` module, if you have access to HPC, you can automate it using `segpy.svn`. 
 
 ### segpy
-`segpy` is a python module developed to run the segregation analysis, 
+`segpy` is a python module developed to run the segregation analysis, the module can be easily downloaded using `pip`:  
+```
+pip install 'git+https://github.com/neurobioinfo/segpy#subdirectory=segpy'
+```
 
 |<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy.png" width="500" height="400"/>|
 |:--:|
