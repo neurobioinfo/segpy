@@ -1,17 +1,12 @@
 #!/bin/bash
 
-#PBS -l walltime=168:0:0
-#PBS -r n
-#PBS -j oe
-#PBS -W umask=002
-
 umask 002
 echo timestamp $(date +%s)
 
 
 
 echo "*******************************************"
-echo "* step3: run segregation"
+echo "* step 2: run segregation"
 echo "*******************************************"
 echo "* PIPELINE_HOME:        $PIPELINE_HOME"
 echo "* SPARK_HOME:           $SPARK_PATH"
@@ -28,7 +23,7 @@ echo "* SPARKMEM:             $SPARKMEM"
 echo "*******************************************"
 
 #-----------------------------------------------------#
-# Step3: Run Segregation                                     #
+# Step 2: Run Segregation                                     #
 #-----------------------------------------------------#
 
 export SPARK_HOME=$SPARK_PATH
@@ -40,9 +35,13 @@ source ${ENV_PATH}/bin/activate
 export PYTHONPATH=$PYTHON_LIB_PATH
 # module load python/3.8.10  
 module load $PYTHON_MODULE
+#export PYSPARK_SUBMIT_ARGS="--driver-memory 8G pyspark-shell --executor-memory 8G"   #DAN tmp
 
+# export JAVA_TOOL_OPTIONS=$JAVATOOLOPTIONS
+# export PYSPARK_SUBMIT_ARGS=$PYSPARKSUBMITARGS
+export JAVA_TOOL_OPTIONS=${JAVATOOLOPTIONS}
 
 file2=$(basename $VCF)
 MTFILE=$OUTPUT_DIR/${file2%.*}.mt
 
-${ENV_PATH}/bin/${PYTHON_RUN} ${PIPELINE_HOME}/scripts/step3/step3.py $MTFILE $OUTPUT_DIR $PED $VCF $NCOL $SPARKMEM
+${ENV_PATH}/bin/${PYTHON_RUN} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $OUTPUT_DIR $PED $VCF $NCOL $SPARKMEM

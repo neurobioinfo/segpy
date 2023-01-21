@@ -8,7 +8,7 @@ source ${base_hail}/hail_env/bin/activate
 # ${SPARK_HOME}/sbin/stop-master.sh 
 export PYTHONPATH=$base_hail/hail_env/lib/python3.8/site-packages
 module  load python/3.8.10  
-${base_hail}/hail_env/bin/python3.8 
+${base_hail}/hail_env/bin/python3.
 # ${base_hail}/hail_env/bin/python3.8 -m pip install /home/samamiri/runs/samamiri/general_files/hail/segpy/
 
 import os 
@@ -27,6 +27,21 @@ ncol=7
 
 from segpy import seg
 seg.run(mt, ped, outfolder,hl,ncol,vcffile)   
+
+
+
+
+
+from segpy.segrun import (
+    segrun_family_wise_CSQ_dev,
+    segrun_family_wise_CSQ_one_dev,
+    segrun_family_wise,
+)
+
+
+
+
+
 
 from segpy import parser
 header_need='/lustre03/project/6004655/COMMUN/runs/samamiri/general_files/hail/practiceiPSCy/run_pyseg/header.txt'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ####################
-# step3 
+# step 2 
 import numpy as np 
 import sys
 import pandas as pd 

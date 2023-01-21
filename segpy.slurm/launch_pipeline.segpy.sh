@@ -3,9 +3,9 @@
 # The pipeline is done as a Project at MNI Neuro Bioinformatics Core
 # Copyright belongs Neuro Bioinformatics Core
 # Written by Saeid Amiri (saeid.amiri@mcgill.ca) 
-VERSION=0.1.0; echo " ongoing segregation pipeline version $VERSION"
-#last updated version 2022-11-10
-# test on hail 0.2.81,  spark-3.1.2-bin-hadoop3.2
+VERSION=0.2.0; echo " ongoing segregation pipeline version $VERSION"
+#last updated version 2023-01-23
+# test on hail 0.2.107,  spark-3.1.3-bin-hadoop3.2
 
 # ===============================================
 # default variables values
@@ -28,7 +28,7 @@ Usage() {
 	echo -e "Usage:\t$0 [arguments]"
 	echo -e "\tmandatory arguments:\n" \
           "\t\t-d  (--dir)               = run directory (where all the outputs will be printed) (give full path)\n" \
-          "\t\t-s  (--steps)             = 'ALL' to run all steps, or specify steps eg. 2 (just step 2), 0-3 (steps 0 through 3)\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n" 
+          "\t\t-s  (--steps)             = 'ALL' to run all steps, or specify steps eg. 1 (just step 1), 1-3 (steps 1 through 4)\n\t\t\t\tsteps:\n\t\t\t\t1: initial setup\n\t\t\t\t2: create hail matrix\n\t\t\t\t3: run segregation\n\t\t\t\t4: final cleanup and formatting\n" 
 	echo -e "\toptional arguments:\n " \
           "\t\t-h  (--help)              = get the program options and exit\n" \
           "\t\t-v  (--vcf)               = VCF file (mandatory for steps 1-3)\n" \
@@ -114,80 +114,128 @@ FOUND_ERROR=0
 
 # if [ -z $SAMPLE ]; then echo "ERROR: missing mandatory option: -s (sample folder) must be specified"; FOUND_ERROR=1; fi
 if [[ ! -d $OUTPUT_DIR ]]; then echo "ERROR: mandatory option: -d (--dir) not specified or does not exist"; FOUND_ERROR=1; fi
-if [ -z $MODE ]; then echo "ERROR: missing mandatory option: --steps ('ALL' to run all, 2 to run step 2, step 2-3, run steps 2 through 3) must be specified"; FOUND_ERROR=1; fi
+if [ -z $MODE ]; then echo "ERROR: missing mandatory option: --steps ('ALL' to run all, 1 to run step 1, step 1-3, run steps 1 through 3) must be specified"; FOUND_ERROR=1; fi
 if (( $FOUND_ERROR )); then echo "Please check options and try again"; exit 42; fi
-if [ $MODE == 'ALL' ]; then  MODE0=`echo {2..4}`; fi 
+if [ $MODE == 'ALL' ]; then  MODE0=`echo {0..3}`; fi 
 
 # set default variables
 CONFIG_FILE=${CONFIG_FILE:-$PIPELINE_HOME/configs/segpy.config.ini}
 
-# STEP 0: RUN setting 
+# STEP 1: RUN setting 
 # ===============================================
 #
 
 for d in $OUTPUT_DIR/logs/{slurm,spark}; do [[ ! -d $d ]] && mkdir -p $d; done
 LAUNCH_LOG=$OUTPUT_DIR/logs/launch_log.$(TIMESTAMP)
 
-if [[ ${MODE0[@]} =~ 1 ]]; then 
+if [[ ${MODE0[@]} =~ 0 ]]; then 
   if [[ -s $OUTPUT_DIR/$(basename $CONFIG_FILE) ]]; then
-      echo "config file $(basename $CONFIG_FILE) already exists in run directory $OUTPUT_DIR. Overwrite? y|n"
+      echo "config file $(basename $CONFIG_FILE) already exists in PWD: $OUTPUT_DIR. Overwrite? y|n"
       read answer
       answer=${answer,,}; answer=${answer:0:1}  # reduce all possible versions of "yes" to "y" for simplicity
       [[ $answer == "y" ]] && cp $CONFIG_FILE $OUTPUT_DIR/ || echo "will not overwrite existing config file"
   else
     cp $CONFIG_FILE $OUTPUT_DIR/
   fi
-  echo " The config file is in $OUTPUT_DIR/$(basename $CONFIG_FILE)"
+  echo -e " The config file ($(basename $CONFIG_FILE)) is in \n $OUTPUT_DIR"
 fi 
 
 source $OUTPUT_DIR/$(basename $CONFIG_FILE)
 
 # ===============================================
-# STEP 2: Create hail matrix
+# STEP 1: Create hail matrix
 # ===============================================
 #
-STEP=step_2
+STEP=step_1
 export THREADS=${THREADS_ARRAY[$STEP]}
 export WALLTIME=${WALLTIME_ARRAY[$STEP]}
-if [[  ${MODE0[@]} =~ 2 ]] ; then
+export MEM=${MEM_ARRAY[$STEP]}
+if [[  ${MODE0[@]} =~ 1 ]] ; then
   if [[(! -s $VCF) ]]; then echo "ERROR: missing mandatory option for steps 1-3: -v (--vcf) empty, not specified or does not exist"; FOUND_ERROR=1; fi
   TIMESTAMP  >> $LAUNCH_LOG
   echo "--------"  >> $LAUNCH_LOG
   echo "STEP 1 submitted"  >> $LAUNCH_LOG
-  step_2="$QUEUE -A $ACCOUNT  \
+  step_1="$QUEUE -A $ACCOUNT  \
     --ntasks-per-node=${THREADS} \
-    --mem-per-cpu=6g \
+    --mem=${MEM}  \
     --time=${WALLTIME} \
     --job-name $STEP \
-    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},VCF=${VCF},GRCH=${GRCH} \
+    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},GRCH=${GRCH} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
-  step_2=$($step_2 | grep -oP "\d+")
-  echo "[Q] STEP 2        : $step_2 " >> $LAUNCH_LOG
-  DEPEND_step_2="--dependency=afterok:$step_2"
-  echo step_2:$step_2
+    $PIPELINE_HOME/scripts/step1/pipeline.step1.qsub"
+  step_1=$($step_1 | grep -oP "\d+")
+  echo "[Q] STEP 1        : $step_1 " >> $LAUNCH_LOG
+  DEPEND_step_1="--dependency=afterok:$step_1"
+  echo step_1:$step_1
 fi 
+
 
 
 # ===============================================
 # STEP 2: Run segregation
 # ===============================================
 #
+STEP=step_2
+export THREADS=${THREADS_ARRAY[$STEP]}
+export WALLTIME=${WALLTIME_ARRAY[$STEP]}
+export MEM=${MEM_ARRAY[$STEP]}
+if [[  ${MODE0[@]}  =~  2 ]]  &&  [[  ${MODE0[@]} =~ 1 ]] ; then
+   if [[ (! -s $VCF) && (! -s $PED) ]]; then echo "ERROR: missing mandatory option for steps 1-3: -v (--vcf) empty, not specified or does not exist"; FOUND_ERROR=1; fi
+  TIMESTAMP  >> $LAUNCH_LOG
+  echo "--------"  >> $LAUNCH_LOG
+  echo "STEP 2 submitted following step 1"  >> $LAUNCH_LOG
+  step_2="$QUEUE -A $ACCOUNT  \
+    --ntasks-per-node=${THREADS} \
+    --mem=${MEM} \
+    --time=${WALLTIME} \
+    --job-name $STEP \
+    $DEPEND_step_1 \
+    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},SPARKMEM=${SPARKMEM} \
+    --output $OUTPUT_DIR/logs/slurm/%x.o%j \
+    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
+  step_2=$($step_2 | grep -oP "\d+")
+  echo "[Q] STEP 2         : $step_2 " >> $LAUNCH_LOG
+  DEPEND_step_2="--dependency=afterok:$step_2"
+  echo step_2:$step_2
+elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
+  echo "just step 2 at" $(TIMESTAMP) >> $LAUNCH_LOG
+  TIMESTAMP  >> $LAUNCH_LOG
+  echo "--------"  >> $LAUNCH_LOG
+  echo "STEP 2 submitted (without following  step 1) "  >> $LAUNCH_LOG
+  step_2="$QUEUE -A $ACCOUNT  \
+    --ntasks-per-node=${THREADS} \
+    --mem=${MEM} \
+    --time=${WALLTIME} \
+    --job-name $STEP \
+    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},SPARKMEM=${SPARKMEM} \
+    --output $OUTPUT_DIR/logs/slurm/%x.o%j \
+    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
+  step_2=$($step_2 | grep -oP "\d+")
+  echo "[Q] STEP 2         : $step_2 " >> $LAUNCH_LOG 
+  DEPEND_step_2="--dependency=afterok:$step_2"
+  echo step_2:$step_2
+fi 
+
+
+# ===============================================
+# STEP 3: Final cleanup and formatting
+# ===============================================
+#
 STEP=step_3
 export THREADS=${THREADS_ARRAY[$STEP]}
 export WALLTIME=${WALLTIME_ARRAY[$STEP]}
+export MEM=${MEM_ARRAY[$STEP]}
 if [[  ${MODE0[@]}  =~  3 ]]  &&  [[  ${MODE0[@]} =~ 2 ]] ; then
-   if [[ (! -s $VCF) && (! -s $PED) ]]; then echo "ERROR: missing mandatory option for steps 1-3: -v (--vcf) empty, not specified or does not exist"; FOUND_ERROR=1; fi
   TIMESTAMP  >> $LAUNCH_LOG
   echo "--------"  >> $LAUNCH_LOG
   echo "STEP 3 submitted following step 2"  >> $LAUNCH_LOG
   step_3="$QUEUE -A $ACCOUNT  \
     --ntasks-per-node=${THREADS} \
-    --mem-per-cpu=6g \
+    --mem=${MEM} \
     --time=${WALLTIME} \
     --job-name $STEP \
     $DEPEND_step_2 \
-    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},SPARKMEM=${SPARKMEM} \
+    --export OUTPUT_DIR=${OUTPUT_DIR} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
     $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
   step_3=$($step_3 | grep -oP "\d+")
@@ -201,60 +249,16 @@ elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
   echo "STEP 3 submitted (without following  step 2) "  >> $LAUNCH_LOG
   step_3="$QUEUE -A $ACCOUNT  \
     --ntasks-per-node=${THREADS} \
-    --mem-per-cpu=6g \
+    --mem=${MEM} \
     --time=${WALLTIME} \
     --job-name $STEP \
-    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},SPARKMEM=${SPARKMEM} \
+    --export OUTPUT_DIR=${OUTPUT_DIR},PIPELINE_HOME=${PIPELINE_HOME} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
     $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
   step_3=$($step_3 | grep -oP "\d+")
   echo "[Q] STEP 3         : $step_3 " >> $LAUNCH_LOG 
   DEPEND_step_3="--dependency=afterok:$step_3"
   echo step_3:$step_3
-fi 
-
-
-# ===============================================
-# STEP 4: Final cleanup and formatting
-# ===============================================
-#
-STEP=step_4
-export THREADS=${THREADS_ARRAY[$STEP]}
-export WALLTIME=${WALLTIME_ARRAY[$STEP]}
-if [[  ${MODE0[@]}  =~  4 ]]  &&  [[  ${MODE0[@]} =~ 3 ]] ; then
-  TIMESTAMP  >> $LAUNCH_LOG
-  echo "--------"  >> $LAUNCH_LOG
-  echo "STEP 4 submitted following step 3"  >> $LAUNCH_LOG
-  step_4="$QUEUE -A $ACCOUNT  \
-    --ntasks-per-node=${THREADS} \
-    --mem-per-cpu=6g \
-    --time=${WALLTIME} \
-    --job-name $STEP \
-    $DEPEND_step_3 \
-    --export OUTPUT_DIR=${OUTPUT_DIR} \
-    --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step4/pipeline.step4.qsub"
-  step_4=$($step_4 | grep -oP "\d+")
-  echo "[Q] STEP 4         : $step_4 " >> $LAUNCH_LOG
-  DEPEND_step_4="--dependency=afterok:$step_4"
-  echo step_4:$step_4
-elif [[  ${MODE0[@]}  =~  4  ]]  &&  [[  ${MODE0[@]} != 3 ]]; then
-  echo "just step 4 at" $(TIMESTAMP) >> $LAUNCH_LOG
-  TIMESTAMP  >> $LAUNCH_LOG
-  echo "--------"  >> $LAUNCH_LOG
-  echo "STEP 4 submitted (without following  step 3) "  >> $LAUNCH_LOG
-  step_4="$QUEUE -A $ACCOUNT  \
-    --ntasks-per-node=${THREADS} \
-    --mem-per-cpu=6g \
-    --time=${WALLTIME} \
-    --job-name $STEP \
-    --export OUTPUT_DIR=${OUTPUT_DIR},PIPELINE_HOME=${PIPELINE_HOME} \
-    --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step4/pipeline.step4.qsub"
-  step_4=$($step_4 | grep -oP "\d+")
-  echo "[Q] STEP 4         : $step_4 " >> $LAUNCH_LOG 
-  DEPEND_step_4="--dependency=afterok:$step_4"
-  echo step_4:$step_4
 fi 
 
 exit 0

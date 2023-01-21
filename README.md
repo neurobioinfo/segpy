@@ -5,7 +5,7 @@ This repository includes module and pipeline for segregation analysis, which can
 -  [Segregation Analysis](#segregation-Analysis)
 -  [How to run](#how-to-run)
    - [segpy](#segpy)
-   - [segpy.svn](#segpy.svn)
+   - [segpy.slurm](#segpy.slurm)
 - [References](#references)
 
 
@@ -13,7 +13,7 @@ This repository includes module and pipeline for segregation analysis, which can
 Segregation is a process to explore the genetic variant in a sample of seguence data. This pipeline counts the number of affecteds and nonaffecteds with variant, with homozygous variant, with no variant, and with no call. It gets those counts both in-family and globally. Also we also get the breakdown of not just variants, but also the breakdown of alleles in each. To achive the segregation, one needs a pedigree file with six columns: `familyid`, `individualid`, `parentalid`, `maternalid`, `sex`{1:male; 2:female, 0:unknown}, and `phenotype`={1: control (unaffected), 2: proband(affected), -9:missing}. And the genetic data must be in the `vcf` format.
 
 ## How to run
-The segregation can do done using the `segpy` module, if you have access to HPC, you can automate it using `segpy.svn`. 
+The segregation can do done using the `segpy` module, if you have access to HPC, you can automate it using `segpy.slurm`. 
 
 ### segpy
 `segpy` is a python module developed to run the segregation analysis, the module can be easily downloaded using `pip`:  
@@ -30,7 +30,7 @@ The following steps show how to run the segregation pipeline.
 #### Step 1: Run Spark 
 First activate Spark on your system 
 ```
-export SPARK_HOME=$HOME/spark-3.1.2-bin-hadoop3.2
+export SPARK_HOME=$HOME/spark-3.1.3-bin-hadoop3.2
 export SPARK_LOG_DIR=$HOME/temp
 module load java/11.0.2
 cd ${SPARK_HOME}; ./sbin/start-master.sh
@@ -96,12 +96,11 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/>
 {famid}_homv_naf: Family - Nonaffecteds: homozygous for ALT allele<br/>
 
 #### Step 4: Parsing
-If you want to select a subset of header, you can define them in a file, and running
-the following codes.  
+If you want to parse the file, run the following codes.  
 ```
 from segpy import parser
 header_need='~/test/data/header_need.txt'
-parser.sub_seg(outfolder, header_need)  
+parser.clean_seg(outfolder)  
 ```
 
 #### Step 5:  Shut down spark  
@@ -111,54 +110,54 @@ cd ${SPARK_HOME}; ./sbin/stop-master.sh
 ```
 
 
-### segpy.svn
-`segpy.svn` is a shield developed to run the segpy pipline, it can be used to submit jobs (step 1 to step 4) under HPC system, it has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail of using it is discussed in [segpy.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
+### segpy.slurm
+`segpy.slurm` is a shield developed to run the segpy pipline, it can be used to submit jobs (step 1 to step 4) under HPC system, it has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail of using it is discussed in [segpy.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
 
 
-|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_svn.png" width="300" height="500"/>|
+|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_slurm.png" width="300" height="500"/>|
 |:--:|
 | _segpy.svn workflow_ |
 
 
 To run the pipepline, you need 1) path of the pipeline (PIPELINE_HOME), 2) Working directory , 3) VCF, and 4) PED file
 ```
-export PIPELINE_HOME=~/segpy.svn
+export PIPELINE_HOME=~/segpy.slurm
 PWD=~/outfolder
 VCF=~/data/VEP_iPSC.vcf
 PED=~/data/iPSC_2.ped
 ```
 
-#### Step1: Setup
+#### Step 0: Setup
 First run the following code to setup the pipeline, you can change the the parameters in ${PWD}/job_output/segpy.config.ini
 ```
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
---steps 1
+--steps 0
 ```
 
-#### Step 2: Create table matrix
+#### Step 1: Create table matrix
 The following code, create  MatrixTable from the VCF file
 ```
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
---steps 2 \
+--steps 1 \
 --vcf ${VCF}
 ```
 
-#### Step 3: Run segregation 
+#### Step 2: Run segregation 
 ```
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
---steps 3 \
+--steps 2 \
 --vcf ${VCF} \
 --ped ${PED}  
 ```
 
-#### Step 4: Clean final data
+#### Step 3: Clean final data
 ```
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
---steps 4 
+--steps 3 
 ```
 
 #### Note
@@ -166,7 +165,7 @@ You can easily run step 1 to 3 together, see below
 ```
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
---steps 2-4 \
+--steps 1-3 \
 --vcf ${VCF} \
 --ped ${PED} 
 ```
@@ -179,7 +178,7 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 This is an early version, any contribute or suggestion is appreciated, you can directly contact with [Saeid Amiri](https://github.com/saeidamiri1) or [Dan Spiegelman](https://github.com/danspiegelman).
 
 ## Citation
-Amiri, S., Spiegelman, D., & Farhan, S. (2022). segpy: A pipeline for segregation analysis (Version 0.1.0) [Computer software]. https://github.com/neurobioinfo/segpy
+Amiri, S., Spiegelman, D., & Farhan, S. (2023). segpy: A pipeline for segregation analysis (Version 0.2.0) [Computer software]. https://github.com/neurobioinfo/segpy
 
 ## Changelog
 Every release is documented on the [GitHub Releases page](https://github.com/neurobioinfo/segpy/releases).
