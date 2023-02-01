@@ -4,7 +4,7 @@
 # Copyright belongs Neuro Bioinformatics Core
 # Written by Saeid Amiri (saeid.amiri@mcgill.ca) 
 VERSION=0.2.0; echo " ongoing segregation pipeline version $VERSION"
-#last updated version 2023-01-23
+#last updated version 2023-01-25
 # test on hail 0.2.107,  spark-3.1.3-bin-hadoop3.2
 
 # ===============================================
@@ -28,9 +28,10 @@ Usage() {
 	echo -e "Usage:\t$0 [arguments]"
 	echo -e "\tmandatory arguments:\n" \
           "\t\t-d  (--dir)               = run directory (where all the outputs will be printed) (give full path)\n" \
-          "\t\t-s  (--steps)             = 'ALL' to run all steps, or specify steps eg. 1 (just step 1), 1-3 (steps 1 through 4)\n\t\t\t\tsteps:\n\t\t\t\t1: initial setup\n\t\t\t\t2: create hail matrix\n\t\t\t\t3: run segregation\n\t\t\t\t4: final cleanup and formatting\n" 
+          "\t\t-s  (--steps)             = 'ALL' to run all steps, or specify steps eg. 1 (just step 1), 1-3 (steps 1 through 4)\n\t\t\t\tsteps:\n\t\t\t\t1: initial setup\n\t\t\t\t2: create hail matrix\n\t\t\t\t3: run segregation\n\t\t\t\t4: final cleanup and formatting\n"            
 	echo -e "\toptional arguments:\n " \
           "\t\t-h  (--help)              = get the program options and exit\n" \
+          "\t\t--clean             = 'general': to general cleaning, 'unique': drop multiplicities" \
           "\t\t-v  (--vcf)               = VCF file (mandatory for steps 1-3)\n" \
           "\t\t-p  (--ped)               = PED file (mandatory for steps 1-3)\n" \
           "\t\t-c  (--config)            = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
@@ -43,7 +44,7 @@ Usage() {
 # step 0 create folder 
 # ===============================================
 
-if ! options=$(getopt --name pipeline --alternative --unquoted --options hv:p:d:s:c:a:V --longoptions dir:,steps:,vcf:,ped:,config:,account:,verbose,help -- "$@")
+if ! options=$(getopt --name pipeline --alternative --unquoted --options hv:p:d:s:c:a:V --longoptions dir:,steps:,vcf:,ped:,clean:,config:,account:,verbose,help -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     echo "Error processing options."
@@ -89,6 +90,7 @@ do
     -s| --steps) MODE="$2"; shift ;; #SA
     -v| --vcf) VCF="$2"; shift ;; #SA
     -p| --ped) PED="$2"; shift ;; #SA
+    --clean) CLEAN="$2"; shift ;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 42;;
     (*) break;;
@@ -96,6 +98,7 @@ do
     shift
 done
 
+if [[ -z $CLEAN ]]; then  CLEAN="F"; fi
 
 if [[ "$MODE" == *"-"* ]]; then
   abc0=`echo $MODE | sed  "s/-/../g"  | awk '{print "{"$0"}"}'`
@@ -217,6 +220,8 @@ elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
 fi 
 
 
+
+
 # ===============================================
 # STEP 3: Final cleanup and formatting
 # ===============================================
@@ -235,7 +240,7 @@ if [[  ${MODE0[@]}  =~  3 ]]  &&  [[  ${MODE0[@]} =~ 2 ]] ; then
     --time=${WALLTIME} \
     --job-name $STEP \
     $DEPEND_step_2 \
-    --export OUTPUT_DIR=${OUTPUT_DIR} \
+    --export PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_MODULE=${PYTHON_MODULE},CLEAN=${CLEAN} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
     $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
   step_3=$($step_3 | grep -oP "\d+")
@@ -252,14 +257,14 @@ elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
     --mem=${MEM} \
     --time=${WALLTIME} \
     --job-name $STEP \
-    --export OUTPUT_DIR=${OUTPUT_DIR},PIPELINE_HOME=${PIPELINE_HOME} \
+    --export PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_MODULE=${PYTHON_MODULE},CLEAN=${CLEAN} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
     $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
   step_3=$($step_3 | grep -oP "\d+")
   echo "[Q] STEP 3         : $step_3 " >> $LAUNCH_LOG 
   DEPEND_step_3="--dependency=afterok:$step_3"
   echo step_3:$step_3
-fi 
+fi
 
 exit 0
 

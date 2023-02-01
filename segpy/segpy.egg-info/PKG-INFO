@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: segpy
+Version: 0.2.0
+Summary: Segpy: A pipline for segregation analysis
+Home-page: https://github.com/neurobioinfo/segpy
+Author: Neuro Bioinformatics Core
+Author-email: saeid.amiri@mcgill.ca
+Maintainer: Saeid Amiri
+License: MIT
+Platform: UNKNOWN
+License-File: LICENSE
+
+About Segpy
+=================
+
+Segpy is a Python package that provides codes that works with Genom data.
+
+

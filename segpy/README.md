@@ -9,14 +9,14 @@
 
 
 ## Introduction 
-`Segpy` module is developed on Python 3.8.10 to work with annotated VCF file. 
-Run [VEP](https://useast.ensembl.org/info/docs/tools/vep/script/vep_tutorial.html) to generate the annotated file. `Segpy` module is developed on top of [Hail, hail==0.2.81](https://hail.is/),  and [spark-3.1.2-bin-hadoop3.2](https://spark.apache.org/downloads.html). Hail module is an open-source, scalable framework for exploring and analyzing genomic data which is a module in Python on the top of Apache Spark. 
+`Segpy` module is developed on Python 3.10.2 to work with annotated VCF file. 
+Run [VEP](https://useast.ensembl.org/info/docs/tools/vep/script/vep_tutorial.html) to generate the annotated file. `Segpy` module is developed on top of [Hail, hail==0.2.107](https://hail.is/),  and [spark-3.1.3-bin-hadoop3.2](https://spark.apache.org/downloads.html). Hail module is an open-source, scalable framework for exploring and analyzing genomic data which is a module in Python on the top of Apache Spark. 
 
 ## How to run 
 #### Step 1: Run Spark 
 First activate Spark on your system 
 ```
-export SPARK_HOME=$HOME/spark-3.1.2-bin-hadoop3.2
+export SPARK_HOME=$HOME/spark-3.1.3-bin-hadoop3.2
 export SPARK_LOG_DIR=$HOME/temp
 module load java/11.0.2
 cd ${SPARK_HOME}; ./sbin/start-master.sh
@@ -32,7 +32,7 @@ hl.import_vcf('~/test/data/VEP.iPSC.vcf',force=True,reference_genome='GRCh38',ar
 mt = hl.read_matrix_table('~/test/output/VEP.iPSC.mt')
 ```
 
-#### Step 3: Run the module
+#### Step 3: Run segregation
 Run the following codes to generate the segregation. 
 ```
 from segpy import seg
@@ -81,12 +81,10 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/>
 
 
 #### Step 4: Parsing
-If you want to select a subset of header, you can define them in a file, and running
-the following codes.  
+If you want to parse the file, run the following codes.  
 ```
 from segpy import parser
-header_need='~/test/data/header_need.txt'
-parser.sub_seg(outfolder, header_need)  
+parser.clean_general(outfolder)
 ```
 
 #### Step 5:  Shut down spark  
@@ -104,5 +102,7 @@ Every release is documented on the [GitHub Releases page](https://github.com/neu
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/neurobioinfo/segpy/blob/main/LICENSE) file for details
 
+## Acknowledgement
+The pipeline is done as a project by Neuro Bioinformatics Core, it is written by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
 
 **[⬆ back to top](#contents)**

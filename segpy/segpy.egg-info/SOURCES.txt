@@ -1,0 +1,17 @@
+LICENSE
+README.rst
+hello.py
+setup.py
+segpy/__init__.py
+segpy/parser.py
+segpy/seg.py
+segpy.egg-info/PKG-INFO
+segpy.egg-info/SOURCES.txt
+segpy.egg-info/dependency_links.txt
+segpy.egg-info/requires.txt
+segpy.egg-info/top_level.txt
+segpy/segrun/__init__.py
+segpy/segrun/segrun_family_wise.py
+segpy/segrun/segrun_family_wise_CSQ_genotype_more.py
+segpy/segrun/segrun_family_wise_CSQ_genotype_sole.py
+segpy/segrun/segrun_variantwise.py

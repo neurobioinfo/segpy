@@ -5,20 +5,29 @@ import numpy as np
 from statistics import mode
 import itertools 
 
-def sub_seg(outfolder, header_need):
+
+
+def clean_general(outfolder):
+    cmd_cp=f'cd {outfolder}; cp finalseg.csv finalseg_modified.csv'
+    os.system(cmd_cp)
+    cmd_prune=f'cd {outfolder}; sed -i finalseg_modified.csv -e "s/\\"//g" -e  "s/\[//g" -e "s/\]//g" -e " s/\, /\|/g" -e "s/\,/\|/g" -e "s/\t/,/g" '
+    os.system(cmd_prune)
+
+
+def clean_unique(outfolder):
     """
     outfolder: the folder that you want to save your output 
     header_need: the header that you want. 
     """
     # header_fin_name=f'{outfolder}/header.txt'    
     # header_fin=pd.read_csv(header_fin_name, sep='\t',index_col=False,header=None)
-    header_need_name=f'{header_need}'            
-    header_need=pd.read_csv(header_need_name, sep='\t',index_col=False,header=None)
+    # header_need_name=f'{header_need}'            
+    # header_need=pd.read_csv(header_need_name, sep='\t',index_col=False,header=None)
     final_name=f'{outfolder}/finalseg.csv'        
     final=pd.read_csv(final_name, sep='\t',index_col=False)
-    header_fin=list(final.columns)   
-    list2=[header_fin.index(i) for i in header_need.iloc[0,:].tolist()]
-    list2=list(set(list2))
+    # header_fin=list(final.columns)   
+    # list2=[header_fin.index(i) for i in header_need.iloc[0,:].tolist()]
+    # list2=list(set(list2))
     def uniq_unsort(x):
         indexes = np.unique(x, return_index=True)[1]
         return ([x[index] for index in sorted(indexes)])
@@ -29,19 +38,18 @@ def sub_seg(outfolder, header_need):
     def run_unique(x):
         res=x.apply(gen_unique)
         return(res)
-    final2=final.iloc[:,list2]
-    for i in list(np.where(final2.dtypes=='object')[0]):
+    # final2=final.iloc[:,list2]
+    for i in list(np.where(final.dtypes=='object')[0]):
         if i==0: continue 
         try: 
-            final2.iloc[:,i] = final2.iloc[:,i].apply(eval)
+            final.iloc[:,i] = final.iloc[:,i].apply(eval)
         except (SyntaxError, NameError, TypeError, ZeroDivisionError):    
             pass
-        final2.iloc[:,i]=run_unique(final2.iloc[:,i])
-    final2_name=f'{outfolder}/finalseg_modified.csv'        
-    final2.to_csv(final2_name,index=False)
-    cmd_prune=f'cd {outfolder}; sed -i finalseg_modified.csv -e "s/,|/,/g" -e "s/|,/,/g"'
+        final.iloc[:,i]=run_unique(final.iloc[:,i])
+    final_name=f'{outfolder}/finalseg_modified_mode.csv'        
+    final.to_csv(final_name,index=False)
+    cmd_prune=f'cd {outfolder}; sed -i finalseg_modified_mode.csv -e "s/,|/,/g" -e "s/|,/,/g"'
     os.system(cmd_prune)
-
 
 # the following function calculate the mean and mode 
 def clean_seg_calculate_mean_mode(outfolder, header_need, header_to_modify):
@@ -105,6 +113,5 @@ def clean_seg_calculate_mean_mode(outfolder, header_need, header_to_modify):
     os.system(cmd_prune)
 
 
-
 if __name__ == "__main__":
-    sub_seg()
+    clean_general()

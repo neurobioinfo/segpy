@@ -17,6 +17,7 @@ echo "* Python RUN:           $PYTHON_RUN"
 echo "* OUTPUT_DIR:                  $OUTPUT_DIR"
 echo "* VCF:                  $VCF"
 echo "* GRCH:                 $GRCH"
+echo "* JAVATOOLOPTIONS:             ${JAVATOOLOPTIONS}"
 echo "*******************************************"
 
 #-----------------------------------------------------#

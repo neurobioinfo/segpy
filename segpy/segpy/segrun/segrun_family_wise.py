@@ -31,7 +31,7 @@ def segrun_family_wise(mt, ped, outfolder,hl):
     # hom_var: contains identical alternate alleles
     mt = mt.annotate_entries(homv = mt.GT.is_hom_var())
     # altaf: contains  ALT allele frequency   
-    mt = mt.annotate_rows(altaf = 1-(hl.agg.call_stats(mt.GT, mt.alleles).AF[0]))
+    mt = mt.annotate_rows(altaf = (hl.agg.call_stats(mt.GT, mt.alleles).AF[1]))
     # listt0=[]
     # listt0.append('locus')
     # listt0.append('alleles')
@@ -55,7 +55,7 @@ def segrun_family_wise(mt, ped, outfolder,hl):
     # hom_var: contains identical alternate alleles
     glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv = hl.agg.sum(glb_aff_sam_mt.homv))
     # altaf: contains  ALT allele frequency   
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_altaf = (hl.agg.call_stats(glb_aff_sam_mt.GT, glb_aff_sam_mt.alleles).AF[0]))
+    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_altaf = (hl.agg.call_stats(glb_aff_sam_mt.GT, glb_aff_sam_mt.alleles).AF[1]))
     listt2=[]
     # listt2.append('locus')
     # listt2.append('alleles')
@@ -77,7 +77,7 @@ def segrun_family_wise(mt, ped, outfolder,hl):
     glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt = hl.agg.sum(glb_naf_sam_mt.vrt))
     # hom_var: contains identical alternate alleles
     glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv = hl.agg.sum(glb_naf_sam_mt.homv))
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_altaf = 1-(hl.agg.call_stats(glb_naf_sam_mt.GT, glb_naf_sam_mt.alleles).AF[0]))
+    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_altaf = (hl.agg.call_stats(glb_naf_sam_mt.GT, glb_naf_sam_mt.alleles).AF[1]))
     listt3=[]
     # listt2.append('locus')
     # listt2.append('alleles')

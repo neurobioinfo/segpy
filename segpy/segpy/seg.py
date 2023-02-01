@@ -18,8 +18,8 @@ from pyspark.sql.types import IntegerType
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
 
-from segpy.segrun.segrun_family_wise_CSQ_one_dev  import segrun_family_wise_CSQ_one_dev
-from segpy.segrun.segrun_family_wise_CSQ_dev  import segrun_family_wise_CSQ_dev
+from segpy.segrun.segrun_family_wise_CSQ_genotype_sole  import segrun_family_wise_CSQ_genotype_sole
+from segpy.segrun.segrun_family_wise_CSQ_genotype_more  import segrun_family_wise_CSQ_genotype_more
 from segpy.segrun.segrun_family_wise  import segrun_family_wise
 
 
@@ -36,19 +36,19 @@ def run(mt, ped, outfolder,hl,ncol=7, *vcffile):
         cmd0=f'grep "##INFO=<ID=CSQ"  {vcffile1}'
         csqlabel=os.popen(cmd0).read().split("Format: ")[1].split('">')[0].split('|')
         csqlabel=[el+'csq' for el in csqlabel]
-        print("Run segregation on VCF with CSQ")   
+        print("Segpy is using VCF with CSQ")   
         cmd_temp=f'cd {outfolder} ; mkdir -p temp'
         os.system(cmd_temp)     
         if len(pd.unique(ped.loc[:,'phenotype']))==1:
-            print("Run segpy on Data with sole phenotype ")
-            segrun_family_wise_CSQ_one_dev(mt, ped, outfolder,hl, ncol,csqlabel)
+            print("Segpy is running on data with sole phenotype ")
+            segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel)
         else:    
-            print("Run segpy on data with different phenotype")
-            segrun_family_wise_CSQ_dev(mt, ped, outfolder,hl, ncol,csqlabel)
+            print("Segpy is running on data with different phenotypes")
+            segrun_family_wise_CSQ_genotype_more(mt, ped, outfolder,hl, ncol,csqlabel)
     else:
-        print("Run segpy on VCF withOUT CSQ")
+        print("Segpy is running on data withOUT CSQ")
         segrun_family_wise(mt, ped, outfolder,hl)       
 
 
 if __name__ == "__main__":
-    segrun()
+    run()

@@ -20,6 +20,7 @@ echo "* VCF:                  $VCF"
 echo "* PED:                  $PED"
 echo "* NCOL:                 $NCOL"
 echo "* SPARKMEM:             $SPARKMEM"
+echo "* JAVATOOLOPTIONS:             $JAVATOOLOPTIONS"
 echo "*******************************************"
 
 #-----------------------------------------------------#
@@ -40,6 +41,8 @@ module load $PYTHON_MODULE
 # export JAVA_TOOL_OPTIONS=$JAVATOOLOPTIONS
 # export PYSPARK_SUBMIT_ARGS=$PYSPARKSUBMITARGS
 export JAVA_TOOL_OPTIONS=${JAVATOOLOPTIONS}
+echo $JAVATOOLOPTIONS
+
 
 file2=$(basename $VCF)
 MTFILE=$OUTPUT_DIR/${file2%.*}.mt

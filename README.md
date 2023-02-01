@@ -16,7 +16,7 @@ Segregation is a process to explore the genetic variant in a sample of seguence 
 The segregation can do done using the `segpy` module, if you have access to HPC, you can automate it using `segpy.slurm`. 
 
 ### segpy
-`segpy` is a python module developed to run the segregation analysis, the module can be easily downloaded using `pip`:  
+`segpy` is a python module developed on Python 3.10.2 to run the segregation analysis, the module can be easily downloaded using `pip`:  
 ```
 pip install 'git+https://github.com/neurobioinfo/segpy#subdirectory=segpy'
 ```
@@ -96,11 +96,15 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/>
 {famid}_homv_naf: Family - Nonaffecteds: homozygous for ALT allele<br/>
 
 #### Step 4: Parsing
-If you want to parse the file, run the following codes.  
+If you want to parse the file, run the following codes, it drops the un-necessary characters ", [, ], etc from the output.    
 ```
 from segpy import parser
-header_need='~/test/data/header_need.txt'
-parser.clean_seg(outfolder)  
+parser.clean_general(outfolder)  
+```
+
+The info includes several info, to drop the multiplicity run the following code 
+```
+parser.clean_unique(outfolder)  
 ```
 
 #### Step 5:  Shut down spark  
@@ -111,13 +115,11 @@ cd ${SPARK_HOME}; ./sbin/stop-master.sh
 
 
 ### segpy.slurm
-`segpy.slurm` is a shield developed to run the segpy pipline, it can be used to submit jobs (step 1 to step 4) under HPC system, it has been using under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail of using it is discussed in [segpy.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
-
+`segpy.slurm` is a shield developed to run the segpy pipeline in HPC system (slurm) to submit jobs (step 0 to step 3), it has been used under [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC that uses slurm system, the detail using it is discussed in [segpy.svn](https://github.com/neurobioinfo/segpy/tree/main/segpy.svn). 
 
 |<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_slurm.png" width="300" height="500"/>|
 |:--:|
 | _segpy.svn workflow_ |
-
 
 To run the pipepline, you need 1) path of the pipeline (PIPELINE_HOME), 2) Working directory , 3) VCF, and 4) PED file
 ```
@@ -154,10 +156,20 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 ```
 
 #### Step 3: Clean final data
+The following drops the unnecessary characters from the output.
 ```
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
---steps 3 
+--steps 3 \
+--clean general
+```
+
+The following drops the multiplicities info.
+```
+sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 3 \
+--clean unique
 ```
 
 #### Note
@@ -167,7 +179,8 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 1-3 \
 --vcf ${VCF} \
---ped ${PED} 
+--ped ${PED}\
+--clean 
 ```
 
 
