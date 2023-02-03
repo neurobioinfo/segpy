@@ -19,6 +19,7 @@ echo "* DIR:                  $OUTPUT_DIR"
 echo "* VCF:                  $VCF"
 echo "* PED:                  $PED"
 echo "* NCOL:                 $NCOL"
+echo "* CSQ:                  $CSQ"
 echo "* SPARKMEM:             $SPARKMEM"
 echo "* JAVATOOLOPTIONS:             $JAVATOOLOPTIONS"
 echo "*******************************************"
@@ -47,4 +48,4 @@ echo $JAVATOOLOPTIONS
 file2=$(basename $VCF)
 MTFILE=$OUTPUT_DIR/${file2%.*}.mt
 
-${ENV_PATH}/bin/${PYTHON_RUN} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $OUTPUT_DIR $PED $VCF $NCOL $SPARKMEM
+${ENV_PATH}/bin/${PYTHON_RUN} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $PED $OUTPUT_DIR $NCOL $CSQ $VCF $SPARKMEM

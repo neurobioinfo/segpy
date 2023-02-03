@@ -68,6 +68,6 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/The-Neuro-Bioinformatics-Core/segpy/blob/main/LICENSE) file for details
 
 ## Acknowledgement
-The pipeline is done as a project by Neuro Bioinformatics Core, it is written by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
+The pipeline is done as a project by Neuro Bioinformatics Core, it is developed by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
 
 **[⬆ back to top](#contents)**

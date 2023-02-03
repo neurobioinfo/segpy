@@ -2,9 +2,9 @@
 
 # The pipeline is done as a Project at MNI Neuro Bioinformatics Core
 # Copyright belongs Neuro Bioinformatics Core
-# Written by Saeid Amiri (saeid.amiri@mcgill.ca) 
+# Developed by Saeid Amiri (saeid.amiri@mcgill.ca) 
 VERSION=0.2.0; echo " ongoing segregation pipeline version $VERSION"
-#last updated version 2023-01-25
+#last updated version 2023-02-03
 # test on hail 0.2.107,  spark-3.1.3-bin-hadoop3.2
 
 # ===============================================
@@ -193,7 +193,7 @@ if [[  ${MODE0[@]}  =~  2 ]]  &&  [[  ${MODE0[@]} =~ 1 ]] ; then
     --time=${WALLTIME} \
     --job-name $STEP \
     $DEPEND_step_1 \
-    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},SPARKMEM=${SPARKMEM} \
+    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
     $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
   step_2=$($step_2 | grep -oP "\d+")
@@ -210,7 +210,7 @@ elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
     --mem=${MEM} \
     --time=${WALLTIME} \
     --job-name $STEP \
-    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},SPARKMEM=${SPARKMEM} \
+    --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
     $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
   step_2=$($step_2 | grep -oP "\d+")

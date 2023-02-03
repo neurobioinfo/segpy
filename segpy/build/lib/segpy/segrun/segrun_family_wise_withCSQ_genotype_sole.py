@@ -14,7 +14,7 @@ import pyspark.sql.functions as F
 import pyspark.sql.types as T
 
 ##### seg with CSQ just one phenotype
-def segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
+def segrun_family_wise_withCSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
     # print("Run segregation on CSV with CSQ")
     ### use CSQ   
     mt1=mt
@@ -65,9 +65,6 @@ def segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
     mt = mt.annotate_entries(homv = mt.GT.is_hom_var())
     # altaf: contains  ALT allele frequency   
     mt = mt.annotate_rows(altaf = (hl.agg.call_stats(mt.GT, mt.alleles).AF[1]))
-    # listt0=[]
-    # listt0.append('locus')
-    # listt0.append('alleles')
     name0=f'{outfolder}/temp/locus_alleles.csv'
     mt.rows().select('altaf').export(name0, delimiter='\t')
     cmd_glb_csq=f'cd {outfolder}/temp ; cut -d\'\t\' -f 1-2 locus_alleles.csv> temp.csv ; mv  temp.csv  locus_alleles.csv'
@@ -78,7 +75,6 @@ def segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
     glb_aff_sam = hl.literal(hl.set(glb_aff))
     glb_aff_sam_mt=mt.filter_cols(glb_aff_sam.contains(mt.s))
     glb_aff_sam_mt.count()
-    # Global 
     ## wildtype 
     glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_r= glb_aff)
     glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_wild = hl.agg.sum(glb_aff_sam_mt.wild))
@@ -95,12 +91,8 @@ def segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
     # altaf: contains  ALT allele frequency   
     glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_altaf = (hl.agg.call_stats(glb_aff_sam_mt.GT, glb_aff_sam_mt.alleles).AF[1]))
     listt2=[]
-    # listt2.append('locus')
-    # listt2.append('alleles')
     name2=f'{outfolder}/temp/glb_aff.csv'
     listt2=['glb_r','glb_wild','glb_wild_c','glb_ncl','glb_ncl_c','glb_vrt','glb_vrt_c', 'glb_homv', 'glb_homv_c','glb_altaf']
-    # listt2=['glb_wild','glb_ncl','glb_vrt','glb_homv','glb_altaf']
-    # glb_aff_sam_mt.rows().select(*listt2).export(name2, delimiter='\t')
     spark = SparkSession.builder.appName("myApp").getOrCreate()
     df3=glb_aff_sam_mt.rows().select(*listt2).to_spark()
     # df3 = spark.createDataFrame(aa)
@@ -126,14 +118,6 @@ def segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
     #############
     # glb_aff
     #############
-    ## wildtype 
-    # no call
-    # variant 
-    # hom_var: contains identical alternate alleles
-    # listt2.append('locus')
-    # listt2.append('alleles')
-    # cmd00=f'cd {outfolder}/temp ; cut -d\'\t\' -f 3- glb_aff.csv > temp.csv ; mv  temp.csv  glb_aff.csv'
-    # os.system(cmd00)
     for i in fam_list:
         #Whole family
         listt1=[]
@@ -176,10 +160,10 @@ def segrun_family_wise_CSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
     os.system(cmd_rmall)
     # cmd_prune=f'cd {outfolder}/temp; sed -i finalseg.csv -e "s/\"value\"://g"'
     # os.system(cmd_prune)
-    cmd_prune=f'cd {outfolder}/temp; sed -i finalseg.csv -e "s/\\"value\\"://g"'
-    os.system(cmd_prune)
-    cmd_prune=f'cd {outfolder}/temp;'+ " sed -i finalseg.csv -e \"s/{//g"+ "; s/}//g\""
-    os.system(cmd_prune)
+    cmd_prune1=f'cd {outfolder}/temp; sed -i finalseg.csv -e "s/\\"value\\"://g"'
+    os.system(cmd_prune1)
+    cmd_prune2=f'cd {outfolder}/temp;'+ " sed -i finalseg.csv -e \"s/{//g"+ "; s/}//g\""
+    os.system(cmd_prune2)
     cmd_header=f'cd {outfolder}/temp; head -1  finalseg.csv > header.txt'
     os.system(cmd_header)
     cmd_final=f'mv {outfolder}/temp/header.txt {outfolder}/; mv {outfolder}/temp/finalseg.csv {outfolder}/; rm -r {outfolder}/temp'

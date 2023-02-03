@@ -57,10 +57,11 @@ ped=pd.read_csv('~/test/data/iPSC_2.ped'.ped',sep='\t')
 destfolder= '~/test/output/'
 vcffile='~/test/data/VEP.iPSC.vcf'
 ncol=7
-seg.segrun(mt,ped,outfolder,hl,ncol,vcffile)    
+CSQ=True
+seg.run(mt,ped,outfolder,hl,ncol,CSQ,vcffile)    
 ```
 It generates two files `header.txt` and `finalseg.csv` in the  `destfolder`; `header.txt`  includes the header of information in `finalseg.csv`. The  
-output  of `finalseg.csv` can be categorized to  1) locus and alleles, 2) CSQ, 3) Global- Non-Affected 4) Global-Affected,  5) Family, 6) Family-Affected 7) Family - Non-affected.  
+output  of `finalseg.csv` can be categorized to  1) locus and alleles, 2) CSQ, 3) Global- Non-Affected 4) Global-Affected,  5) Family, 6) Family-Affected 7) Family - Non-affected.  If you do not want to have CSQ in the output file, choose `CSQ=False`. 
 
 ##### locus and alleles
 locus: chromosome <br/>
@@ -179,8 +180,8 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 1-3 \
 --vcf ${VCF} \
---ped ${PED}\
---clean 
+--ped ${PED} \
+--clean general
 ```
 
 
@@ -200,8 +201,8 @@ Every release is documented on the [GitHub Releases page](https://github.com/neu
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/neurobioinfo/segpy/blob/main/LICENSE) file for details
 
 ## Acknowledgement
-The pipeline is done as a project by Neuro Bioinformatics Core, it is written by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
+The pipeline is done as a project by Neuro Bioinformatics Core, it is developed by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
 
 ## Todo
 
-  **[⬆ back to top](#contents)**
+**[⬆ back to top](#contents)**

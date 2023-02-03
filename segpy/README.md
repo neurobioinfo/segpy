@@ -1,10 +1,9 @@
-# Segpy: A pipline for segregation analysis
+# Segpy: A pipeline for segregation analysis
 ***
 
 ## Contents
 - [introduction](#introduction)
 - [How to run](#how-to-run)
-
 
 
 
@@ -40,7 +39,8 @@ ped=pd.read_csv('~/test/data/iPSC_2.ped'.ped',sep='\t')
 destfolder= '~/test/output/'
 vcffile='~/test/data/VEP.iPSC.vcf'
 ncol=7
-seg.segrun(mt,ped,outfolder,hl,ncol,vcffile)  
+CSQ=True
+seg.run(mt,ped,outfolder,hl,ncol,CSQ,vcffile)  
 ```
 
 It generates two files `header.txt` and `finalseg.csv` in the  `destfolder`; `header.txt`  includes the header of information in `finalseg.csv`. The  
@@ -103,6 +103,6 @@ Every release is documented on the [GitHub Releases page](https://github.com/neu
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/neurobioinfo/segpy/blob/main/LICENSE) file for details
 
 ## Acknowledgement
-The pipeline is done as a project by Neuro Bioinformatics Core, it is written by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
+The pipeline is done as a project by Neuro Bioinformatics Core, it is developed by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Dan Spiegelman and Sali Farhan. 
 
 **[⬆ back to top](#contents)**
