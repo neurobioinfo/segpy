@@ -75,7 +75,10 @@ def run(mt,ped,outfolder,hl,vcffile,ncol=7,CSQ=True):
 
     if eval(str(str(CSQ)))==True: 
         try:
-            cmd0=f'grep "##INFO=<ID=CSQ"  {vcffile}'
+            # parse CSQ from vcf/gvcf header, hard-coded to first 10k lines of file
+            ext = vcffile.split('.')[-1]
+            prog = 'zcat' if ext == 'gz' or ext == 'bgz' else 'cat'
+            cmd0 = f'{prog} {vcffile}|head -10000|grep "##INFO=<ID=CSQ"'
             csqlabel=os.popen(cmd0).read().split("Format: ")[1].split('">')[0].split('|')
             csqlabel=[el+'_csq' for el in csqlabel]
             print("Segpy is using VCF with CSQ")  
