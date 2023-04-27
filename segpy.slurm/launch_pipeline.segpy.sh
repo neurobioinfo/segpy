@@ -27,15 +27,15 @@ Usage() {
 	echo
 	echo -e "Usage:\t$0 [arguments]"
 	echo -e "\tmandatory arguments:\n" \
-          "\t\t-d  (--dir)               = run directory (where all the outputs will be printed) (give full path)\n" \
-          "\t\t-s  (--steps)             = 'ALL' to run all steps, or specify steps eg. 1 (just step 1), 1-3 (steps 1 through 4)\n\t\t\t\tsteps:\n\t\t\t\t1: initial setup\n\t\t\t\t2: create hail matrix\n\t\t\t\t3: run segregation\n\t\t\t\t4: final cleanup and formatting\n"            
+          "\t\t-d  (--dir)      = run directory (where all the outputs will be printed) (give full path)\n" \
+          "\t\t-s  (--steps)    = 'ALL' to run all steps, or specify steps eg. 1 (just step 1), 1-3 (steps 1 through 3)\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n"            
 	echo -e "\toptional arguments:\n " \
-          "\t\t-h  (--help)              = get the program options and exit\n" \
-          "\t\t--clean             = 'general': to general cleaning, 'unique': drop multiplicities" \
-          "\t\t-v  (--vcf)               = VCF file (mandatory for steps 1-3)\n" \
-          "\t\t-p  (--ped)               = PED file (mandatory for steps 1-3)\n" \
-          "\t\t-c  (--config)            = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
-          "\t\t-V  (--verbose)           = verbose output\n"
+          "\t\t-h  (--help)     = get the program options and exit\n" \
+          "\t\t--clean          = 'general': to general cleaning, 'unique': drop multiplicities\n" \
+          "\t\t-v  (--vcf)      = VCF file (mandatory for steps 1-3)\n" \
+          "\t\t-p  (--ped)      = PED file (mandatory for steps 1-3)\n" \
+          "\t\t-c  (--config)   = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
+          "\t\t-V  (--verbose)  = verbose output\n"
         echo
 }
 
@@ -90,6 +90,7 @@ do
     -s| --steps) MODE="$2"; shift ;; #SA
     -v| --vcf) VCF="$2"; shift ;; #SA
     -p| --ped) PED="$2"; shift ;; #SA
+    -c| --config) echo -n ""; shift;;
     --clean) CLEAN="$2"; shift ;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 42;;
@@ -119,12 +120,12 @@ FOUND_ERROR=0
 if [[ ! -d $OUTPUT_DIR ]]; then echo "ERROR: mandatory option: -d (--dir) not specified or does not exist"; FOUND_ERROR=1; fi
 if [ -z $MODE ]; then echo "ERROR: missing mandatory option: --steps ('ALL' to run all, 1 to run step 1, step 1-3, run steps 1 through 3) must be specified"; FOUND_ERROR=1; fi
 if (( $FOUND_ERROR )); then echo "Please check options and try again"; exit 42; fi
-if [ $MODE == 'ALL' ]; then  MODE0=`echo {0..3}`; fi 
+if [ ${MODE^^} == 'ALL' ]; then  MODE0=`echo {0..3}`; fi 
 
 # set default variables
 CONFIG_FILE=${CONFIG_FILE:-$PIPELINE_HOME/configs/segpy.config.ini}
 
-# STEP 1: RUN setting 
+# STEP 0: RUN setting 
 # ===============================================
 #
 
@@ -165,7 +166,7 @@ if [[  ${MODE0[@]} =~ 1 ]] ; then
     --job-name $STEP \
     --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},GRCH=${GRCH} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step1/pipeline.step1.qsub"
+    $PIPELINE_HOME/scripts/step1/pipeline.step1.sbatch"
   step_1=$($step_1 | grep -oP "\d+")
   echo "[Q] STEP 1        : $step_1 " >> $LAUNCH_LOG
   DEPEND_step_1="--dependency=afterok:$step_1"
@@ -195,7 +196,7 @@ if [[  ${MODE0[@]}  =~  2 ]]  &&  [[  ${MODE0[@]} =~ 1 ]] ; then
     $DEPEND_step_1 \
     --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
+    $PIPELINE_HOME/scripts/step2/pipeline.step2.sbatch"
   step_2=$($step_2 | grep -oP "\d+")
   echo "[Q] STEP 2         : $step_2 " >> $LAUNCH_LOG
   DEPEND_step_2="--dependency=afterok:$step_2"
@@ -212,7 +213,7 @@ elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
     --job-name $STEP \
     --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},JAVA_MODULE=${JAVA_MODULE},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_RUN=${PYTHON_RUN},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
+    $PIPELINE_HOME/scripts/step2/pipeline.step2.sbatch"
   step_2=$($step_2 | grep -oP "\d+")
   echo "[Q] STEP 2         : $step_2 " >> $LAUNCH_LOG 
   DEPEND_step_2="--dependency=afterok:$step_2"
@@ -242,7 +243,7 @@ if [[  ${MODE0[@]}  =~  3 ]]  &&  [[  ${MODE0[@]} =~ 2 ]] ; then
     $DEPEND_step_2 \
     --export PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_MODULE=${PYTHON_MODULE},CLEAN=${CLEAN} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
+    $PIPELINE_HOME/scripts/step3/pipeline.step3.sbatch"
   step_3=$($step_3 | grep -oP "\d+")
   echo "[Q] STEP 3         : $step_3 " >> $LAUNCH_LOG
   DEPEND_step_3="--dependency=afterok:$step_3"
@@ -259,7 +260,7 @@ elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
     --job-name $STEP \
     --export PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_MODULE=${PYTHON_MODULE},CLEAN=${CLEAN} \
     --output $OUTPUT_DIR/logs/slurm/%x.o%j \
-    $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
+    $PIPELINE_HOME/scripts/step3/pipeline.step3.sbatch"
   step_3=$($step_3 | grep -oP "\d+")
   echo "[Q] STEP 3         : $step_3 " >> $LAUNCH_LOG 
   DEPEND_step_3="--dependency=afterok:$step_3"
