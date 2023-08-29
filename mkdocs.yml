@@ -4,8 +4,8 @@ nav:
     - Home: index.md
     - Installation: installation.md
     - Tutorial:
-        - '- slurm' : segpy.md
-        - '- slurm' : segpy_slurm.md
+        - '- segpy' : segpy.md
+        - '- segpy.slurm' : segpy_slurm.md
     - FAQ : FAQ.md        
     - Reference : reference.md        
     - About:
