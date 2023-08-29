@@ -1,0 +1,2 @@
+## Acknowledgement
+The pipeline is done as part of MNI projects, it is written by [Saeid Amiri](https://github.com/saeidamiri1) with associate with Dan Spiegelman, and Sali Farhan at Neuro Bioinformatics Core. Copyright belongs [MNI BIOINFO CORE](https://github.com/neurobioinfo). 

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/segpy_slurm/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>- slurm - segpy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "- slurm";
+        var mkdocs_page_input_path = "segpy_slurm.md";
+        var mkdocs_page_url = "/segpy_slurm/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> segpy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy/">- slurm</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">- slurm</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-0-setup">Step 0: Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-create-table-matrix">Step 1: Create table matrix</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-run-segregation">Step 2: Run segregation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-clean-final-data">Step 3: Clean final data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#note">Note</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../LICENSE.md">- License</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">- Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">- Contributing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">- Acknowledgement</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">segpy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Tutorial &raquo;</li>
+      <li>- slurm</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="segpyslurm">Segpy.slurm</h1>
+<p><code>segpy.slurm</code> is a shield developed to run the segpy pipeline in HPC system (slurm) to submit jobs (step 0 to step 3), it has been used under <a href="https://docs.alliancecan.ca/wiki/B%C3%A9luga">Beluga</a>, an HPC that uses slurm system. </p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#step-0-setup">Step 0: Setup</a></li>
+<li><a href="#step-1-create-table-matrix">Step 1: Create table matrix</a></li>
+<li><a href="#step-2-run-segregation">Step 2: Run segregation</a></li>
+<li><a href="#step-3-clean-final-data">Step 3: Clean final data</a></li>
+</ul>
+<p>The following followchart show the step of running the segregation analying usning <code>segpy_slurm</code></p>
+<table>
+<thead>
+<tr>
+<th align="center"><img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_slurm.png" width="300" height="500"/></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><em>segpy.svn workflow</em></td>
+</tr>
+</tbody>
+</table>
+<p>To run the pipepline, you need 1) path of the pipeline (PIPELINE_HOME), 2) Working directory , 3) VCF, and 4) PED file</p>
+<pre><code>export PIPELINE_HOME=~/segpy.slurm
+PWD=~/outfolder
+VCF=~/data/VEP_iPSC.vcf
+PED=~/data/iPSC_2.ped
+</code></pre>
+<h3 id="step-0-setup">Step 0: Setup</h3>
+<p>First run the following code to setup the pipeline, you can change the the parameters in ${PWD}/job_output/segpy.config.ini</p>
+<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 0
+</code></pre>
+<h3 id="step-1-create-table-matrix">Step 1: Create table matrix</h3>
+<p>The following code, create  MatrixTable from the VCF file</p>
+<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 1 \
+--vcf ${VCF}
+</code></pre>
+<h3 id="step-2-run-segregation">Step 2: Run segregation</h3>
+<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 2 \
+--vcf ${VCF} \
+--ped ${PED}  
+</code></pre>
+<h3 id="step-3-clean-final-data">Step 3: Clean final data</h3>
+<p>The following drops the unnecessary characters from the output.</p>
+<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 3 \
+--clean general
+</code></pre>
+<p>The following drops the multiplicities info.</p>
+<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 3 \
+--clean unique
+</code></pre>
+<h3 id="note">Note</h3>
+<p>You can easily run step 1 to 3 together, see below </p>
+<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
+-d ${PWD} \
+--steps 1-3 \
+--vcf ${VCF} \
+--ped ${PED} \
+--clean general
+</code></pre>
+<p><strong><a href="#contents">⬆ back to top</a></strong></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../segpy/" class="btn btn-neutral float-left" title="- slurm"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../FAQ/" class="btn btn-neutral float-right" title="FAQ">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../segpy/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../FAQ/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
