@@ -10,7 +10,7 @@ This repository includes module and pipeline for segregation analysis, which can
 ## Segregation Analysis
 Segregation analysis is a process to explore the genetic variant in a sample of seguence data. This pipeline counts the number of affecteds and nonaffecteds with variant, with homozygous variant, with no variant, and with no call. It gets those counts both in-family and globally. Also we also get the breakdown of not just variants, but also the breakdown of alleles in each. To achive the segregation, one needs a pedigree file with six columns: `familyid`, `individualid`, `parentalid`, `maternalid`, `sex`{1:male; 2:female, 0:unknown}, and `phenotype`={1: control (unaffected), 2: proband(affected), -9:missing}. And the genetic data must be in the `vcf` format.
 
-Please refer to the [documentation](https://neurobioinfo.github.io/segpy/site/) for an explanation and of how and why to use scrnabox's pipeline.
+Please refer to the [documentation](https://neurobioinfo.github.io/segpy/site/) for an explanation and of how and why to use segpy's pipeline.
 
 ## How to run
 The segregation can do done using the [`segpy` module](https://neurobioinfo.github.io/segpy/site/tutorial/segoy), if you have access to HPC, you can automate it using [`segpy.slurm`](https://neurobioinfo.github.io/segpy/site/tutorial/segpy_slurm). 
@@ -30,7 +30,7 @@ unzip segpy.slurm.zip
 
 To obtain a brief guidance of the pipeline, execute the following code.
 ```
-bash ./scrnabox.slurm/launch_segpy.sh -h
+bash ./segpy.slurm/launch_segpy.sh -h
 ```
 
 
