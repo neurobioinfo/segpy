@@ -58,4 +58,3 @@ def cal_mode_mean(x):
     else:
         res=x.apply(mode)
     return(res)
-

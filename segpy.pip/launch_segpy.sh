@@ -4,7 +4,7 @@
 # Developed by Saeid Amiri (saeid.amiri@mcgill.ca) 
 
 VERSION=0.2.2;
-DATE0=2024-01-04
+DATE0=2024-01-11
 echo -e "------------------------------------ "
 echo -e "Segregation pipline version $VERSION "
 
