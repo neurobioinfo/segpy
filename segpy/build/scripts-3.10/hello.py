@@ -1,2 +1,3 @@
+import segpy
 print("You are using segregation analysis: segpy")
-print("Version: 0.2.0")
+print(f'Version: {segpy.__version__}')

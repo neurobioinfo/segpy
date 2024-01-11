@@ -10,6 +10,6 @@ authors:
 - family-names: "Farhan"
   given-names: "Sali"
 title: "segpy: A pipeline for segregation analysis"
-version: 0.2.0
-date-released: 2023-01-23
+version: 0.2.2
+date-released: 2024-01-11
 url: "https://github.com/neurobioinfo/segpy"

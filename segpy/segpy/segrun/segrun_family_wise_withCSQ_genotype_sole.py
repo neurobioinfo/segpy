@@ -1,10 +1,10 @@
 import os 
-import pandas as pd
+# import pandas as pd
 import numpy as np 
 
 from pyspark.sql import SparkSession
-import pyspark as spark
-import pyspark
+# import pyspark as spark
+# import pyspark
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StructType
 from pyspark.sql.types import ArrayType
@@ -12,6 +12,9 @@ from pyspark.sql.types import IntegerType
 
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
+
+from segpy.tools.utils import str_list
+
 
 ##### seg with CSQ just one phenotype
 def segrun_family_wise_withCSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabel):
@@ -93,7 +96,7 @@ def segrun_family_wise_withCSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabe
     listt2=[]
     name2=f'{outfolder}/temp/glb_aff.csv'
     listt2=['glb_r','glb_wild','glb_wild_c','glb_ncl','glb_ncl_c','glb_vrt','glb_vrt_c', 'glb_homv', 'glb_homv_c','glb_altaf']
-    spark = SparkSession.builder.appName("myApp").getOrCreate()
+    # spark = SparkSession.builder.appName("myApp").getOrCreate()
     df3=glb_aff_sam_mt.rows().select(*listt2).to_spark()
     # df3 = spark.createDataFrame(aa)
     # del aa
@@ -102,8 +105,8 @@ def segrun_family_wise_withCSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabe
     del df3
     udf_2b = udf(lambda x,ref: [x[i] for i in ref])
     df5=df4.select('glb_wild',udf_2b('glb_r', 'glb_wild_c2').alias('glb_wild_s'),'glb_ncl',udf_2b('glb_r', 'glb_ncl_c2').alias('glb_ncl_s'),'glb_vrt', udf_2b('glb_r', 'glb_vrt_c2').alias('glb_vrt_s'),'glb_homv', udf_2b('glb_r', 'glb_homv_c2').alias('glb_homv_s'),'glb_altaf')
-    def str_list(x):
-        return str(x)
+    # def str_list(x):
+    #     return str(x)
     str_udf = F.udf(str_list, T.StringType())
     df6=df5.select('glb_wild',str_udf('glb_wild_s').alias('glb_wild_s'),'glb_ncl',str_udf('glb_ncl_s').alias('glb_ncl_s'),'glb_vrt', str_udf('glb_vrt_s').alias('glb_vrt_s'),'glb_homv',str_udf('glb_homv_s').alias('glb_homv_s'),'glb_altaf')
     del df5
@@ -149,7 +152,35 @@ def segrun_family_wise_withCSQ_genotype_sole(mt, ped, outfolder,hl, ncol,csqlabe
         cmd_all=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_csq.csv glb_aff.csv fam_{i}.csv > fam_{i}_all.csv'
         os.system(cmd_all)
         cmd_rm=f'cd {outfolder}/temp ;rm fam_{i}.csv'
-        os.system(cmd_rm)   
+        os.system(cmd_rm)
+        if fam1[i] and len(fam1[i])>1:
+            for ifs in fam1[i]:
+                listt12s=[]
+                # list_exist.append(f'fam_{i}_aff_{ifs}.csv')
+                fam_sam = hl.literal(hl.set([ifs]))
+                fam_sam_mt=mt.filter_cols(fam_sam.contains(mt.s))
+                fam_sam_mt = fam_sam_mt.annotate_rows(familyid = i)
+                listt12s.append(f'familyid')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sample = [ifs])
+                listt12s.append(f'sample')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
+                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild'})
+                listt12s.append(f'fam_wild')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
+                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl'})
+                listt12s.append(f'fam_ncl')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
+                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt'})
+                listt12s.append(f'fam_vrt')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
+                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv'})
+                listt12s.append(f'fam_homv')
+                name1=f'{outfolder}/temp/fam_{i}_{ifs}.csv'
+                fam_sam_mt.rows().select(*listt12s).export(name1, delimiter='\t')
+                cmd_fam12_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_{ifs}.csv'
+                os.system(cmd_fam12_s)
+                cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}_all.csv fam_{i}_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}_all.csv; rm fam_{i}_{ifs}.csv'
+                os.system(cmd_pack12)   
     outputfile='finalseg.csv'
     cmd_head=f'cd {outfolder}/temp ; head -1 fam_{i}_all.csv > {outputfile}'
     os.system(cmd_head)

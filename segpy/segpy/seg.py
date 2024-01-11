@@ -1,11 +1,11 @@
 """
 # Copyright belong MNI BIOINFO CORE (https://github.com/neurobioinfo)
-# The pipeline is written by Saeid Amiri (saeid.amiri@mcgill.ca)
+# The pipeline is developed by Saeid Amiri (saeid.amiri@mcgill.ca)
 """
 
 import os 
 import pandas as pd
-import numpy as np 
+# import numpy as np 
 
 # from pyspark.sql import SparkSession
 # import pyspark as spark
@@ -75,10 +75,7 @@ def run(mt,ped,outfolder,hl,vcffile,ncol=7,CSQ=True):
 
     if eval(str(str(CSQ)))==True: 
         try:
-            # parse CSQ from vcf/gvcf header, hard-coded to first 10k lines of file
-            ext = vcffile.split('.')[-1]
-            prog = 'zcat' if ext == 'gz' or ext == 'bgz' else 'cat'
-            cmd0 = f'{prog} {vcffile}|head -10000|grep "##INFO=<ID=CSQ"'
+            cmd0=f'grep "##INFO=<ID=CSQ"  {vcffile}'
             csqlabel=os.popen(cmd0).read().split("Format: ")[1].split('">')[0].split('|')
             csqlabel=[el+'_csq' for el in csqlabel]
             print("Segpy is using VCF with CSQ")  
@@ -89,8 +86,6 @@ def run(mt,ped,outfolder,hl,vcffile,ncol=7,CSQ=True):
     else:
             print("Segpy is using VCF withOUT CSQ") 
             run_without_CSQ(mt, ped, outfolder,hl) 
-
-
 
 def run_with_CSQ(mt, ped, outfolder,hl, ncol,csqlabel):
         cmd_temp=f'cd {outfolder} ; mkdir -p temp'

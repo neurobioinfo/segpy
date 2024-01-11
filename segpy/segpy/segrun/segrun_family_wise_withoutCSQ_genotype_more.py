@@ -1,5 +1,5 @@
 import os 
-import pandas as pd
+# import pandas as pd
 import numpy as np 
 
 from pyspark.sql import SparkSession
@@ -12,6 +12,7 @@ from pyspark.sql.types import IntegerType
 
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
+from segpy.tools.utils import str_list
 
 
 ##### seg with CSQ with different phenotypes
@@ -74,8 +75,8 @@ def segrun_family_wise_withoutCSQ_genotype_more(mt, ped, outfolder,hl):
     # df5.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name2b)
     # cmd_glb_aff0=f'cd {outfolder}/temp/glb_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_aff.csv \; ; rm -r  ../glb_affcsv'
     # os.system(cmd_glb_aff0) 
-    def str_list(x):
-        return str(x)
+    # def str_list(x):
+        # return str(x)
     str_udf = F.udf(str_list, T.StringType())
     df6=df5.select('glb_aff_wild',str_udf('glb_aff_wild_s').alias('glb_aff_wild_s'),'glb_aff_ncl',str_udf('glb_aff_ncl_s').alias('glb_aff_ncl_s'),'glb_aff_vrt', str_udf('glb_aff_vrt_s').alias('glb_aff_vrt_s'),'glb_aff_homv',str_udf('glb_aff_homv_s').alias('glb_aff_homv_s'),'glb_aff_altaf')
     del df5
@@ -171,9 +172,11 @@ def segrun_family_wise_withoutCSQ_genotype_more(mt, ped, outfolder,hl):
         listt12=[]
         fam12[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==2),'individualid']]
         if fam12[i]:
-            list_exist.append(f'fam_{i}_aff.csv')
+            # list_exist.append(f'fam_{i}_aff.csv')
             fam_sam2 = hl.literal(hl.set(fam12[i]))
             fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
+            fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff = i)
+            listt12.append(f'familyid_aff')
             fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff = fam12[i])
             listt12.append(f'sample_aff')
             fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
@@ -190,15 +193,49 @@ def segrun_family_wise_withoutCSQ_genotype_more(mt, ped, outfolder,hl):
             listt12.append(f'fam_homv_aff')
             name1=f'{outfolder}/temp/fam_{i}_aff.csv'
             fam_sam_mt.rows().select(*listt12).export(name1, delimiter='\t')
-            cmd_fam12=f'cd {outfolder}/temp ;  cut  -f 3- fam_{i}_aff.csv > temp.csv ; mv  temp.csv  fam_{i}_aff.csv'
+            cmd_fam12=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff.csv > temp.csv ; mv  temp.csv  fam_{i}_aff.csv'
             os.system(cmd_fam12)
+            cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff.csv'
+            os.system(cmd_pack12)
+        # fam12s={}    
+        # fam12s[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==2),'individualid']]
+        # if fam12s[i] and len(fam12s[i])>1:
+        #     for ifs in fam12s[i]:
+        #         listt12s=[]
+        #         # list_exist.append(f'fam_{i}_aff_{ifs}.csv')
+        #         fam_sam2 = hl.literal(hl.set([ifs]))
+        #         fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
+        #         fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff = i)
+        #         listt12s.append(f'familyid_aff')
+        #         fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff = [ifs])
+        #         listt12s.append(f'sample_aff')
+        #         fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
+        #         fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_aff'})
+        #         listt12s.append(f'fam_wild_aff')
+        #         fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
+        #         fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_aff'})
+        #         listt12s.append(f'fam_ncl_aff')
+        #         fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
+        #         fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_aff'})
+        #         listt12s.append(f'fam_vrt_aff')
+        #         fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
+        #         fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_aff'})
+        #         listt12s.append(f'fam_homv_aff')
+        #         name1=f'{outfolder}/temp/fam_{i}_aff_{ifs}.csv'
+        #         fam_sam_mt.rows().select(*listt12s).export(name1, delimiter='\t')
+        #         cmd_fam12_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_aff_{ifs}.csv'
+        #         os.system(cmd_fam12_s)
+        #         cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff_{ifs}.csv'
+        #         os.system(cmd_pack12)
         # unaffected
         listt11=[]
         fam11[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==1),'individualid']]
         if fam11[i]:
-            list_exist.append(f'fam_{i}_naf.csv')        
+            # list_exist.append(f'fam_{i}_naf.csv')        
             fam_sam1 = hl.literal(hl.set(fam11[i]))
             fam_sam_mt=mt.filter_cols(fam_sam1.contains(mt.s))
+            fam_sam_mt = fam_sam_mt.annotate_rows(familyid_naf = i)
+            listt11.append(f'familyid_naf')
             fam_sam_mt = fam_sam_mt.annotate_rows(sample_naf = fam11[i])
             listt11.append(f'sample_naf')
             fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
@@ -215,8 +252,70 @@ def segrun_family_wise_withoutCSQ_genotype_more(mt, ped, outfolder,hl):
             listt11.append(f'fam_homv_naf')
             name1=f'{outfolder}/temp/fam_{i}_naf.csv'
             fam_sam_mt.rows().select(*listt11).export(name1, delimiter='\t')
-            cmd_fam11=f'cd {outfolder}/temp ;  cut -f 3- fam_{i}_naf.csv > temp.csv ; mv  temp.csv  fam_{i}_naf.csv'
+            cmd_fam11=f'cd {outfolder}/temp ;  cut -f 4- fam_{i}_naf.csv > temp.csv ; mv  temp.csv  fam_{i}_naf.csv'
             os.system(cmd_fam11)
+            cmd_pack11=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_naf.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_naf.csv'
+            os.system(cmd_pack11)
+        fam12s={}    
+        fam12s[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==2),'individualid']]
+        if fam12s[i] and len(fam12s[i])>1:
+            for ifs in fam12s[i]:
+                listt12s=[]
+                # list_exist.append(f'fam_{i}_aff_{ifs}.csv')
+                fam_sam2 = hl.literal(hl.set([ifs]))
+                fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
+                fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff = i)
+                listt12s.append(f'familyid_aff')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff = [ifs])
+                listt12s.append(f'sample_aff')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
+                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_aff'})
+                listt12s.append(f'fam_wild_aff')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
+                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_aff'})
+                listt12s.append(f'fam_ncl_aff')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
+                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_aff'})
+                listt12s.append(f'fam_vrt_aff')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
+                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_aff'})
+                listt12s.append(f'fam_homv_aff')
+                name1=f'{outfolder}/temp/fam_{i}_aff_{ifs}.csv'
+                fam_sam_mt.rows().select(*listt12s).export(name1, delimiter='\t')
+                cmd_fam12_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_aff_{ifs}.csv'
+                os.system(cmd_fam12_s)
+                cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff_{ifs}.csv'
+                os.system(cmd_pack12)            
+        fam11s={}    
+        fam11s[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==1),'individualid']]
+        if fam11s[i] and len(fam11s[i])>1:
+            for ifs in fam11s[i]:
+                listt11s=[]
+                # list_exist.append(f'fam_{i}_naf_{ifs}.csv')
+                fam_sam2 = hl.literal(hl.set([ifs]))
+                fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
+                fam_sam_mt = fam_sam_mt.annotate_rows(familyid_naf = i)
+                listt11s.append(f'familyid_naf')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sample_naf = [ifs])
+                listt11s.append(f'sample_naf')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
+                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_naf'})
+                listt11s.append(f'fam_wild_naf')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
+                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_naf'})
+                listt11s.append(f'fam_ncl_naf')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
+                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_naf'})
+                listt11s.append(f'fam_vrt_naf')
+                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
+                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_naf'})
+                listt11s.append(f'fam_homv_naf')
+                name1=f'{outfolder}/temp/fam_{i}_naf_{ifs}.csv'
+                fam_sam_mt.rows().select(*listt11s).export(name1, delimiter='\t')
+                cmd_fam11_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_naf_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_naf_{ifs}.csv'
+                os.system(cmd_fam11_s)
+                cmd_pack11=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_naf_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_naf_{ifs}.csv'
+                os.system(cmd_pack11)
     # outputfile='finalseg.csv'
     # cmd_head=f'cd {outfolder}/temp ; head -1 fam_{i}_all.csv > {outputfile}'
     # cmd_pack1=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_csq.csv glb_naf.csv glb_aff.csv {list_exist[0]} > all_temp.csv'
