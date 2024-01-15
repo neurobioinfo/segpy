@@ -9,6 +9,6 @@ For guidance on how to use segpy's pipeline, refer to the tutorial.
     - [segpy module](segpy_module.md)
     - [segpy slurm](segpy_slurm.md)
     - [segpy local](segpy_local.md)
-    - [container](container.md)
+    <!-- - [container](container.md) -->
 - [FAQ](FAQ.md)
 - [Reference](reference.md)
