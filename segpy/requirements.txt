@@ -1,3 +1,3 @@
 numpy
 pandas
-hail
+hail=0.2.109

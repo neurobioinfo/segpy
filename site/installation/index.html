@@ -51,17 +51,17 @@
               </ul>
               <p class="caption"><span class="caption-text">Tutorial</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../segpy/">- segpy</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_module/">- - segpy module</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">- segpy.slurm</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">- - segpy slurm</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">- - segpy local</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../container/">- - container</a>
                   </li>
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">About</span></p>
@@ -99,23 +99,22 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="installation">Installation</h1>
-<p><code>segpy</code> is a python module developed on Python 3.10.2 to run the segregation analysis, the module can be easily downloaded using <code>pip</code>:  </p>
+<p><code>segpy</code> is a Python module specifically designed for segregation analysis, developed on Python 3.10.2, the module can be easily downloaded using <code>pip</code> package manager:  </p>
 <pre><code>pip install 'git+https://github.com/neurobioinfo/segpy#subdirectory=segpy'
 </code></pre>
-<p>The segregation can do done using the segpy module, if you have access to HPC, you can automate it using segpy.slurm
-The <code>segpy.slurm</code> is written in the bash, so it can be used with any slurm system. To download  <code>segpy.slurm</code>, run the below comments </p>
-<pre><code>wget https://github.com/neurobioinfo/segpy/releases/download/v0.2.1/segpy.slurm.zip
-unzip segpy.slurm.zip 
+<p>Segregation analysis can be conducted utilizing the segpy scheduler, <code>segpy.pip</code>. If you have access to an HPC or Linux workstation, you can automate the process using <code>segpy.pip</code>. The scheduler script is written in Bash, making it compatible with systems such as Slurm or a Linux workstation.</p>
+<pre><code>wget https://github.com/neurobioinfo/segpy/releases/download/v0.2.2/segpy.pip.zip
+unzip segpy.pip.zip 
 </code></pre>
 <p>To obtain a brief guidance of the pipeline, execute the following code.</p>
-<pre><code>bash ./scrnabox.slurm/launch_segpy.sh -h
+<pre><code>bash ./segpy.pip/launch_segpy.sh -h
 </code></pre>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../segpy/" class="btn btn-neutral float-right" title="- segpy">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../segpy_module/" class="btn btn-neutral float-right" title="- - segpy module">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -141,7 +140,7 @@ unzip segpy.slurm.zip
       <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../segpy/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../segpy_module/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

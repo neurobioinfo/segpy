@@ -6,7 +6,9 @@ For guidance on how to use segpy's pipeline, refer to the tutorial.
 ## Contents
 - [Installation](installation.md)
 - [Tutorial:]()
-    - [segpy](segpy.md)
-    - [segpy.slurm](segpy_slurm.md)
+    - [segpy module](segpy_module.md)
+    - [segpy slurm](segpy_slurm.md)
+    - [segpy local](segpy_local.md)
+    - [container](container.md)
 - [FAQ](FAQ.md)
 - [Reference](reference.md)

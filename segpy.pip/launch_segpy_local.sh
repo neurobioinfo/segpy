@@ -41,7 +41,7 @@ if [[  ${MODE0[@]} =~ 1 ]] ; then
     echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
     echo "-------------------------------------------"  >> $LAUNCH_LOG
     echo "STEP 1 submitted"  >> $LAUNCH_LOG
-    $QUEUE $PIPELINE_HOME/scripts/step1/pipeline.step1.qsub --export=PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},GRCH=${GRCH}  &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
+    $QUEUE $PIPELINE_HOME/scripts/step1/pipeline.step1.sh --export=PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},GRCH=${GRCH}  &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
     echo "-------------------------------------------" >> $LAUNCH_LOG
     echo "The Output is under ${OUTPUT_DIR}/step1" >> $LAUNCH_LOG 
 fi 
@@ -60,13 +60,13 @@ if [[  ${MODE0[@]}  =~  2 ]]  &&  [[  ${MODE0[@]} =~ 1 ]] ; then
         mkdir -p $OUTPUT_DIR/step2/ &
     fi 
     if [[ (! -s $VCF) && (! -s $PED) ]]; then echo "ERROR: missing mandatory option for steps 1-3: -v (--vcf) empty, not specified or does not exist"; FOUND_ERROR=1; fi
-    depend_other scripts/step1/pipeline.step1.qsub
+    depend_other scripts/step1/pipeline.step1.sh
     TIMESTAMP  >> $LAUNCH_LOG
     echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
     echo -e "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
     echo "-------------------------------------------"  >> $LAUNCH_LOG
     echo "STEP 2 submitted following step 1"  >> $LAUNCH_LOG
-    $QUEUE $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub --export=PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
+    $QUEUE $PIPELINE_HOME/scripts/step2/pipeline.step2.sh --export=PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
     echo "-------------------------------------------" >> $LAUNCH_LOG
     echo "The Output is under ${OUTPUT_DIR}/step2" >> $LAUNCH_LOG 
 elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
@@ -81,7 +81,7 @@ elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
     echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
     echo "-------------------------------------------"  >> $LAUNCH_LOG
     echo "STEP 2 submitted without step 1"  >> $LAUNCH_LOG
-    $QUEUE $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub --export=PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
+    $QUEUE $PIPELINE_HOME/scripts/step2/pipeline.step2.sh --export=PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
     echo "-------------------------------------------" >> $LAUNCH_LOG
     echo "The Output is under ${OUTPUT_DIR}/step2" >> $LAUNCH_LOG 
 fi 
@@ -98,14 +98,14 @@ if [[  ${MODE0[@]}  =~  3 ]]  &&  [[  ${MODE0[@]} =~ 2 ]] ; then
   else
     mkdir -p $OUTPUT_DIR/step3/ &
   fi 
-  depend_other scripts/step1/pipeline.step1.qsub
-  depend_other scripts/step2/pipeline.step2.qsub
+  depend_other scripts/step1/pipeline.step1.sh
+  depend_other scripts/step2/pipeline.step2.sh
   TIMESTAMP  >> $LAUNCH_LOG
   echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
   echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
   echo "-------------------------------------------"  >> $LAUNCH_LOG
   echo "STEP 3 submitted following step 2"  >> $LAUNCH_LOG
-  $QUEUE $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub --export=PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_CMD=${PYTHON_CMD},CLEAN=${CLEAN} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S)
+  $QUEUE $PIPELINE_HOME/scripts/step3/pipeline.step3.sh --export=PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_CMD=${PYTHON_CMD},CLEAN=${CLEAN} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S)
   echo "-------------------------------------------" >> $LAUNCH_LOG
   echo "The Output is under ${OUTPUT_DIR}/step3" >> $LAUNCH_LOG 
 elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
@@ -119,7 +119,7 @@ elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
   echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
   echo "-------------------------------------------"  >> $LAUNCH_LOG
   echo "STEP 3 submitted following step 2"  >> $LAUNCH_LOG
-  $QUEUE $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub --export=PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_CMD=${PYTHON_CMD},CLEAN=${CLEAN} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
+  $QUEUE $PIPELINE_HOME/scripts/step3/pipeline.step3.sh --export=PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_CMD=${PYTHON_CMD},CLEAN=${CLEAN} &> $OUTPUT_DIR/logs/jobs/${STEP}.$(date +%FT%H.%M.%S) 
     echo "-------------------------------------------" >> $LAUNCH_LOG
     echo "The Output is under ${OUTPUT_DIR}/step3" >> $LAUNCH_LOG 
 fi

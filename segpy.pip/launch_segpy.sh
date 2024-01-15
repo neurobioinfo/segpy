@@ -3,8 +3,8 @@
 # Copyright belongs Neuro Bioinformatics Core
 # Developed by Saeid Amiri (saeid.amiri@mcgill.ca) 
 
-VERSION=0.2.2;
-DATE0=2024-01-11
+VERSION=0.2.2.01;
+DATE0=2024-01-14
 echo -e "------------------------------------ "
 echo -e "Segregation pipline version $VERSION "
 
@@ -28,15 +28,15 @@ Usage() {
 	echo
 	echo -e "Usage:\t$0 [arguments]"
 	echo -e "\tmandatory arguments:\n" \
-          "\t\t-d  (--dir)               = Working directory (where all the outputs will be printed) (give full path) \n" \
-          "\t\t-s  (--steps)             = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 4). 'ALL' to run all steps.\n\t\t\t\tsteps:\n\t\t\t\t1: initial setup\n\t\t\t\t2: create hail matrix\n\t\t\t\t3: run segregation\n\t\t\t\t4: final cleanup and formatting\n"            
+          "\t\t-d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) \n" \
+          "\t\t-s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n"
 	echo -e "\toptional arguments:\n " \
-          "\t\t-h  (--help)              = See helps regarding the pipeline arguments.\n" \
-          "\t\t--parser             = 'general': to general parsing, 'unique': drop multiplicities" \
-          "\t\t-v  (--vcf)               = VCF file (mandatory for steps 1-3)\n" \
-          "\t\t-p  (--ped)               = PED file (mandatory for steps 1-3)\n" \
-          "\t\t-c  (--config)            = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
-          "\t\t-V  (--verbose)           = verbose output\n"
+          "\t\t-h  (--help)      = Get the program options and exit.\n" \
+          "\t\t--parser             = 'general': to general parsing, 'unique': drop multiplicities \n" \
+          "\t\t-v  (--vcf)      = VCF file (mandatory for steps 1-3)\n" \
+          "\t\t-p  (--ped)      = PED file (mandatory for steps 1-3)\n" \
+          "\t\t-c  (--config)      = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
+          "\t\t-V  (--verbose)      = verbose output\n"
         echo
 }
 
@@ -80,14 +80,13 @@ while [ $# -gt 0 ]
 do
     case $1 in
     -h| --help) Usage; exit 0;;
-    # for options with required arguments, an additional shift is required
     -d| --dir) OUTPUT_DIR="$2" ; shift ;;
     -V| --verbose) VERBOSE=1 ;; 
-    -s| --steps) MODE="$2"; shift ;; #SA
-    --jobmode) JOB_MODE="$2"; shift ;;     
-    -v| --vcf) VCF="$2"; shift ;; #SA
-    -p| --ped) PED="$2"; shift ;; #SA
-    --parse) CLEAN="$2"; shift ;;
+    -s| --steps) MODE="$2"; shift ;;
+    --jobmode) JOB_MODE="$2"; shift ;;
+    -v| --vcf) VCF="$2"; shift ;;
+    -p| --ped) PED="$2"; shift ;;
+    --parser) CLEAN="$2"; shift ;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 42;;
     (*) break;;
@@ -127,7 +126,7 @@ for d in $OUTPUT_DIR/logs/{jobs,spark}; do [[ ! -d $d ]] && mkdir -p $d; done
 # LAUNCH_LOG=$OUTPUT_DIR/logs/launch_log.$(TIMESTAMP)
 
 if [[ ${MODE0[@]} =~ 0 ]]; then 
-  if [[ -s $OUTPUT_DIR/configs ]]; then
+  if [[ -d $OUTPUT_DIR/configs ]]; then
       echo "config file $($OUTPUT_DIR/configs) already exists in PWD: $OUTPUT_DIR. Overwrite? y|n"
       read answer
       answer=${answer,,}; answer=${answer:0:1}  # reduce all possible versions of "yes" to "y" for simplicity

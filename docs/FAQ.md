@@ -1,21 +1,10 @@
----
-layout: post
-title:  A Guide to Analyzing HTO with the Scrnabox Pipeline
-description: A short introduction to  Hashtag oligonucleotide analyzing using scrnabox pipeline
-date: 2023-06-16
-author: Saeid Amiri
-published: true
-tags: scRNA FAQ
-categories: 
-comments: false
----
 ## Frequently asked questions
 
 - [What is finalseg.csv](#what-is-finalseg.csv)
 
+
 # What is finalseg.csv
 The output  of `finalseg.csv` can be categorized to  1) locus and alleles, 2) CSQ, 3) Global- Non-Affected 4) Global-Affected,  5) Family, 6) Family-Affected 7) Family - Non-affected.  If you do not want to have CSQ in the output file, choose `CSQ=False`. 
-
 ##### locus and alleles
 locus: chromosome <br/>
 alleles:  a variant form of a gene
@@ -48,5 +37,4 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/>
 {famid}_ncl_naf: Family - Nonaffecteds: no call<br/>
 {famid}_vrt_naf: Family - Nonaffecteds: with variant<br/>
 {famid}_homv_naf: Family - Nonaffecteds: homozygous for ALT allele<br/>
-
 

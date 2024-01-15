@@ -1,5 +1,5 @@
-# Segpy via slurm
-`segpy.pip` is a sheild designed for executing the segpy analysis on Linux workstation or HPC system utilizing the Slurm scheduler. Below, we illustrate the code to submit jobs for (steps 0 to 3) of the pipeline on an HPC system utilizing the Slurm scheduler. This pipeline has been employed on [Beluga](https://docs.alliancecan.ca/wiki/B%C3%A9luga), an HPC system utilizing the Slurm system.
+# Segpy on workstation
+`segpy.pip` is a sheild designed for executing the segpy analysis on Linux workstation or HPC system utilizing the Slurm scheduler. Below, we illustrate the code to submit jobs for (steps 0 to 3) of the pipeline on Linux workstation. 
 
 ## Contents
 - [Step 0: Setup](#step-0-setup)
@@ -9,7 +9,7 @@
 
 The following flowchart illustrates the steps for running the segregation analysis on HPC system utilizing the Slurm system.
 
-|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_slurm.png" width="300" height="500"/>|
+|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_pip.png" width="300" height="500"/>|
 |:--:|
 | _segpy.svn workflow_ |
 
@@ -29,7 +29,7 @@ Initially, execute the following code to set up the pipeline. You can modify the
 sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \
 --steps 0 \
---mode slurm
+--mode local
 ```
 
 ### Step 1: Create table matrix

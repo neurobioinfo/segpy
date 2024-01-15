@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/reference/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/container/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Adjustable execution parameters for the segregation pipeline - segpy</title>
+    <title>- - container - segpy</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Adjustable execution parameters for the segregation pipeline";
-        var mkdocs_page_input_path = "reference.md";
-        var mkdocs_page_url = "/reference/";
+        var mkdocs_page_name = "- - container";
+        var mkdocs_page_input_path = "container.md";
+        var mkdocs_page_url = "/container/";
       </script>
     
     <!--[if lt IE 9]>
@@ -48,14 +48,16 @@
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Tutorial</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../segpy_module/">- - segpy module</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">- - segpy slurm</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">- - segpy local</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../container/">- - container</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">- - container</a>
+    <ul class="current">
+    </ul>
                   </li>
               </ul>
               <ul>
@@ -87,7 +89,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Adjustable execution parameters for the segregation pipeline</li>
+          <li class="breadcrumb-item">Tutorial</li>
+      <li class="breadcrumb-item active">- - container</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -96,47 +99,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="adjustable-execution-parameters-for-the-segregation-pipeline">Adjustable execution parameters for the segregation pipeline</h1>
-<ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#step-parameters">Segpy slurm</a></li>
-<li><a href="#differential-gene-expression-contrast-matrices">Segpy local</a></li>
-</ul>
-<hr />
-<h2 id="introduction">Introduction</h2>
-<h2 id="segpy-slurm-parameters">Segpy slurm parameters</h2>
-<p>├── ACCOUNT</p>
-<p>├── SPARK_PATH: 
-Environment variables to point to the correct Spark executable
-├── ENV_PATH
-Environment variables to point to the correct Python executable
-├── PYTHON_CMD=python3.10</p>
-<p>├── MODULEUSE</p>
-<p>├── JAVA_CMD=java
-├── JAVA_VERSION=11.0.2
-├── NCOL=7</p>
-<p>├── CSQ=True 
-GRCH=GRCh38</p>
-<h1 id="spark-memory">Spark Memory</h1>
-<p>├── SPARKMEM="16g"</p>
-<h1 id="java-memory">Java Memory</h1>
-<p>├── JAVATOOLOPTIONS="-Xmx8g"</p>
-<h3 id="step-1">step 1</h3>
-<p>├── WALLTIME_ARRAY["step_1"]=00-01:00 </p>
-<p>├── THREADS_ARRAY["step_1"]=4</p>
-<p>├── MEM_ARRAY["step_1"]=25g</p>
-<h3 id="step2-segpy-run">[step2] segpy run</h3>
-<p>├── WALLTIME_ARRAY["step_2"]=00-02:00 </p>
-<p>├── THREADS_ARRAY["step_2"]=4</p>
-<p>├── MEM_ARRAY["step_2"]=17g</p>
-<h3 id="step3-clean">[step3] clean</h3>
-<p>├── WALLTIME_ARRAY["step_3"]=00-01:00 </p>
-<p>├── THREADS_ARRAY["step_3"]=4</p>
-<p>├── MEM_ARRAY["step_3"]=4g</p>
-<h2 id="segpy-local-parameters">Segpy local parameters</h2>
+                <h1 id="container">Container</h1>
+<p>Comming soon</p>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../segpy_local/" class="btn btn-neutral float-left" title="- - segpy local"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../FAQ/" class="btn btn-neutral float-right" title="FAQ">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -158,6 +129,10 @@ GRCH=GRCh38</p>
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
+      <span><a href="../segpy_local/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../FAQ/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

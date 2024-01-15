@@ -64,7 +64,7 @@ if [[  ${MODE0[@]} =~ 1 ]] ; then
     --job-name $STEP \
     --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},GRCH=${GRCH} \
     --output $OUTPUT_DIR/logs/jobs/%x.o%j \
-    $PIPELINE_HOME/scripts/step1/pipeline.step1.qsub"
+    $PIPELINE_HOME/scripts/step1/pipeline.step1.sh"
   echo -e "Submitted job and its number:"
   step_1=$($step_1 | grep -oP "\d+")
   echo "[Q] STEP 1        : $step_1 " >> $LAUNCH_LOG
@@ -117,7 +117,7 @@ if [[  ${MODE0[@]}  =~  2 ]]  &&  [[  ${MODE0[@]} =~ 1 ]] ; then
     $DEPEND_step_1 \
     --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} \
     --output $OUTPUT_DIR/logs/jobs/%x.o%j \
-    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
+    $PIPELINE_HOME/scripts/step2/pipeline.step2.sh"
   step_2=$($step_2 | grep -oP "\d+")
   echo "[Q] STEP 2         : $step_2 " >> $LAUNCH_LOG
   echo "The Output is under ${OUTPUT_DIR}/" >> $LAUNCH_LOG 
@@ -142,7 +142,7 @@ elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
     --job-name $STEP \
     --export PIPELINE_HOME=${PIPELINE_HOME},SPARK_PATH=${SPARK_PATH},JAVATOOLOPTIONS=${JAVATOOLOPTIONS},ENV_PATH=${ENV_PATH},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_CMD=${PYTHON_CMD},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},VCF=${VCF},PED=${PED},NCOL=${NCOL},CSQ=${CSQ},SPARKMEM=${SPARKMEM} \
     --output $OUTPUT_DIR/logs/jobs/%x.o%j \
-    $PIPELINE_HOME/scripts/step2/pipeline.step2.qsub"
+    $PIPELINE_HOME/scripts/step2/pipeline.step2.sh"
   step_2=$($step_2 | grep -oP "\d+")
   echo "[Q] STEP 2         : $step_2 " >> $LAUNCH_LOG 
   echo "The Output is under ${OUTPUT_DIR}/" >> $LAUNCH_LOG 
@@ -193,7 +193,7 @@ if [[  ${MODE0[@]}  =~  3 ]]  &&  [[  ${MODE0[@]} =~ 2 ]] ; then
     $DEPEND_step_2 \
     --export PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_CMD=${PYTHON_CMD},CLEAN=${CLEAN} \
     --output $OUTPUT_DIR/logs/jobs/%x.o%j \
-    $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
+    $PIPELINE_HOME/scripts/step3/pipeline.step3.sh"
   step_3=$($step_3 | grep -oP "\d+")
   echo "[Q] STEP 3         : $step_3 " >> $LAUNCH_LOG
   echo "The Output is under ${OUTPUT_DIR}/" >> $LAUNCH_LOG 
@@ -218,7 +218,7 @@ elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
     --job-name $STEP \
     --export PIPELINE_HOME=${PIPELINE_HOME},ENV_PATH=${ENV_PATH},PYTHON_RUN=${PYTHON_RUN},OUTPUT_DIR=${OUTPUT_DIR},PYTHON_LIB_PATH=${PYTHON_LIB_PATH},PYTHON_MODULE=${PYTHON_MODULE},PYTHON_CMD=${PYTHON_CMD},CLEAN=${CLEAN} \
     --output $OUTPUT_DIR/logs/jobs/%x.o%j \
-    $PIPELINE_HOME/scripts/step3/pipeline.step3.qsub"
+    $PIPELINE_HOME/scripts/step3/pipeline.step3.sh"
   step_3=$($step_3 | grep -oP "\d+")
   echo "[Q] STEP 3         : $step_3 " >> $LAUNCH_LOG 
   echo "The Output is under ${OUTPUT_DIR}/" >> $LAUNCH_LOG 
