@@ -42,6 +42,8 @@ bash ./segpy.pip/launch_segpy.sh -h
 Segregation analysis can be performed directly in Python using the [`segpy` module](https://neurobioinfo.github.io/segpy/site/tutorial/segpy_module), if you have access to HPC, you can automate it using [`segpy via slurm`](https://neurobioinfo.github.io/segpy/site/tutorial/segpy_slurm), 
 or on a Linux workstation[`segpy via local`](https://neurobioinfo.github.io/segpy/site/tutorial/segpy_local). 
 
+NOTE: vcf input files must have no more than one ALT allele per line. If your vcf file has multiallelic positions, they can be split using [bcftools](https://github.com/samtools/bcftools): `bcftools norm -m- [input.vcf]`
+
 ### Contributing
 This is an early version, any contribute or suggestion is appreciated, you can directly contact with [Saeid Amiri](https://github.com/saeidamiri1) or [Dan Spiegelman](https://github.com/danspiegelman).
 
