@@ -1,5 +1,6 @@
 # Container
-Comming soon
+The pipeline can be run via singularity container  which does not need installing modules in pipeline. 
+It can be used on HPC or any workstation.
 
 ## Contents
 -  [Step 1: Download](#download)
@@ -16,7 +17,7 @@ Execute ` singularity exec ./seg_cont.sif launch_segpy.sh  -h ` to assure the pi
 
 ```
 ------------------------------------ 
-Segregation pipline version 0.2.2.01 
+Segregation pipline version 0.2.2.3 
 
 Usage:  /usr/local/bin/launch_segpy.sh [arguments]
         mandatory arguments:
@@ -38,12 +39,13 @@ Usage:  /usr/local/bin/launch_segpy.sh [arguments]
 
 ```
 
-You can import the data and working directory via `--bind` to container, and the rest is the same as step explain in the 
-[segpy local](./segpy_local)
+You can import the data and working directory via `--bind` to container, and the rest is the same as step explain in [segpy local](./segpy_local)
 
 ```
 singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 0
 singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 1 --vcf ~/seg_cont/outfolder/data/VEP_iPSC.vcf
-singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 2  --ped ~/seg_cont/outfolder/data/iPSC_2.ped 
+singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 2 --ped ~/seg_cont/outfolder/data/iPSC_2.ped 
 singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 3 --parser general 
 ```
+
+**[⬆ back to top](#contents)**

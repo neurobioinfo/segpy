@@ -98,40 +98,61 @@
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#step-parameters">Segpy slurm</a></li>
-<li><a href="#differential-gene-expression-contrast-matrices">Segpy local</a></li>
 </ul>
 <hr />
 <h2 id="introduction">Introduction</h2>
 <h2 id="segpy-slurm-parameters">Segpy slurm parameters</h2>
-<p>├── ACCOUNT</p>
-<p>├── SPARK_PATH: 
+<p>├── ACCOUNT
+Specify user name for slurm module. 
+├── SPARK_PATH: 
 Environment variables to point to the correct Spark executable
 ├── ENV_PATH
 Environment variables to point to the correct Python executable
-├── PYTHON_CMD=python3.10</p>
-<p>├── MODULEUSE</p>
-<p>├── JAVA_CMD=java
+├── PYTHON_CMD=python3.10
+├── MODULEUSE
+The path to the environmental module
+├── JAVA_CMD=java
 ├── JAVA_VERSION=11.0.2
-├── NCOL=7</p>
-<p>├── CSQ=True 
-GRCH=GRCh38</p>
-<h1 id="spark-memory">Spark Memory</h1>
-<p>├── SPARKMEM="16g"</p>
-<h1 id="java-memory">Java Memory</h1>
-<p>├── JAVATOOLOPTIONS="-Xmx8g"</p>
-<h3 id="step-1">step 1</h3>
-<p>├── WALLTIME_ARRAY["step_1"]=00-01:00 </p>
-<p>├── THREADS_ARRAY["step_1"]=4</p>
-<p>├── MEM_ARRAY["step_1"]=25g</p>
-<h3 id="step2-segpy-run">[step2] segpy run</h3>
-<p>├── WALLTIME_ARRAY["step_2"]=00-02:00 </p>
-<p>├── THREADS_ARRAY["step_2"]=4</p>
-<p>├── MEM_ARRAY["step_2"]=17g</p>
+├── NCOL=7
+To control usage of memory to process CSQ. 
+├── CSQ=True 
+To process CSQ in the output, Consequence annotations from Ensembl VEP.<br />
+├── GRCH=GRCh38
+Genome Reference Consortium Human
+├── SPARKMEM="16g"
+Spark Memory
+├── JAVATOOLOPTIONS="-Xmx8g"
+Java Memory and any other options can be added to here. </p>
+<h4 id="step-1">step 1</h4>
+<p>├── WALLTIME_ARRAY["step_1"]=00-01:00 
+Set a limit on the total run time of the job allocation in the step 1 under slurm. 
+├── THREADS_ARRAY["step_1"]=4
+Request the maximum ntasks be invoked on each core in the step 1 under slurm.
+├── MEM_ARRAY["step_1"]=25g
+Specify the real memory required per node in the step 1 under slurm. </p>
+<h4 id="step2-segpy-run">[step2] segpy run</h4>
+<p>├── WALLTIME_ARRAY["step_2"]=00-02:00 
+Set a limit on the total run time of the job allocation in the step 2 under slurm. 
+├── THREADS_ARRAY["step_2"]=4
+Request the maximum ntasks be invoked on each core in the step 2 under slurm.
+├── MEM_ARRAY["step_2"]=17g
+Specify the real memory required per node in the step 2 under slurm.
+├──INFO_REQUIRED=[1,2,3,4]
+One can specify what specify should be in the output </p>
+<h1 id="1-global-affected">1 Global affected</h1>
+<h1 id="2-global-unaffected">2 Global unaffected</h1>
+<h1 id="3-family-wise">3 family-wise</h1>
+<h1 id="4-phenotype-family-wise">4 phenotype-family-wise</h1>
+<h1 id="5-phenotype-family-wise-and-non-include">5 phenotype-family-wise and non-include</h1>
+<h1 id="6-phenotype-family-wise-multipe-sample">6 phenotype-family-wise-multipe sample</h1>
+<h1 id="7-phenotype-family-wise-multipe-sample-and-non-include">7 phenotype-family-wise-multipe sample and non-include</h1>
 <h3 id="step3-clean">[step3] clean</h3>
-<p>├── WALLTIME_ARRAY["step_3"]=00-01:00 </p>
-<p>├── THREADS_ARRAY["step_3"]=4</p>
-<p>├── MEM_ARRAY["step_3"]=4g</p>
-<h2 id="segpy-local-parameters">Segpy local parameters</h2>
+<p>├── WALLTIME_ARRAY["step_3"]=00-01:00 
+Set a limit on the total run time of the job allocation in the step 3 under slurm. 
+├── THREADS_ARRAY["step_3"]=4
+Request the maximum ntasks be invoked on each core in the step 3 under slurm.
+├── MEM_ARRAY["step_3"]=4g
+Specify the real memory required per node in the step 3 under slurm. </p>
               
             </div>
           </div><footer>

@@ -95,7 +95,8 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="container">Container</h1>
-<p>Comming soon</p>
+<p>The pipeline can be run via singularity container  which does not need installing modules in pipeline. 
+It can be used on HPC or any workstation.</p>
 <h2 id="contents">Contents</h2>
 <ul>
 <li><a href="#download">Step 1: Download</a></li>
@@ -108,7 +109,7 @@
 <h3 id="run">Run</h3>
 <p>Execute <code>singularity exec ./seg_cont.sif launch_segpy.sh  -h</code> to assure the pipline is working</p>
 <pre><code>------------------------------------ 
-Segregation pipline version 0.2.2.01 
+Segregation pipline version 0.2.2.3 
 
 Usage:  /usr/local/bin/launch_segpy.sh [arguments]
         mandatory arguments:
@@ -129,13 +130,13 @@ Usage:  /usr/local/bin/launch_segpy.sh [arguments]
                 -V  (--verbose)      = verbose output
 
 </code></pre>
-<p>You can import the data and working directory via <code>--bind</code> to container, and the rest is the same as step explain in the 
-<a href="./segpy_local">segpy local</a></p>
+<p>You can import the data and working directory via <code>--bind</code> to container, and the rest is the same as step explain in <a href="./segpy_local">segpy local</a></p>
 <pre><code>singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 0
 singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 1 --vcf ~/seg_cont/outfolder/data/VEP_iPSC.vcf
-singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 2  --ped ~/seg_cont/outfolder/data/iPSC_2.ped 
+singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 2 --ped ~/seg_cont/outfolder/data/iPSC_2.ped 
 singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 3 --parser general 
 </code></pre>
+<p><strong><a href="#contents">⬆ back to top</a></strong></p>
               
             </div>
           </div><footer>
