@@ -70,6 +70,4 @@ ${SPARK_HOME}/sbin/stop-master.sh
 ```
 
 
-## Todo
-
 **[⬆ back to top](#contents)**

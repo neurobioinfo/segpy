@@ -9,7 +9,7 @@
 
 The following flowchart illustrates the steps for running the segregation analysis on HPC system utilizing the Slurm system.
 
-|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_slurm.png" width="300" height="500"/>|
+|<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_pip.png" width="300" height="500"/>|
 |:--:|
 | _segpy.svn workflow_ |
 
