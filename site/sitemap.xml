@@ -16,6 +16,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://neurobioinfo.github.io/LICENSE/</loc>
+         <lastmod>2024-02-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://neurobioinfo.github.io/about/</loc>
          <lastmod>2024-02-08</lastmod>
          <changefreq>daily</changefreq>
