@@ -3,8 +3,8 @@
 # Copyright belongs Neuro Bioinformatics Core
 # Developed by Saeid Amiri (saeid.amiri@mcgill.ca) 
 
-VERSION=0.2.2.01;
-DATE0=2024-01-14
+VERSION=0.2.2.3;
+DATE0=2024-02-01
 echo -e "------------------------------------ "
 echo -e "Segregation pipline version $VERSION "
 
@@ -28,17 +28,15 @@ Usage() {
 	echo
 	echo -e "Usage:\t$0 [arguments]"
 	echo -e "\tmandatory arguments:\n" \
-          "\t\t-d  (--dir)	= Working directory (where all the outputs will be printed) (give full path) \n" \
-          "\t\t-s  (--steps)	= Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n"
+          "\t\t-d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) \n" \
+          "\t\t-s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n"
 	echo -e "\toptional arguments:\n " \
-          "\t\t-h  (--help)	= Get the program options and exit.\n" \
-          "\t\t--parser	= 'general': to general parsing, 'unique': drop multiplicities \n" \
-          "\t\t-v  (--vcf)	= VCF file (mandatory for steps 1-3)\n" \
-          "\t\t-p  (--ped)	= PED file (mandatory for steps 1-3)\n" \
-          "\t\t-c  (--config)	= config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
-          "\t\t-j  (--jobmode)	= job mode (\"local\" or \"slurm\" [CURRENT: local])\n" \
-          "\t\t-a  (--account)	= account for slurm mode [CURRENT: def-grouleau]\n" \
-          "\t\t-V  (--verbose)	= verbose output\n"
+          "\t\t-h  (--help)      = Get the program options and exit.\n" \
+          "\t\t--parser             = 'general': to general parsing, 'unique': drop multiplicities \n" \
+          "\t\t-v  (--vcf)      = VCF file (mandatory for steps 1-3)\n" \
+          "\t\t-p  (--ped)      = PED file (mandatory for steps 1-3)\n" \
+          "\t\t-c  (--config)      = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
+          "\t\t-V  (--verbose)      = verbose output\n"
         echo
 }
 
@@ -61,7 +59,7 @@ do
     -c| --config) 
       CONFIG_FILE="$2" ;
       if [ -f $CONFIG_FILE ]; then
-        echo "* LOADING CONFIG FILE $CONFIG_FILE";
+        echo "* LOADING CONFIG FILE $d";
         . $CONFIG_FILE
       else
         echo "ERROR: invalid CONFIG file: $CONFIG_FILE";
@@ -85,9 +83,7 @@ do
     -d| --dir) OUTPUT_DIR="$2" ; shift ;;
     -V| --verbose) VERBOSE=1 ;; 
     -s| --steps) MODE="$2"; shift ;;
-    -j| --jobmode) JOB_MODE="$2"; shift ;;
-    -a| --account) ACCOUNT="$2"; shift ;;
-    -c| --config) CONFIG_FILE="$2"; shift;;
+    --jobmode) JOB_MODE="$2"; shift ;;
     -v| --vcf) VCF="$2"; shift ;;
     -p| --ped) PED="$2"; shift ;;
     --parser) CLEAN="$2"; shift ;;
@@ -121,8 +117,6 @@ if [ $MODE == 'ALL' ]; then  MODE0=`echo {0..3}`; fi
 
 # set default variables
 # CONFIG_FILE=${CONFIG_FILE:-$PIPELINE_HOME/configs/segpy.config.ini}
-JOB_MODE=${JOB_MODE:-local}
-ACCOUNT=${ACCOUNT:-def-grouleau}
 
 # STEP 1: RUN setting 
 # ===============================================
@@ -165,6 +159,11 @@ if [[ ${MODE0[@]} =~ 0 ]]; then
       echo -e  "--------running without scheduler-----------------" >> $LAUNCH_LOG
       echo JOB_MODE=local >> $OUTPUT_DIR/configs/segpy.config.ini
       remove_argument $OUTPUT_DIR/configs/segpy.config.ini
+  else
+      JOB_MODE=local
+      echo -e  "--------running without scheduler-----------------" >> $LAUNCH_LOG
+      echo JOB_MODE=local >> $OUTPUT_DIR/configs/segpy.config.ini
+      remove_argument $OUTPUT_DIR/configs/segpy.config.ini
   fi 
   echo "-----------------------------------------------------------"  >> $LAUNCH_LOG
   echo -e "The Output is under \n ${OUTPUT_DIR}/" >> $LAUNCH_LOG
@@ -190,9 +189,9 @@ cd $OUTPUT_DIR/logs/spark
 
 # LAUNCH_LOG=$OUTPUT_DIR/logs/launch_summary_log.txt
 
-#declare -A THREADS_ARRAY
-#declare -A  WALLTIME_ARRAY
-#declare -A  MEM_ARRAY
+declare -A THREADS_ARRAY
+declare -A  WALLTIME_ARRAY
+declare -A  MEM_ARRAY
 
 source $OUTPUT_DIR/configs/segpy.config.ini
 PYTHON_LIB_PATH=${ENV_PATH}/lib/${PYTHON_CMD}/site-packages

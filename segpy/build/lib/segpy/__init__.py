@@ -11,4 +11,4 @@ For the documentaion, visit  https://neurobioinfo.github.io/segpy/site/
 To report a bug, please open an issue in  https://github.com/neurobioinfo/segpy/issues
 """
 
-__version__ = "0.2.2.0"
+__version__ = "0.2.2.3"

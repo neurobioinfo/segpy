@@ -6,4 +6,20 @@
 
 import sys
 import hail as hl
+import session_info
+import time
+from datetime import datetime
+
+print('############################################')
+print('Step1 started:')
+start_time0 = datetime.now()
+print('Local time: ', time.strftime("%Y-%m-%d %H:%M:%S"))
+print('############################################')
+
 hl.import_vcf(sys.argv[2],force=True,reference_genome=sys.argv[3],array_elements_required=False).write(sys.argv[1], overwrite=True)
+
+print(f'Step1 terminated')
+print('############')
+print('Total time to achieve: {}'.format(datetime.now() - start_time0))
+print('############################################')
+session_info.show()

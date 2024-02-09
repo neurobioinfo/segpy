@@ -11,9 +11,6 @@ segpy.egg-info/dependency_links.txt
 segpy.egg-info/requires.txt
 segpy.egg-info/top_level.txt
 segpy/segrun/__init__.py
-segpy/segrun/segrun_family_wise_withCSQ_genotype_more.py
-segpy/segrun/segrun_family_wise_withCSQ_genotype_sole.py
-segpy/segrun/segrun_family_wise_withoutCSQ_genotype_more.py
-segpy/segrun/segrun_family_wise_withoutCSQ_genotype_sole.py
+segpy/segrun/segrun_family_wise_whole.py
 segpy/tools/__init__.py
 segpy/tools/utils.py

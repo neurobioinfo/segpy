@@ -18,7 +18,7 @@ echo "* SPARK_HOME:           $SPARK_PATH"
 echo "* Virtual ENV:          $ENV_PATH"
 echo "* Java Module:          ${JAVA_VERSION}"
 echo "* Python Version:       $PYTHON_CMD"
-echo "* PYTHON_LIB_PATH:       $PYTHON_LIB_PATH"
+echo "* PYTHON_LIB_PATH:      $PYTHON_LIB_PATH"
 echo "* DIR:                  $OUTPUT_DIR"
 echo "* VCF:                  $VCF"
 echo "* PED:                  $PED"
@@ -26,6 +26,8 @@ echo "* NCOL:                 $NCOL"
 echo "* CSQ:                  $CSQ"
 echo "* SPARKMEM:             $SPARKMEM"
 echo "* JAVATOOLOPTIONS:      $JAVATOOLOPTIONS"
+echo "* JUST_PHENOTYPE        $JUST_PHENOTYPE"
+echo "* INFO_REQUIRED         $INFO_REQUIRED"
 echo "*******************************************"
 
 #-----------------------------------------------------#
@@ -53,15 +55,14 @@ export JAVA_TOOL_OPTIONS=${JAVATOOLOPTIONS}
 echo $JAVATOOLOPTIONS
 
 if [[ -z $SPARKMEM ]]; then  SPARKMEM="False"; fi
-echo "SPARKMEM"
-echo $SPARKMEM
+
 file2=$(basename $VCF)
 MTFILE=$OUTPUT_DIR/step1/${file2%.*}.mt
 
 # ${ENV_PATH}/bin/${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $PED $OUTPUT_DIR/step2 $NCOL $CSQ $VCF $SPARKMEM
 
 if [[ ${CONTAINER} =~ False ]]; then 
-   ${ENV_PATH}/bin/${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $PED $OUTPUT_DIR/step2 $NCOL $CSQ $VCF $SPARKMEM
+   ${ENV_PATH}/bin/${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $PED $OUTPUT_DIR/step2 $NCOL $CSQ $VCF $SPARKMEM $JUST_PHENOTYPE $INFO_REQUIRED
 else
-   ${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $PED $OUTPUT_DIR/step2 $NCOL $CSQ $VCF $SPARKMEM
+   ${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step2/step2.py $MTFILE $PED $OUTPUT_DIR/step2 $NCOL $CSQ $VCF $SPARKMEM $JUST_PHENOTYPE $INFO_REQUIRED
 fi

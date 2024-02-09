@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: segpy
-Version: 0.2.2.1
-Summary: Segpy: A pipline for segregation analysis
+Version: 0.2.2.3
+Summary: Segpy: A pipeline for segregation analysis
 Home-page: https://github.com/neurobioinfo/segpy
 Author: Saeid Amiri
 Author-email: saeid.amiri@mcgill.ca

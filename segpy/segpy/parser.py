@@ -7,7 +7,7 @@ from pyspark.sql.functions import col
 from pyspark import SparkContext, SQLContext
 sc = SparkContext.getOrCreate()
 spark = SQLContext(sc)
-
+##################################
 
 def clean(outfolder,method='general'):
     if method=='general':
@@ -15,7 +15,6 @@ def clean(outfolder,method='general'):
     elif method=='unique':
         clean_unique(outfolder)
 
-##########
 ##########
 def clean_general(outfolder):
     finalseg='finalseg.csv'
@@ -25,8 +24,30 @@ def clean_general(outfolder):
     cmd_prune=f'cd {outfolder}; sed -i {finalseg_modified} -e "s/\\"//g" -e  "s/\[//g" -e "s/\]//g" -e " s/\, /\|/g" -e "s/\,/\|/g" -e "s/\t/,/g" '
     os.system(cmd_prune)
 
-##########
-########## I am here 
+def clean_unique(outfolder):
+    """
+    outfolder: the folder that you want to save your output 
+    header_need: the header that you want. 
+    """
+    finalseg='finalseg.csv'
+    finalseg_modified_mode='finalseg_modified_uniq.csv'
+    final_name=f'{outfolder}/{finalseg}'        
+    final=pd.read_csv(final_name, sep='\t',index_col=False)
+    columns_all=final.columns.to_list()
+    columns_csq = [col for col in columns_all if 'csq' in col]
+    udf_s = udf(lambda x: list(set(eval(x))))
+    f_rddcsq = spark.createDataFrame(final.loc[:,columns_csq])
+    f_rddcsq=f_rddcsq.select(*(udf_s(col(c)).alias(c) for c in columns_csq))
+    f_rddcsq_pd=f_rddcsq.toPandas()
+    for i in columns_csq:
+        final[i]=f_rddcsq_pd[i]
+    final_name=f'{outfolder}/{finalseg_modified_mode}'
+    final.to_csv(final_name,index=False,sep='\t')
+    cmd_prune=f"cd {outfolder}; sed -i {finalseg_modified_mode} -e 's/,/\|/g' -e 's/\"//g' -e 's/\t/,/g' -e 's/\[//g' -e 's/\]//g' -e 's/ //g' "
+    os.system(cmd_prune)
+
+##########################################################################################
+########## Archive 
 from segpy.tools.utils import uniq_unsort,gen_unique,run_unique,eval2
 
 def clean_unique_archive(outfolder):
@@ -59,38 +80,11 @@ def clean_unique_archive(outfolder):
     os.system(cmd_prune)
 
 
-
-def clean_unique(outfolder):
-    """
-    outfolder: the folder that you want to save your output 
-    header_need: the header that you want. 
-    """
-    finalseg='finalseg.csv'
-    finalseg_modified_mode='finalseg_modified_uniq.csv'
-    final_name=f'{outfolder}/{finalseg}'        
-    final=pd.read_csv(final_name, sep='\t',index_col=False)
-    columns_all=final.columns.to_list()
-    columns_csq = [col for col in columns_all if 'csq' in col]
-    udf_s = udf(lambda x: list(set(eval(x))))
-    f_rddcsq = spark.createDataFrame(final.loc[:,columns_csq])
-    f_rddcsq=f_rddcsq.select(*(udf_s(col(c)).alias(c) for c in columns_csq))
-    # f_rddcsq.columns
-    # f_rddcsq.show()
-    f_rddcsq_pd=f_rddcsq.toPandas()
-    # f_rddcsq_pd_column=f_rddcsq_pd.columns.to_list()
-    for i in columns_csq:
-        final[i]=f_rddcsq_pd[i]
-    final_name=f'{outfolder}/{finalseg_modified_mode}'        
-    final.to_csv(final_name,index=False,sep='\t')
-    cmd_prune=f"cd {outfolder}; sed -i {finalseg_modified_mode} -e 's/,/\|/g' -e 's/\"//g' -e 's/\t/,/g' -e 's/\[//g' -e 's/\]//g' -e 's/ //g' "
-    os.system(cmd_prune)
-
-##########
 ##########
 # the following function calculate the mean and mode 
 from segpy.tools.utils import floatB,con_float,check_is_numberic,cal_mode_mean
 
-def clean_seg_calculate_mean_mode(outfolder, header_need, header_to_modify):
+def clean_seg_calculate_mean_mode_archive(outfolder, header_need, header_to_modify):
     header_fin_name=f'{outfolder}/header.txt'    
     header_fin=pd.read_csv(header_fin_name, sep='\t',index_col=False,header=None)
     header_need_name=f'{outfolder}/{header_need}'            

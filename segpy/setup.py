@@ -12,9 +12,9 @@ setuptools.setup(
     # Needed for dependencies
     install_requires=['numpy', 'pandas', 'hail'],
     # *strongly* suggested for sharing
-    version='0.2.2.01',
+    version='0.2.2.3',
     license='MIT',
-    description='Segpy: A pipline for segregation analysis',
+    description='Segpy: A pipeline for segregation analysis',
     # We will also need a readme eventually (there will be a warning)
     long_description=open('README.rst').read(),
     # if there are any scripts
