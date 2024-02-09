@@ -52,7 +52,7 @@ sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 --ped ${PED}  
 ```
 
-### Step 3: Clean final data
+### Step 3: Parsing
 To parse the file and remove unnecessary characters such as ", [, ], etc., run the following code.
 
 ```

@@ -1,5 +1,5 @@
-# Segpy
-The steps outlined below demonstrate the process of executing the segregation pipeline using the seg module.
+# Segpy module
+The following steps illustrate how to execute the segregation pipeline directly by utilizing the Segpy module within the Python editor. 
 
 |<img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy.png" width="500" height="400"/>|
 |:--:|

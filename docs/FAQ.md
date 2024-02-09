@@ -2,7 +2,6 @@
 
 - [What is finalseg.csv](#what-is-finalseg.csv)
 
-
 # What is finalseg.csv
 The output  of `finalseg.csv` can be categorized to  1) locus and alleles, 2) CSQ, 3) Global- Non-Affected 4) Global-Affected,  5) Family, 6) Family-Affected 7) Family - Non-affected.  If you do not want to have CSQ in the output file, choose `CSQ=False`. 
 ##### locus and alleles

@@ -103,14 +103,14 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="installation">Installation</h1>
-<p><code>segpy</code> is a Python module specifically designed for segregation analysis, developed on Python 3.10.2, the module can be easily downloaded using <code>pip</code> package manager:  </p>
+<p><code>segpy</code> is a Python module specifically designed for segregation analysis, developed on Python 3.10.2.  The module can be easily downloaded using <code>pip</code> package manager:</p>
 <pre><code>pip install 'git+https://github.com/neurobioinfo/segpy#subdirectory=segpy'
 </code></pre>
 <p>Segregation analysis can be conducted utilizing the segpy scheduler, <code>segpy.pip</code>. If you have access to an HPC or Linux workstation, you can automate the process using <code>segpy.pip</code>. The scheduler script is written in Bash, making it compatible with systems such as Slurm or a Linux workstation.</p>
 <pre><code>wget https://github.com/neurobioinfo/segpy/releases/download/v0.2.2.3/segpy.pip.zip
 unzip segpy.pip.zip 
 </code></pre>
-<p>To obtain a brief guidance of the pipeline, execute the following code.</p>
+<p>To obtain a brief overview of the pipeline, run the following code.</p>
 <pre><code>bash ./segpy.pip/launch_segpy.sh -h
 </code></pre>
               

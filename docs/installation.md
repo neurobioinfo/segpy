@@ -1,5 +1,5 @@
 # Installation
-`segpy` is a Python module specifically designed for segregation analysis, developed on Python 3.10.2, the module can be easily downloaded using `pip` package manager:  
+`segpy` is a Python module specifically designed for segregation analysis, developed on Python 3.10.2.  The module can be easily downloaded using `pip` package manager:
 
 ```
 pip install 'git+https://github.com/neurobioinfo/segpy#subdirectory=segpy'
@@ -12,7 +12,7 @@ wget https://github.com/neurobioinfo/segpy/releases/download/v0.2.2.3/segpy.pip.
 unzip segpy.pip.zip 
 ```
 
-To obtain a brief guidance of the pipeline, execute the following code.
+To obtain a brief overview of the pipeline, run the following code.
 ```
 bash ./segpy.pip/launch_segpy.sh -h
 ```

@@ -61,7 +61,7 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#step-2-run-segregation">Step 2: Run segregation</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-3-clean-final-data">Step 3: Clean final data</a>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-parsing">Step 3: Parsing</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#note">Note</a>
     </li>
@@ -167,7 +167,7 @@ PED=~/data/iPSC_2.ped
 --vcf ${VCF} \
 --ped ${PED}  
 </code></pre>
-<h3 id="step-3-clean-final-data">Step 3: Clean final data</h3>
+<h3 id="step-3-parsing">Step 3: Parsing</h3>
 <p>To parse the file and remove unnecessary characters such as ", [, ], etc., run the following code.</p>
 <pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
 -d ${PWD} \

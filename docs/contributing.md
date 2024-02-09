@@ -1,5 +1,5 @@
 #### Contributing
-This is an early version, any contribute or suggestion is appreciated, it is supposed to be an easy-to-use pipline for 
-segregation analysis, so you can directly contact with The Neuro Bioinformatics Core via [neurobioinfo@mcgill.ca] [Saeid Amiri]. 
+This is an initial version, and any contributions or suggestions are welcomed. The pipeline is designed to be user-friendly for segregation analysis. For direct contact, please reach out to The Neuro Bioinformatics Core via [neurobioinfo@mcgill.ca].
 
-If you encounter any [issue](https://github.com/neurobioinfo/segpy/issues), please file its Github repository.
+
+If you encounter any [issue](https://github.com/neurobioinfo/segpy/issues), please report them on the GitHub repository.

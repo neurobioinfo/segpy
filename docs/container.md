@@ -1,19 +1,19 @@
-# Container
-The pipeline can be run via singularity container  which does not need installing modules in pipeline. 
-It can be used on HPC or any workstation.
+# Container (Under review)
+The pipeline can be executed using a Singularity container, eliminating the need to install modules within the pipeline. It is compatible for use on High-Performance Computing (HPC) systems or any standard workstation linux system. 
 
 ## Contents
 -  [Step 1: Download](#download)
 -  [Step 2: Run](#run)
 
 ### Download
-Donwload the segregration image 
+Download the segregation image.
+
 ```
 singularity pull library://saeidamiri1/mni/seg_cont.sif:latest
 ```
 
 ### Run
-Execute ` singularity exec ./seg_cont.sif launch_segpy.sh  -h ` to assure the pipline is working
+Execute ` singularity exec ./seg_cont.sif launch_segpy.sh  -h ` to ensure the pipeline is functioning correctly.
 
 ```
 ------------------------------------ 
@@ -38,8 +38,7 @@ Usage:  /usr/local/bin/launch_segpy.sh [arguments]
                 -V  (--verbose)      = verbose output
 
 ```
-
-You can import the data and working directory via `--bind` to container, and the rest is the same as step explain in [segpy local](./segpy_local)
+You can import the data and working directory into the container using `--bind`, and the remaining steps are identical to those outlined in [segpy local](./segpy_local).
 
 ```
 singularity exec --bind ~/seg_cont/outfolder ./segr_cont.img launch_segpy.sh -d ~/seg_cont/outfolder/run --steps 0

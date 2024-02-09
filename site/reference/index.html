@@ -69,11 +69,11 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#segpy-parameters">Segpy parameters</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#step-1-table-matrix">[step 1] Table matrix</a>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-create-table-matrix">[step 1] Create table matrix</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step2-segpy-run">[step2] segpy run</a>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-run-segregation">[step 2] Run segregation</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step3-clean">[step3] clean</a>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-parsing">[step 3] Parsing</a>
     </li>
         </ul>
     </li>
@@ -135,17 +135,17 @@
 <code>GRCH=GRCh38</code> Genome Reference Consortium Human <br />
 <code>SPARKMEM="16g"</code> Spark Memory <br />
 <code>JAVATOOLOPTIONS="-Xmx8g"</code> Java Memory and any other options can be added to here.  <br /></p>
-<h4 id="step-1-table-matrix">[step 1] Table matrix</h4>
+<h4 id="step-1-create-table-matrix">[step 1] Create table matrix</h4>
 <p><code>WALLTIME_ARRAY["step_1"]=00-01:00</code>  Set a limit on the total run time of the job allocation in the step 1 under slurm. <br />
 <code>THREADS_ARRAY["step_1"]=4</code> Request the maximum ntasks be invoked on each core in the step 1 under slurm. <br />
 <code>MEM_ARRAY["step_1"]=25g</code> Specify the real memory required per node in the step 1 under slurm.  <br /></p>
-<h4 id="step2-segpy-run">[step2] segpy run</h4>
+<h4 id="step-2-run-segregation">[step 2] Run segregation</h4>
 <p><code>WALLTIME_ARRAY["step_2"]=00-02:00</code> Set a limit on the total run time of the job allocation in the step 2 under slurm.  <br />
 <code>THREADS_ARRAY["step_2"]=4</code> Request the maximum ntasks be invoked on each core in the step 2 under slurm. <br />
 <code>MEM_ARRAY["step_2"]=17g</code> Specify the real memory required per node in the step 2 under slurm. <br />
 <code>INFO_REQUIRED=[1,2,3,4]</code> One can determine the desired content to be included in the output <br />
  1: Global affected, 2: Global unaffected, 3: family-wise, 4: phenotype-family-wise, 5: phenotype-family-wise and non-include, 6: phenotype-family-wise-multipe sample, 7: phenotype-family-wise-multipe sample and non-include</p>
-<h3 id="step3-clean">[step3] clean</h3>
+<h4 id="step-3-parsing">[step 3] Parsing</h4>
 <p><code>WALLTIME_ARRAY["step_3"]=00-01:00</code> Set a limit on the total run time of the job allocation in the step 3 under slurm.  <br />
 <code>THREADS_ARRAY["step_3"]=4</code> Request the maximum ntasks be invoked on each core in the step 3 under slurm. <br />
 <code>MEM_ARRAY["step_3"]=4g</code> Specify the real memory required per node in the step 3 under slurm.  <br /></p>
