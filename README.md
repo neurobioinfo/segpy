@@ -49,7 +49,7 @@ This is an early version, any contribute or suggestion is appreciated, you can d
 
 
 ### Citation
-Amiri, S., Spiegelman, D., & Farhan, S. (2024). segpy: A pipeline for segregation analysis (Version 0.2.0) [Computer software]. https://github.com/neurobioinfo/segpy
+Amiri, S., Spiegelman, D., & Farhan, S. (2024). segpy: A pipeline for segregation analysis (Version 0.3.0) [Computer software]. https://github.com/neurobioinfo/segpy
 
 ### Changelog
 Every release is documented on the [GitHub Releases page](https://github.com/neurobioinfo/segpy/releases).

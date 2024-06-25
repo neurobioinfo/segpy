@@ -3,8 +3,8 @@
 # Copyright belongs Neuro Bioinformatics Core
 # Developed by Saeid Amiri (saeid.amiri@mcgill.ca) 
 
-VERSION=0.2.2.3;
-DATE0=2024-02-01
+VERSION=0.3
+DATE0=2024-03-29
 echo -e "------------------------------------ "
 echo -e "Segregation pipline version $VERSION "
 
@@ -13,14 +13,13 @@ echo -e "Segregation pipline version $VERSION "
 # default variables values
 # ===============================================
 unset OUTPUT_DIR QUEUE ACCOUNT VCF PED CONFIG_FILE MODE VERBOSE
+unset THREADS_ARRAY MEM_ARRAY WALLTIME_ARRAY
 
 #Assuming script is in root of PIPELINE_HOME
 export PIPELINE_HOME=$(cd $(dirname $0) && pwd -P)
 
 TIMESTAMP() { date +%FT%H.%M.%S; }
 CONTAINER=False
-#set queue-specific values, depending on system check
-# QUEUE="sbatch"            # default job scheduler: sbatch
 
 # create function to handle error messages
 # ===============================================
@@ -29,19 +28,20 @@ Usage() {
 	echo -e "Usage:\t$0 [arguments]"
 	echo -e "\tmandatory arguments:\n" \
           "\t\t-d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) \n" \
-          "\t\t-s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n"
-	echo -e "\toptional arguments:\n " \
-          "\t\t-h  (--help)      = Get the program options and exit.\n" \
-          "\t\t--parser             = 'general': to general parsing, 'unique': drop multiplicities \n" \
           "\t\t-v  (--vcf)      = VCF file (mandatory for steps 1-3)\n" \
           "\t\t-p  (--ped)      = PED file (mandatory for steps 1-3)\n" \
-          "\t\t-c  (--config)      = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
-          "\t\t-V  (--verbose)      = verbose output\n"
+          "\t\t-m  (--jobmode)  = Segpy job mode: \"slurm\" (job scheduler) or \"local\"\n" \
+          "\t\t-s  (--steps)    = Specify which steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3).\n\t\t\t\t   Specify 'ALL' to run all steps.\n\n\t\t\t\tsteps:\n\t\t\t\t0: initial setup\n\t\t\t\t1: create hail matrix\n\t\t\t\t2: run segregation\n\t\t\t\t3: final cleanup and formatting\n"
+	echo -e "\toptional arguments:\n " \
+          "\t\t-h  (--help)     = Get the program options and exit.\n" \
+          "\t\t--parser         = Step3 cleanup mode: 'general' = simple cleanup; 'unique' = remove duplicate values [unique] \n" \
+          "\t\t-c  (--config)   = config file [$(realpath $(dirname $0))/configs/segpy.config.ini]\n" \
+          "\t\t-V  (--verbose)  = verbose output\n"
         echo
 }
 
 
-if ! options=$(getopt --name pipeline --alternative --unquoted --options hv:p:d:s:c:a:V --longoptions dir:,steps:,jobmode:,vcf:,ped:,parser:,config:,account:,verbose,help -- "$@")
+if ! options=$(getopt --name pipeline --alternative --unquoted --options hv:p:d:s:m:c:a:V --longoptions dir:,steps:,jobmode:,vcf:,ped:,parser:,config:,account:,verbose,help -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     echo "Error processing options."
@@ -57,9 +57,9 @@ while [ $# -gt 0 ]
 do
     case $1 in
     -c| --config) 
-      CONFIG_FILE="$2" ;
+      export CONFIG_FILE="$2" ;
       if [ -f $CONFIG_FILE ]; then
-        echo "* LOADING CONFIG FILE $d";
+        echo "* LOADING CONFIG FILE $CONFIG_FILE";
         . $CONFIG_FILE
       else
         echo "ERROR: invalid CONFIG file: $CONFIG_FILE";
@@ -80,13 +80,14 @@ while [ $# -gt 0 ]
 do
     case $1 in
     -h| --help) Usage; exit 0;;
-    -d| --dir) OUTPUT_DIR="$2" ; shift ;;
-    -V| --verbose) VERBOSE=1 ;; 
-    -s| --steps) MODE="$2"; shift ;;
-    --jobmode) JOB_MODE="$2"; shift ;;
-    -v| --vcf) VCF="$2"; shift ;;
-    -p| --ped) PED="$2"; shift ;;
-    --parser) CLEAN="$2"; shift ;;
+    -d| --dir) export OUTPUT_DIR="$2" ; shift ;;
+    -V| --verbose) export VERBOSE=1 ;; 
+    -s| --steps) export MODE="$2"; shift ;;
+    -m| --jobmode) export JOB_MODE="$2"; shift ;;
+    -c| --config) export CONFIG_FILE="$2"; shift;;
+    -v| --vcf) export VCF="$2"; shift ;;
+    -p| --ped) export PED="$2"; shift ;;
+    --parser) export CLEAN="$2"; shift ;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 42;;
     (*) break;;
@@ -112,19 +113,20 @@ LAUNCH_LOG=$OUTPUT_DIR/launch_summary_log.txt
 
 if [[ ! -d $OUTPUT_DIR ]]; then echo "ERROR: mandatory option: -d (--dir) not specified or does not exist"; FOUND_ERROR=1; fi
 if [ -z $MODE ]; then echo "ERROR: missing mandatory option: --steps ('ALL' to run all, 1 to run step 1, step 1-3, run steps 1 through 3) must be specified"; FOUND_ERROR=1; fi
+if [[ -z $JOB_MODE ]]; then echo "ERROR: mandatory option -m (--jobmode) not specified"; FOUND_ERROR=1; fi
 if (( $FOUND_ERROR )); then echo "Please check options and try again"; exit 42; fi
 if [ $MODE == 'ALL' ]; then  MODE0=`echo {0..3}`; fi 
 
 # set default variables
-# CONFIG_FILE=${CONFIG_FILE:-$PIPELINE_HOME/configs/segpy.config.ini}
+export CONFIG_FILE=${CONFIG_FILE:-$PIPELINE_HOME/configs/segpy.config.ini}
+export CLEAN=${CLEAN:-unique}
 
-# STEP 1: RUN setting 
+# RUN setting 
 # ===============================================
-#
 
 for d in $OUTPUT_DIR/logs/{jobs,spark}; do [[ ! -d $d ]] && mkdir -p $d; done
-# LAUNCH_LOG=$OUTPUT_DIR/logs/launch_log.$(TIMESTAMP)
 
+# special handling for step=0: setting up config and log files, logging setup info
 if [[ ${MODE0[@]} =~ 0 ]]; then 
   if [[ -d $OUTPUT_DIR/configs ]]; then
       echo "config file $($OUTPUT_DIR/configs) already exists in PWD: $OUTPUT_DIR. Overwrite? y|n"
@@ -138,36 +140,30 @@ if [[ ${MODE0[@]} =~ 0 ]]; then
   echo -e " The config file (segpy.config.ini) is in \n ./configs"
   LAUNCH_LOG=$OUTPUT_DIR/launch_summary_log.txt
   touch $LAUNCH_LOG
-  chmod 775 $LAUNCH_LOG 
+  chmod 664 $LAUNCH_LOG 
   if [[ -d $OUTPUT_DIR/logs/.tmp ]]; then rm -rf $OUTPUT_DIR/logs/.tmp; fi
   mkdir -p $OUTPUT_DIR/logs/.tmp
   chmod 775 $OUTPUT_DIR/logs/.tmp
-  # if [[ -d $OUTPUT_DIR/logs/tmp ]]; then rm -rf $OUTPUT_DIR/logs/tmp; fi
-  # mkdir -p $OUTPUT_DIR/logs/tmp
-  # touch $OUTPUT_DIR/logs/.tmp/temp_config.ini
-  if [[ -f "$TEMPCONFIG" ]]; then 
-    rm $TEMPCONFIG
-  fi
-  touch $TEMPCONFIG
-  echo " # IT IS A temp FILE. DO NOT EDIT THIS FILE DIRECTLY."  > $TEMPCONFIG
-  echo -e  "-------------------------------------------" >> $LAUNCH_LOG  
-  echo -e  "--------Pipeline is set up for ${SCRNA_METHOD0}-----------------" $VERSION >> $LAUNCH_LOG
+  [[ -f "$TEMPCONFIG" ]] && rm $TEMPCONFIG
+  echo " # THIS IS A temp FILE. DO NOT EDIT THIS FILE DIRECTLY."  > $TEMPCONFIG
+  echo -e      "---------------------------------------" > $LAUNCH_LOG  
+  echo -e      "--------Pipeline version---------------" $VERSION >> $LAUNCH_LOG
   if [[ $JOB_MODE =~ slurm ]]; then
-      echo -e  "--------running with scheduler-----------------" >> $LAUNCH_LOG
+      echo -e  "--------running with scheduler---------" >> $LAUNCH_LOG
       echo JOB_MODE=slurm >> $OUTPUT_DIR/configs/segpy.config.ini
   elif [[ $JOB_MODE =~ local ]]; then
-      echo -e  "--------running without scheduler-----------------" >> $LAUNCH_LOG
+      echo -e  "--------running without scheduler------" >> $LAUNCH_LOG
       echo JOB_MODE=local >> $OUTPUT_DIR/configs/segpy.config.ini
       remove_argument $OUTPUT_DIR/configs/segpy.config.ini
   else
       JOB_MODE=local
-      echo -e  "--------running without scheduler-----------------" >> $LAUNCH_LOG
+      echo -e  "--------running without scheduler------" >> $LAUNCH_LOG
       echo JOB_MODE=local >> $OUTPUT_DIR/configs/segpy.config.ini
       remove_argument $OUTPUT_DIR/configs/segpy.config.ini
   fi 
-  echo "-----------------------------------------------------------"  >> $LAUNCH_LOG
+  echo -e      "---------------------------------------"  >> $LAUNCH_LOG
   echo -e "The Output is under \n ${OUTPUT_DIR}/" >> $LAUNCH_LOG
-  echo "NOTE: the segpy is setup with  ${JOB_MODE} mode"
+  echo "NOTE: segpy is currently set up with JOB_MODE=${JOB_MODE}"
   if [[ $JOB_MODE =~ slurm ]]; then
     QUEUE="sbatch"
   elif [[ $JOB_MODE =~ local ]]; then
@@ -184,35 +180,30 @@ if [[ ${MODE0[@]} =~ 0 ]]; then
   exit 0
 fi
 
-# if [[ ! -d $OUTPUT_DIR/logs/tmp ]]; then mkdir -p $OUTPUT_DIR/logs/tmp ; fi
-cd $OUTPUT_DIR/logs/spark 
+# handling all other run modes (i.e. 1-3)
+#cd $OUTPUT_DIR/logs/spark 
 
-# LAUNCH_LOG=$OUTPUT_DIR/logs/launch_summary_log.txt
+#declare -A THREADS_ARRAY
+#declare -A WALLTIME_ARRAY
+#declare -A MEM_ARRAY
 
-declare -A THREADS_ARRAY
-declare -A  WALLTIME_ARRAY
-declare -A  MEM_ARRAY
-
-source $OUTPUT_DIR/configs/segpy.config.ini
+#source $OUTPUT_DIR/configs/segpy.config.ini
 PYTHON_LIB_PATH=${ENV_PATH}/lib/${PYTHON_CMD}/site-packages
 if [[ $PYTHON_LIB_PATH ]];  then   sed -i '/PYTHON_LIB_PATH=/d' $TEMPCONFIG; echo PYTHON_LIB_PATH=$PYTHON_LIB_PATH >> $TEMPCONFIG  ; fi
 
 export OUTPUT_DIR=$OUTPUT_DIR
 export PYTHON_LIB_PATH=$PYTHON_LIB_PATH
 
-if [[ $VCF ]];  then   sed -i '/VCF=/d' $TEMPCONFIG; echo VCF=$VCF >> $TEMPCONFIG   ; fi
-if [[ $PED ]];  then sed -i '/PED=/d' $TEMPCONFIG; echo PED=${PED} >> $TEMPCONFIG    ; fi
-if [[ $CLEAN ]];  then  sed -i "/CLEAN=/d" $TEMPCONFIG; echo CLEAN=$CLEAN >> $TEMPCONFIG   ; fi
-if [[ $LAUNCH_LOG ]];  then  sed -i '/LAUNCH_LOG=/d' $TEMPCONFIG; echo LAUNCH_LOG=$LAUNCH_LOG >> $TEMPCONFIG  ; fi
-if [[ $MODE ]];  then   sed -i '/MODE=/d' $TEMPCONFIG; echo MODE=$MODE >> $TEMPCONFIG   ; fi
+if [[ -n $VCF ]];       then sed -i '/VCF=/d' $TEMPCONFIG;          echo VCF=$VCF >> $TEMPCONFIG; fi
+if [[ -n $PED ]];       then sed -i '/PED=/d' $TEMPCONFIG;          echo PED=${PED} >> $TEMPCONFIG; fi
+if [[ -n $CLEAN ]];     then sed -i "/CLEAN=/d" $TEMPCONFIG;        echo CLEAN=$CLEAN >> $TEMPCONFIG; fi
+if [[ -n $LAUNCH_LOG ]];then sed -i '/LAUNCH_LOG=/d' $TEMPCONFIG;   echo LAUNCH_LOG=$LAUNCH_LOG >> $TEMPCONFIG; fi
+if [[ -n $MODE ]];      then sed -i '/MODE=/d' $TEMPCONFIG;         echo MODE=$MODE >> $TEMPCONFIG; fi
 echo CONTAINER=$CONTAINER >> $TEMPCONFIG
 
+# choosing launcher based on job mode, and launching
 source $OUTPUT_DIR/logs/.tmp/temp_config.ini
-if [[ ${QUEUE} =~ sbatch ]] ; then
-  bash ${PIPELINE_HOME}/launch_segpy_slurm.sh
-elif [[ ${QUEUE} =~ bash   ]]; then
-  bash ${PIPELINE_HOME}/launch_segpy_local.sh
-fi
+[[ $QUEUE =~ sbatch ]] && launch_script=${PIPELINE_HOME}/launch_segpy_slurm.sh
+[[ $QUEUE =~ bash   ]] && launch_script=${PIPELINE_HOME}/launch_segpy_local.sh
+bash $launch_script
 echo -e " \n"
-
-exit 0

@@ -5,50 +5,62 @@ from statistics import mode
 from pyspark.sql.functions import udf
 from pyspark.sql.functions import col
 from pyspark import SparkContext, SQLContext
-sc = SparkContext.getOrCreate()
-spark = SQLContext(sc)
+import itertools
+from segpy.tools.utils import uniq_unsort,gen_unique,run_unique,eval2
+from segpy.tools.utils import floatB,con_float,check_is_numberic,cal_mode_mean
+import hail as hl
 ##################################
 
-def clean(outfolder,method='general'):
-    if method=='general':
+def clean(outfolder, method='general', sparkmem="False"):
+    """
+    outfolder: the folder that you want to save your output 
+    method: general = just remove python formatting [default]
+            unique  = remove python formatting and remove duplicate values
+    """
+    if method == 'general':
         clean_general(outfolder)
-    elif method=='unique':
-        clean_unique(outfolder)
+    elif method == 'unique':
+        clean_unique(outfolder, sparkmem)
 
 ##########
 def clean_general(outfolder):
-    finalseg='finalseg.csv'
-    finalseg_modified='finalseg_modified_general.csv'
-    cmd_cp=f'cd {outfolder}; cp {finalseg} {finalseg_modified}'
-    os.system(cmd_cp)
-    cmd_prune=f'cd {outfolder}; sed -i {finalseg_modified} -e "s/\\"//g" -e  "s/\[//g" -e "s/\]//g" -e " s/\, /\|/g" -e "s/\,/\|/g" -e "s/\t/,/g" '
+    finalseg = 'finalseg.csv'
+    finalseg_cleaned = 'finalseg_cleaned_general.csv'
+    cmd_prune = f'cd {outfolder}; sed {finalseg} -e "s/\\"//g" -e  "s/\[//g" -e "s/\]//g" -e " s/\, /\|/g" -e "s/\,/\|/g" -e "s/\t/,/g" > {finalseg_cleaned}'
     os.system(cmd_prune)
 
-def clean_unique(outfolder):
-    """
-    outfolder: the folder that you want to save your output 
-    header_need: the header that you want. 
-    """
-    finalseg='finalseg.csv'
-    finalseg_modified_mode='finalseg_modified_uniq.csv'
-    final_name=f'{outfolder}/{finalseg}'        
-    final=pd.read_csv(final_name, sep='\t',index_col=False)
-    columns_all=final.columns.to_list()
-    columns_csq = [col for col in columns_all if 'csq' in col]
+def clean_unique(outfolder, sparkmem):
+    if sparkmem != "False": hl.init(spark_conf={'spark.driver.memory': sparkmem})
+    finalseg = 'finalseg.csv'
+    finalseg_cleaned = 'finalseg_cleaned_unique.csv'
+    final_name = f'{outfolder}/{finalseg}'        
+    final = pd.read_csv(final_name, sep='\t',index_col=False)
+    columns_all = final.columns.to_list()
+    # identify all columns to process, by excluding id and counting columns
+    (groups, statuses, types) = (['fam','nfm','glb'], ['aff','naf'], ['wild','ncl','vrt','homv'])
+    columns_counting = ['_'.join([g,s,t]) for g,s,t in itertools.product(groups, statuses, types)]
+    columns_id = ['locus', 'alleles', 'familyid','altaf']
+    columns_exclude = list(itertools.chain(columns_id, columns_counting))
+    columns_include = [col for col in columns_all if col not in columns_exclude]
+    columns_include = [col for col in columns_all if 'csq' in col]
+    # create + apply custom function to uniquify individual column values; to be used by spark
+    sc = SparkContext.getOrCreate()
+    spark = SQLContext(sc)
     udf_s = udf(lambda x: list(set(eval(x))))
-    f_rddcsq = spark.createDataFrame(final.loc[:,columns_csq])
-    f_rddcsq=f_rddcsq.select(*(udf_s(col(c)).alias(c) for c in columns_csq))
-    f_rddcsq_pd=f_rddcsq.toPandas()
-    for i in columns_csq:
-        final[i]=f_rddcsq_pd[i]
-    final_name=f'{outfolder}/{finalseg_modified_mode}'
-    final.to_csv(final_name,index=False,sep='\t')
-    cmd_prune=f"cd {outfolder}; sed -i {finalseg_modified_mode} -e 's/,/\|/g' -e 's/\"//g' -e 's/\t/,/g' -e 's/\[//g' -e 's/\]//g' -e 's/ //g' "
+    f_rdd = spark.createDataFrame(final.loc[:,columns_include])
+    f_rdd = f_rdd.select(*(udf_s(col(c)).alias(c) for c in columns_include))
+    # pass spark df to pandas for easy parsing and overwrite existing column values with uniquified versions
+    f_rdd_pd = f_rdd.toPandas()
+    for i in columns_include:
+        final[i] = f_rdd_pd[i]
+    # clean up any remaining python formatting and print to outfile
+    final_name = f'{outfolder}/{finalseg_cleaned}'
+    final.to_csv(final_name, index=False,sep='\t')
+    cmd_prune = f"cd {outfolder}; sed -i {finalseg_cleaned} -e 's/,/\|/g' -e 's/\"//g' -e 's/\t/,/g' -e 's/\[//g' -e 's/\]//g' -e 's/ //g' "
     os.system(cmd_prune)
 
 ##########################################################################################
 ########## Archive 
-from segpy.tools.utils import uniq_unsort,gen_unique,run_unique,eval2
 
 def clean_unique_archive(outfolder):
     """
@@ -56,7 +68,7 @@ def clean_unique_archive(outfolder):
     header_need: the header that you want. 
     """
     finalseg='finalseg.csv'
-    finalseg_modified_mode='finalseg_modified_mode.csv'
+    finalseg_cleaned_mode='finalseg_cleaned_mode.csv'
     # header_fin_name=f'{outfolder}/header.txt'    
     # header_fin=pd.read_csv(header_fin_name, sep='\t',index_col=False,header=None)
     # header_need_name=f'{header_need}'            
@@ -74,15 +86,14 @@ def clean_unique_archive(outfolder):
         except (SyntaxError, NameError, TypeError, ZeroDivisionError):    
             pass
         final.iloc[:,i]=run_unique(final.iloc[:,i])
-    final_name=f'{outfolder}/{finalseg_modified_mode}'        
+    final_name=f'{outfolder}/{finalseg_cleaned_mode}'        
     final.to_csv(final_name,index=False)
-    cmd_prune=f'cd {outfolder}; sed -i {finalseg_modified_mode} -e "s/,|/,/g" -e "s/|,/,/g"'
+    cmd_prune=f'cd {outfolder}; sed -i {finalseg_cleaned_mode} -e "s/,|/,/g" -e "s/|,/,/g"'
     os.system(cmd_prune)
 
 
 ##########
 # the following function calculate the mean and mode 
-from segpy.tools.utils import floatB,con_float,check_is_numberic,cal_mode_mean
 
 def clean_seg_calculate_mean_mode_archive(outfolder, header_need, header_to_modify):
     header_fin_name=f'{outfolder}/header.txt'    
@@ -101,7 +112,7 @@ def clean_seg_calculate_mean_mode_archive(outfolder, header_need, header_to_modi
         if isinstance(final.iloc[:,i], object):
             final.iloc[:,i] = final.iloc[:,i].apply(eval)
         j_t=j_t+1
-        new_col=final.columns[i]+'modified'
+        new_col=final.columns[i]+'cleaned'
         final[new_col]=cal_mode_mean(final.iloc[:,i])
     new_list = [x+header_fin.shape[1] for x in range(0,len(list1))]
     listt=list2+new_list
@@ -114,9 +125,9 @@ def clean_seg_calculate_mean_mode_archive(outfolder, header_need, header_to_modi
             final2.iloc[:,i] = final2.iloc[:,i].apply(eval)
         except :
             next
-    final2_name=f'{outfolder}/finalseg_modified.csv'        
+    final2_name=f'{outfolder}/finalseg_cleaned.csv'        
     final2.to_csv(final2_name,index=False)
-    cmd_prune=f'cd {outfolder}; sed -i finalseg_modified.csv -e "s/\'//g"'
+    cmd_prune=f'cd {outfolder}; sed -i finalseg_cleaned.csv -e "s/\'//g"'
     os.system(cmd_prune)
 
 ##########

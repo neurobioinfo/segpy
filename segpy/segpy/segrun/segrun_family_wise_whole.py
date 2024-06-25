@@ -1,621 +1,367 @@
-import os 
-import numpy as np 
-
-
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf
-from pyspark.sql.types import StructType
-from pyspark.sql.types import ArrayType
-from pyspark.sql.types import IntegerType
-
-import pyspark.sql.functions as F
-import pyspark.sql.types as T
-from segpy.tools.utils import str_list
-import time
+import pandas as pd
+import hail as hl
 from datetime import datetime
+import gc
+import logging
+import itertools
+import os
+import sys
+import subprocess
+import io
 
-def segrun_family_wise_whole(mt, ped, outfolder,hl, ncol,csqlabel,just_phenotype, info_required):
-    print('############################################')
-    print('Segrun started:')
-    start_time0 = datetime.now()
-    print('Local time: ', time.strftime("%Y-%m-%d %H:%M:%S"))
-    print('############################################')
-    list_exist=[]
-    list_generated=['locus_alleles.csv']
-#################################################### : GLOBAL
+
+
+####################
+# HELPER FUNCTIONS #
+####################
+
+# empty-aware filtering of MatrixTable based on a parent MT
+def filterMatrixTableBySampleList(mt, family_list):
+    if len(family_list) == 0:
+        filterExpression = hl.literal(hl.empty_set(hl.tstr))
+    else:
+        filterExpression = hl.literal(hl.set(family_list))
+    mt_filtered = mt.filter_cols(filterExpression.contains(mt.s))
+    return mt_filtered
+
+# generate wild/ncl/vrt/homv counts for one matrixTable
+def generate_counts(mt, fam, sample_list):
+    # will generate counting rows with generic names and append them to input mt
+    # if sample_list is empty, simply pass mt through
+    if len(sample_list) > 0:
+        mt = mt.annotate_rows(  familyid = fam,
+                                _wild = hl.agg.sum(mt.wild),
+                                _ncl  = hl.agg.sum(mt.ncl),
+                                _vrt  = hl.agg.sum(mt.vrt),
+                                _homv = hl.agg.sum(mt.homv))
+    else:
+        mt = mt.annotate_rows(  familyid = fam,
+                                _wild  = 0,
+                                _ncl   = 0,
+                                _vrt   = 0,
+                                _homv  = 0)
+    return mt
+
+def export_counts(mt, prefix, outfile):
+    counting_rows = ['_wild','_ncl','_vrt','_homv']
+    mt.rows().select(*counting_rows).export(outfile, delimiter='\t')
+    # rename headers to be prefix-specific
+    cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' {outfile} -i"
+    os.system(cmd)
+
+
+# os handling of per-family temp output files
+def formatTmpCsv(name, tmpfolder='./temp'):
+    cmd_check = f'[[ ! -d {tmpfolder} ]] && mkdir -p {tmpfolder}'
+    os.system(cmd_check)
+    tmp = f'{tmpfolder}/tmp'
+    cmd = f'cut -f3- {name} > {tmp}; mv {tmp} {name}'
+    os.system(cmd)
+
+# timekeeping - using logging module
+def timekeeping(tag, start):
+    runtime = str(datetime.now()-start)
+    logging.info('Runtime: %s\tStep: %s', runtime, tag)
+
+
+
+#################
+# MAIN FUNCTION #
+#################
+
+def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=True, ncol=7):
+    ########################################
+    # INPUT ARGUMENTS:
+    #
+    # mt                (hail.MatrixTable)  hail MatrixTable object originally created by step2.py, 
+    #                                       read from a folder created in step1 and passed 
+    #                                       through seg.py to the current function
+    #
+    # ped               (pandas.DataFrame)  parsed by step2.py from original pedigree file and passed
+    #                                       through seg.py to the current function
+    #
+    # outfolder         (string)            path to folder where output files from this function
+    #                                       will be stored. MUST EXIST
+    #
+    # hl                (module)            hail module, imported by step2.py and passed through
+    #                                       seg.py to the current function to save loading time
+    #
+    # csqlabel          (list)              CSQ definition, parsed from INFO field of original vcf by seg.py
+    #                                       into a list and passed to the current function
+    #
+    # affecteds_only    (boolean)           Determines function output behaviour: 
+    #                                       True = only output variants found in >0 family affecteds [default]
+    #                                       False = output all variants found in family, regardless of phenotype
+    #
+    # ncol              (integer)           Size of chunks to split vcf INFO fields, in order to circumvent 
+    #                                       hail problems with exporting overly-large numbers of annotations
+    #                                       Increased values will reduce runtime but may cause hail to die
+    #
+    ########################################
+
+
+    ########################################
+    # POPULATE INPUTS AND DERIVATIVE OBJECTS
+    
+    # store overall start time for logging at end of run
+    start_time0 = datetime.now()    
+    
+    # set up logging module
+    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, stream=sys.stderr, filemode='w')
+    
+    ##
+    # matrixTable info:
+    # input matrixTable
+    step = 'populate_mt'
     start_time = datetime.now()
-    stepofpip='Global'
-    print('############################################')
-    print(f'Step: {stepofpip}, start')
-    print('############')
-    ##### list of sample in the affected and non-affected family
-    glb_aff=[ x for x in ped.loc[ped.loc[:,'phenotype']==2,'individualid']]
-    glb_naf=[ x for x in ped.loc[ped.loc[:,'phenotype']==1,'individualid']]
-    ##### list of family 
-    fam_list=ped.loc[:,'familyid'].unique()
-    fam1=fam11=fam12={}
-    ##### generate sample in the family 
-    for i in fam_list:
-        fam1[i]=[ x for x in ped.loc[ped.loc[:,'familyid']==i,'individualid']]
-    # wildtype 
-    mt = mt.annotate_entries(wild = mt.GT.is_hom_ref())
-    # no call
-    mt = mt.annotate_entries(ncl = hl.is_missing(mt.GT))
-    # variant 
-    mt = mt.annotate_entries(vrt = mt.GT.is_het())
-    # hom_var: contains identical alternate alleles
-    mt = mt.annotate_entries(homv = mt.GT.is_hom_var())
-    # altaf: contains  ALT allele frequency   
-    mt = mt.annotate_rows(altaf = (hl.agg.call_stats(mt.GT, mt.alleles).AF[1]))
-    ##### save locus_alleles
-    name0=f'{outfolder}/temp/locus_alleles.csv'
-    mt.rows().select('altaf').export(name0, delimiter='\t')
-    cmd_glb_csq=f'cd {outfolder}/temp ; cut -d\'\t\' -f 1-2 locus_alleles.csv> temp.csv ; mv  temp.csv  locus_alleles.csv'
-    os.system(cmd_glb_csq)
-    print(f'Step: {stepofpip}, terminated')
-    print('############')
-    print('Total time to achieve: {}'.format(datetime.now() - start_time))
-    print('############################################')
-#################################################### : CSQ info 
-    if (csqlabel is not False):
+    #mt = hl.read_matrix_table(mt)
+    # annotate each entry (variant x sample) with specific GT tags
+    mt = mt.annotate_entries(   wild = mt.GT.is_hom_ref(),
+                                ncl = hl.is_missing(mt.GT),
+                                vrt = mt.GT.is_het(),
+                                homv = mt.GT.is_hom_var())
+    timekeeping(step, start_time)
+    #
+    ###
+    
+    ###
+    # pedigree info
+    # input pedigree, plus derived lists
+    step = 'populate_ped'
+    start_time = datetime.now()
+    
+    # populate detailed sample_dict:
+    # for each family in ped file: create lists of samples: fam vs nonfam (nfm); all vs affecteds vs non-affecteds (naf)
+    sample_dict = {}
+    for fam in ped.loc[:,'familyid'].unique(): sample_dict[fam] = {
+            'fam': {
+                'aff':[x for x in ped.loc[(ped.familyid==fam) & (ped.phenotype==2), 'individualid']], 
+                'naf':[x for x in ped.loc[(ped.familyid==fam) & (ped.phenotype==1), 'individualid']]
+            },
+            'nfm': {
+                'aff':[x for x in ped.loc[(ped.familyid!=fam) & (ped.phenotype==2), 'individualid']], 
+                'naf':[x for x in ped.loc[(ped.familyid!=fam) & (ped.phenotype==1), 'individualid']]
+            }
+    }
+
+    # populate simple family list:
+    # all families, or all families with at least one affected sample if affecteds_only=True
+    fam_list = [fam for fam in sample_dict if len(sample_dict[fam]['fam']['aff'])>0] if affecteds_only else sample_dict.keys() 
+
+    timekeeping(step, start_time)
+    #
+    ###
+
+    # POPULATE INPUTS AND DERIVATIVE OBJECTS
+    ########################################
+
+
+    ########################################
+    # POPULATE GLOBAL ANNOTATIONS: CSQ, INFO
+
+    # processing INFO CSQ field
+    # pseudo:   CSQ field comes pre-joined by transcript, and is not natively exportable to table as separate columns
+    #           therefore the process to do so is:
+    #           0) receive vcf INFO header for CSQ as argument to main function
+    #           1) create a new MatrixTable annotation splitting each transcript into a list
+    #           2) for each CSQ annotation, create a new MatrixTable row field mapping transcript-specific values (as list)
+    #           3) export new row annotations to tsv
+    #           NOTE: to reduce memory (and possibly runtime) footprint, split the export operation into chunks
+    if csqlabel:
+        step = 'process_csq'
         start_time = datetime.now()
-        stepofpip='CSQ'
-        print('############################################')
-        print(f'Step: {stepofpip}, start')
-        print('############')
-        mt1=mt
-        mt1=mt1.annotate_rows(kept_transcripts =mt1.info.CSQ.map(lambda x: x.split('\|')))
-        j2=0
-        j1=0
-        listt_csq=[]
+        # create new row field containing list (and order) of all transcripts in CSQ fields
+        mt = mt.annotate_rows(kept_transcripts = mt.info.CSQ.map(lambda x: x.split('\|')))
+        # iterate over csq fields, adding a new row field for each CSQ annotation
+        csq_rows = []
         for i in range(1,len(csqlabel)):
-            mt1=mt1.annotate_rows(ab=mt1.kept_transcripts.map(lambda x:hl.struct(value=x[i])))
-            mt1 = mt1.rename({'ab':f'{csqlabel[i]}'})
-            listt_csq.append(csqlabel[i])    
-            j1=j1+1
-            if j1>ncol:
-                j1=1
-                j2=j2+1
-                name3=f'{outfolder}/temp/glb_csq_temp{j2}.csv'
-                mt1.rows().select(*listt_csq).export(name3, delimiter='\t')
-                cmd_glb_csq=f'cd {outfolder}/temp ; cut -d\'\t\' -f 3- glb_csq_temp{j2}.csv > temp.csv ; mv  temp.csv  glb_csq_temp{j2}.csv'
-                os.system(cmd_glb_csq)      
-                mt1=mt
-                mt1=mt1.annotate_rows(kept_transcripts =mt1.info.CSQ.map(lambda x: x.split('\|'))) 
-                listt_csq=[]
-        if (j1<=ncol) & (1<j1):
-            j1=1
-            j2=j2+1
-            name3=f'{outfolder}/temp/glb_csq_temp{j2}.csv'
-            mt1.rows().select(*listt_csq).export(name3, delimiter='\t')
-            cmd_glb_csq=f'cd {outfolder}/temp ; cut -d\'\t\' -f 3- glb_csq_temp{j2}.csv > temp.csv ; mv  temp.csv  glb_csq_temp{j2}.csv'
-            os.system(cmd_glb_csq)      
-            mt1=mt
-            mt1=mt1.annotate_rows(kept_transcripts =mt1.info.CSQ.map(lambda x: x.split('\|'))) 
-            listt_csq=[]                  
-        cmd_glb_csq_all=f'cd {outfolder}/temp ; paste -d\'\t\' glb_csq_temp*.csv > temp.csv ; mv  temp.csv  glb_csq.csv; rm glb_csq_temp*.csv' 
-        os.system(cmd_glb_csq_all)
-        list_generated.append('glb_csq.csv')
-        # list_exist.append('glb_csq.csv')
-        print(f'Step: {stepofpip}, terminated')
-        print('############')
-        print('Total time to achieve: {}'.format(datetime.now() - start_time))
-        print('############################################')
-#################################################### Global affected
-    if (1 in info_required):
+            mt = mt.annotate_rows(ab=mt.kept_transcripts.map(lambda x:hl.struct(value=x[i])))
+            mt = mt.rename({'ab':f'{csqlabel[i]}'})
+            csq_rows.append(csqlabel[i])
+        # export to tsv: must split csq_rows into sub-lists of size ncol in order to avoid busting memory
+        csq_list_of_lists = [csq_rows[i:i + ncol] for i in range(0, len(csq_rows), ncol)]
+        for i in range(0, len(csq_list_of_lists)):
+                mt.rows().select(*csq_list_of_lists[i]).export(f'out_csq_{i}', delimiter='\t')
+                formatTmpCsv(f'out_csq_{i}', f'{outfolder}/temp')
+        cmd_paste = 'paste $(ls -rt out_csq_*) > out_csq; rm out_csq_*'
+        os.system(cmd_paste)
+        timekeeping(step, start_time)
+    
+    # processing the rest of the INFO field data
+    # pseudo:   vcf INFO fields are not natively exportable as separate columns to tsv;
+    #           therefore the process to do so is:
+    #           1) "flatten" info fields into a new hail.Table
+    #           2) export that table to tsv
+    #           3) clean up outputs to remove formatting introduced by step 1
+    #           NOTE: to reduce memory (and possibly runtime) footprint, split the export operation into chunks
+    step = 'process_info'
+    start_time = datetime.now()
+    # flatten info field into a new hl.Table
+    ht = mt.rows().flatten()
+    info_columns = list(map(lambda x: 'info.'+x, list(mt.info)))
+    # split info into sub-lists of size ncol in order to be able to export to csv without busting memory for larger datasets
+    info_list_of_lists = [info_columns[i:i + ncol] for i in range(0, len(info_columns), ncol)]
+    for i in range(0, len(info_list_of_lists)):
+        ht.select(*info_list_of_lists[i]).export(f'out_info_{i}', delimiter='\t')
+    # cleanup unwanted formatting
+    cmd_sed_header = "sed '1!b; s/info.//g' -i out_info_*"
+    cmd_sed_body  = "sed 's/\<NA\>//g' -i out_info_*"
+    os.system(cmd_sed_header)
+    os.system(cmd_sed_body)
+    # paste split outfiles into a single outfile for ease of processing later
+    cmd_paste = 'paste $(ls -1 out_info_*|sort -t_ -k3g) > out_info; rm out_info_*'
+    os.system(cmd_paste)
+    timekeeping(step, start_time)
+
+    # POPULATE GLOBAL ANNOTATIONS: CSQ, INFO
+    ########################################
+
+    
+    ########################################
+    # PER-FAMILY PROCESSING
+   
+    for fam in fam_list:
+
+        ###
+        # create family-specific hail.MatrixTables, to be parsed for counts etc. below
+        start_time_fam = datetime.now()
+        step = f'family_{fam}:generate fam/nfm x aff/naf matrixTables'
         start_time = datetime.now()
-        stepofpip='Global affected'
-        print('############################################')
-        print(f'Step: {stepofpip}, start')
-        print('############')
-        #############
-        #############
-        glb_aff_sam = hl.literal(hl.set(glb_aff))
-        glb_aff_sam_mt=mt.filter_cols(glb_aff_sam.contains(mt.s))
-        glb_aff_sam_mt.count()
-        ## wildtype 
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_r= glb_aff)
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_wild = hl.agg.sum(glb_aff_sam_mt.wild))
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_wild_c = hl.agg.collect(glb_aff_sam_mt.wild))
-        # no call
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_ncl = hl.agg.sum(glb_aff_sam_mt.ncl))
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_ncl_c = hl.agg.collect(glb_aff_sam_mt.ncl))
-        # variant 
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_vrt = hl.agg.sum(glb_aff_sam_mt.vrt))
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_vrt_c = hl.agg.collect(glb_aff_sam_mt.vrt))
-        # hom_var: contains identical alternate alleles
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv = hl.agg.sum(glb_aff_sam_mt.homv))
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv_c = hl.agg.collect(glb_aff_sam_mt.homv))
-        # altaf: contains  ALT allele frequency   
-        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_altaf = (hl.agg.call_stats(glb_aff_sam_mt.GT, glb_aff_sam_mt.alleles).AF[1]))
-        listt2=[]
-        name2=f'{outfolder}/temp/glb_aff.csv'
-        listt2=['glb_aff_r','glb_aff_wild','glb_aff_wild_c','glb_aff_ncl','glb_aff_ncl_c','glb_aff_vrt','glb_aff_vrt_c', 'glb_aff_homv', 'glb_aff_homv_c','glb_aff_altaf']
-        df3=glb_aff_sam_mt.rows().select(*listt2).to_spark()
-        udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
-        df4=df3.select('glb_aff_r','glb_aff_wild','glb_aff_wild_c','glb_aff_ncl','glb_aff_ncl_c','glb_aff_vrt','glb_aff_vrt_c', 'glb_aff_homv', 'glb_aff_homv_c','glb_aff_altaf',udf_i('glb_aff_wild_c').alias('glb_aff_wild_c2'),udf_i('glb_aff_ncl_c').alias('glb_aff_ncl_c2'),udf_i('glb_aff_vrt_c').alias('glb_aff_vrt_c2'),udf_i('glb_aff_homv_c').alias('glb_aff_homv_c2'))
-        del df3
-        udf_2b = udf(lambda x,ref: [x[i] for i in ref])
-        df5=df4.select('glb_aff_wild',udf_2b('glb_aff_r', 'glb_aff_wild_c2').alias('glb_aff_wild_s'),'glb_aff_ncl',udf_2b('glb_aff_r', 'glb_aff_ncl_c2').alias('glb_aff_ncl_s'),'glb_aff_vrt', udf_2b('glb_aff_r', 'glb_aff_vrt_c2').alias('glb_aff_vrt_s'),'glb_aff_homv', udf_2b('glb_aff_r', 'glb_aff_homv_c2').alias('glb_aff_homv_s'),'glb_aff_altaf')
-        str_udf = F.udf(str_list, T.StringType())
-        df6=df5.select('glb_aff_wild',str_udf('glb_aff_wild_s').alias('glb_aff_wild_s'),'glb_aff_ncl',str_udf('glb_aff_ncl_s').alias('glb_aff_ncl_s'),'glb_aff_vrt', str_udf('glb_aff_vrt_s').alias('glb_aff_vrt_s'),'glb_aff_homv',str_udf('glb_aff_homv_s').alias('glb_aff_homv_s'),'glb_aff_altaf')
-        del df5
-        name2b=f'{outfolder}/temp/glb_affcsv'
-        df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name2b)
-        del df6
-        cmd_glb_aff0=f'cd {outfolder}/temp/glb_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_aff.csv \; ; rm -r  ../glb_affcsv'
-        os.system(cmd_glb_aff0)  
-        cmd_prune_glb=f'cd {outfolder}/temp;' + ' sed -i glb_aff.csv -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
-        os.system(cmd_prune_glb)
-        list_generated.append('glb_aff.csv')
-        # list_exist.append('glb_aff.csv')
-        #############
-        print(f'Step: {stepofpip}, terminated')
-        print('############')
-        print('Total time to achieve: {}'.format(datetime.now() - start_time))
-        print('############################################')
-##################################################### Global unaffected
-    if (2 in info_required):
+        fam_aff_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['fam']['aff'])
+        fam_naf_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['fam']['naf'])
+        nfm_aff_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['nfm']['aff'])
+        nfm_naf_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['nfm']['naf'])
+        #
+        ###
+        
+        ###
+        # generate counts for each MT: fam/nfm x aff/naf. 
+        step = f'family_{fam}:generate_counts'
         start_time = datetime.now()
-        stepofpip='Global non-affected'
-        print('############################################')
-        print(f'Step: {stepofpip}, start')
-        print('############')
-    ##### generate global non-affected
-        glb_naf_sam = hl.literal(hl.set(glb_naf))
-        glb_naf_sam_mt=mt.filter_cols(glb_naf_sam.contains(mt.s))
-        glb_naf_sam_mt.count()
-        ## wildtype 
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_r= glb_naf)
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_wild = hl.agg.sum(glb_naf_sam_mt.wild))
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_wild_c = hl.agg.collect(glb_naf_sam_mt.wild))
-        # no call
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_ncl = hl.agg.sum(glb_naf_sam_mt.ncl))
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_ncl_c = hl.agg.collect(glb_naf_sam_mt.ncl))
-        # variant 
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt = hl.agg.sum(glb_naf_sam_mt.vrt))
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt_c = hl.agg.collect(glb_naf_sam_mt.vrt))
-        # hom_var: contains identical alternate alleles
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv = hl.agg.sum(glb_naf_sam_mt.homv))
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv_c = hl.agg.collect(glb_naf_sam_mt.homv))
-        # altaf: contains  ALT allele frequency   
-        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_altaf = (hl.agg.call_stats(glb_naf_sam_mt.GT, glb_naf_sam_mt.alleles).AF[1]))
-        listt2=[]
-        name2=f'{outfolder}/temp/glb_naf.csv'
-        listt2=['glb_naf_r','glb_naf_wild','glb_naf_wild_c','glb_naf_ncl','glb_naf_ncl_c','glb_naf_vrt','glb_naf_vrt_c', 'glb_naf_homv', 'glb_naf_homv_c','glb_naf_altaf']
-        spark = SparkSession.builder.appName("myApp").getOrCreate()
-        df3=glb_naf_sam_mt.rows().select(*listt2).to_spark()
-        udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
-        df4=df3.select('glb_naf_r','glb_naf_wild','glb_naf_wild_c','glb_naf_ncl','glb_naf_ncl_c','glb_naf_vrt','glb_naf_vrt_c', 'glb_naf_homv', 'glb_naf_homv_c','glb_naf_altaf',udf_i('glb_naf_wild_c').alias('glb_naf_wild_c2'),udf_i('glb_naf_ncl_c').alias('glb_naf_ncl_c2'),udf_i('glb_naf_vrt_c').alias('glb_naf_vrt_c2'),udf_i('glb_naf_homv_c').alias('glb_naf_homv_c2'))
-        del df3
-        udf_2b = udf(lambda x,ref: [x[i] for i in ref])
-        df5=df4.select('glb_naf_wild',udf_2b('glb_naf_r', 'glb_naf_wild_c2').alias('glb_naf_wild_s'),'glb_naf_ncl',udf_2b('glb_naf_r', 'glb_naf_ncl_c2').alias('glb_naf_ncl_s'),'glb_naf_vrt', udf_2b('glb_naf_r', 'glb_naf_vrt_c2').alias('glb_naf_vrt_s'),'glb_naf_homv', udf_2b('glb_naf_r', 'glb_naf_homv_c2').alias('glb_naf_homv_s'),'glb_naf_altaf')
-        str_udf = F.udf(str_list, T.StringType())
-        df6=df5.select('glb_naf_wild',str_udf('glb_naf_wild_s').alias('glb_naf_wild_s'),'glb_naf_ncl',str_udf('glb_naf_ncl_s').alias('glb_naf_ncl_s'),'glb_naf_vrt', str_udf('glb_naf_vrt_s').alias('glb_naf_vrt_s'),'glb_naf_homv',str_udf('glb_naf_homv_s').alias('glb_naf_homv_s'),'glb_naf_altaf')
-        del df5
-        name2b=f'{outfolder}/temp/glb_nafcsv'
-        df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name2b)
-        del df6
-        cmd_glb_aff0=f'cd {outfolder}/temp/glb_nafcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_naf.csv \; ; rm -r  ../glb_nafcsv'
-        os.system(cmd_glb_aff0)  
-        cmd_prune_glb=f'cd {outfolder}/temp;' + ' sed -i glb_naf.csv -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
-        os.system(cmd_prune_glb)
-        list_generated.append('glb_naf.csv')
-        # list_exist.append('glb_naf.csv')
-    ####################
-    ####################
-        print(f'Step: {stepofpip}, terminated')
-        print('############')
-        print('Total time to achieve: {}'.format(datetime.now() - start_time))
-        print('############################################')
-    # list_exist=[]
-    for i in fam_list:
-#################################################### family-wise
-        listt1=[]
-        fam1[i]=[ x for x in ped.loc[ped.loc[:,'familyid']==i,'individualid']]
-        if (fam1[i]) and (3 in info_required):
-            start_time = datetime.now()
-            stepofpip='info for family wise'
-            print('############################################')
-            print(f'Step: {stepofpip}, start')
-            print('############')            
-            list_exist.append(f'fam_{i}.csv')
-            fam_sam = hl.literal(hl.set(fam1[i]))
-            fam_sam_mt=mt.filter_cols(fam_sam.contains(mt.s))
-            fam_sam_mt = fam_sam_mt.annotate_rows(familyid = i)
-            listt1.append(f'familyid')
-            fam_sam_mt = fam_sam_mt.annotate_rows(samples = fam1[i])
-            listt1.append(f'samples')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-            fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild'})
-            listt1.append(f'fam_wild')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-            fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl'})
-            listt1.append(f'fam_ncl')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-            fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt'})
-            listt1.append(f'fam_vrt')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-            fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv'})
-            listt1.append(f'fam_homv')
-            name1=f'{outfolder}/temp/fam_{i}.csv'
-            fam_sam_mt.rows().select(*listt1).export(name1, delimiter='\t')
-            cmd_fam1=f'cd {outfolder}/temp ;  cut  -f 3- fam_{i}.csv > temp.csv ; mv  temp.csv  fam_{i}.csv'
-            os.system(cmd_fam1)
-            print(f'Step: {stepofpip}, terminated')
-            print('############')
-            print('Total time to achieve: {}'.format(datetime.now() - start_time))
-            print('############################################')
-            list_generated.append(f'fam_{i}.csv')
-#################################################### affected-family-wise
-        listt12=[]
-        fam12[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==2),'individualid']]
-        if (fam12[i]) and (1 in info_required) and (3 in info_required) and (4 in info_required):
-            start_time = datetime.now()
-            stepofpip='info for affected family wise'
-            print('############################################')
-            print(f'Step: {stepofpip}, start')
-            print('############')
-            # list_exist.append(f'fam_{i}_aff.csv')
-            fam_sam2 = hl.literal(hl.set(fam12[i]))
-            fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
-            fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff = i)
-            listt12.append(f'familyid_aff')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff = fam12[i])
-            listt12.append(f'sample_aff')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-            fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_aff'})
-            listt12.append(f'fam_wild_aff')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-            fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_aff'})
-            listt12.append(f'fam_ncl_aff')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-            fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_aff'})
-            listt12.append(f'fam_vrt_aff')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-            fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_aff'})
-            listt12.append(f'fam_homv_aff')
-            name1=f'{outfolder}/temp/fam_{i}_aff.csv'
-            fam_sam_mt.rows().select(*listt12).export(name1, delimiter='\t')
-            cmd_fam12=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff.csv > temp.csv ; mv  temp.csv  fam_{i}_aff.csv'
-            os.system(cmd_fam12)
-            cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff.csv'
-            os.system(cmd_pack12)
-            print(f'Step: {stepofpip}, terminated')
-            print('############')
-            print('Total time to achieve: {}'.format(datetime.now() - start_time))
-            print('############################################')
-            list_generated.append(f'fam_{i}_aff.csv')
-####################################################  affected-family-wise and non-include
-        fam12n={}
-        listt12n=[]
-        fam12n[i]=[ x for x in ped.loc[(ped.familyid!=i) & (ped.phenotype==2),'individualid']]
-        if (fam12n[i]) and (1 in info_required) and (3 in info_required) and (4 in info_required) and (5 in info_required):
-            start_time = datetime.now()
-            stepofpip='info for affected family and non-included'
-            print('############################################')
-            print(f'Step: {stepofpip}, start')
-            print('############')            
-            # list_exist.append(f'fam_{i}_aff.csv')
-            fam_sam2 = hl.literal(hl.set(fam12n[i]))
-            fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
-            fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff_non = i)
-            listt12n.append(f'familyid_aff_non')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff_non = fam12n[i])
-            listt12n.append(f'sample_aff_non')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-            fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_aff_non'})
-            listt12n.append(f'fam_wild_aff_non')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-            fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_aff_non'})
-            listt12n.append(f'fam_ncl_aff_non')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-            fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_aff_non'})
-            listt12n.append(f'fam_vrt_aff_non')
-            fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-            fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_aff_non'})
-            listt12n.append(f'fam_homv_aff_non')
-            name1=f'{outfolder}/temp/fam_{i}_aff_non.csv'
-            fam_sam_mt.rows().select(*listt12n).export(name1, delimiter='\t')
-            cmd_fam12=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff_non.csv > temp.csv ; mv  temp.csv  fam_{i}_aff_non.csv'
-            os.system(cmd_fam12)
-            cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff_non.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff_non.csv'
-            os.system(cmd_pack12)
-            print(f'Step: {stepofpip}, terminated')
-            print('############')
-            print('Total time to achieve: {}'.format(datetime.now() - start_time))
-            print('############################################')
-            list_generated.append(f'fam_{i}_aff_non.csv')
-##################################################### unaffected-family-wise
-        listt11=[]
-        fam11[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==1),'individualid']]
-        run_below=True
-        if (just_phenotype==True &  len(fam12[i])==0):
-            run_below=False
-        if run_below: 
-            if (fam11[i]) and (2 in info_required) and (3 in info_required) and (4 in info_required):
-                start_time = datetime.now()
-                stepofpip='info for unaffected family'
-                print('############################################')
-                print(f'Step: {stepofpip}, start')
-                print('############')                
-                fam_sam1 = hl.literal(hl.set(fam11[i]))
-                fam_sam_mt=mt.filter_cols(fam_sam1.contains(mt.s))
-                fam_sam_mt = fam_sam_mt.annotate_rows(familyid_naf = i)
-                listt11.append(f'familyid_naf')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sample_naf = fam11[i])
-                listt11.append(f'sample_naf')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_naf'})
-                listt11.append(f'fam_wild_naf')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_naf'})
-                listt11.append(f'fam_ncl_naf')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_naf'})
-                listt11.append(f'fam_vrt_naf')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_naf'})
-                listt11.append(f'fam_homv_naf')
-                name1=f'{outfolder}/temp/fam_{i}_naf.csv'
-                fam_sam_mt.rows().select(*listt11).export(name1, delimiter='\t')
-                cmd_fam11=f'cd {outfolder}/temp ;  cut -f 4- fam_{i}_naf.csv > temp.csv ; mv  temp.csv  fam_{i}_naf.csv'
-                os.system(cmd_fam11)
-                cmd_pack11=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_naf.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_naf.csv'
-                os.system(cmd_pack11)
-                print(f'Step: {stepofpip}, terminated')
-                print('############')
-                print('Total time to achieve: {}'.format(datetime.now() - start_time))
-                print('############################################')
-                list_generated.append(f'fam_{i}_naf.csv')
-##################################################### unaffected-family-wise and non-include
-        fam11n={}
-        listt11n=[]
-        fam11n[i]=[ x for x in ped.loc[(ped.familyid!=i) & (ped.phenotype==1),'individualid']]
-        run_below=True
-        if (just_phenotype==True &  len(fam12[i])==0):
-            run_below=False
-        if run_below: 
-            if (fam11n[i]) and (2 in info_required) and (3 in info_required) and (4 in info_required) and (5 in info_required):
-                start_time = datetime.now()
-                stepofpip='info for unaffected family and non-included'
-                print('############################################')
-                print(f'Step: {stepofpip}, start')
-                print('############')                
-                fam_sam1 = hl.literal(hl.set(fam11n[i]))
-                fam_sam_mt=mt.filter_cols(fam_sam1.contains(mt.s))
-                fam_sam_mt = fam_sam_mt.annotate_rows(familyid_naf_non = i)
-                listt11n.append(f'familyid_naf_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sample_naf_non = fam11n[i])
-                listt11n.append(f'sample_naf_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_naf_non'})
-                listt11n.append(f'fam_wild_naf_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_naf_non'})
-                listt11n.append(f'fam_ncl_naf_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_naf_non'})
-                listt11n.append(f'fam_vrt_naf_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_naf_non'})
-                listt11n.append(f'fam_homv_naf_non')
-                name1=f'{outfolder}/temp/fam_{i}_naf_non.csv'
-                fam_sam_mt.rows().select(*listt11n).export(name1, delimiter='\t')
-                cmd_fam11=f'cd {outfolder}/temp ;  cut -f 4- fam_{i}_naf_non.csv > temp.csv ; mv  temp.csv  fam_{i}_naf_non.csv'
-                os.system(cmd_fam11)
-                cmd_pack11=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_naf_non.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_naf_non.csv'
-                os.system(cmd_pack11)
-                print(f'Step: {stepofpip}, terminated')
-                print('############')
-                print('Total time to achieve: {}'.format(datetime.now() - start_time))
-                print('############################################')
-                list_generated.append(f'fam_{i}_naf_non.csv')
-###### Generate info for Affected memeber in the family, here we have more than one sample, and generate info for each sample
-#################################################### affected-family-wise-multipe sample
-        fam12s={}    
-        fam12s[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==2),'individualid']]
-        if fam12s[i] and len(fam12s[i])>1 and (1 in info_required) and (3 in info_required) and (4 in info_required) and  (6 in info_required):
-            start_time = datetime.now()
-            stepofpip='info for affected family-multipe sample'
-            print('############################################')
-            print(f'Step: {stepofpip}, start')
-            print('############')
-            for ifs in fam12s[i]:
-                listt12s=[]
-                fam_sam2 = hl.literal(hl.set([ifs]))
-                fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
-                fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff = i)
-                listt12s.append(f'familyid_aff')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff = [ifs])
-                listt12s.append(f'sample_aff')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_aff'})
-                listt12s.append(f'fam_wild_aff')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_aff'})
-                listt12s.append(f'fam_ncl_aff')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_aff'})
-                listt12s.append(f'fam_vrt_aff')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_aff'})
-                listt12s.append(f'fam_homv_aff')
-                name1=f'{outfolder}/temp/fam_{i}_aff_{ifs}.csv'
-                fam_sam_mt.rows().select(*listt12s).export(name1, delimiter='\t')
-                cmd_fam12_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_aff_{ifs}.csv'
-                os.system(cmd_fam12_s)
-                cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff_{ifs}.csv'
-                os.system(cmd_pack12)
-                list_generated.append(f'fam_{i}_aff_{ifs}.csv')
-            print(f'Step: {stepofpip}, terminated')
-            print('############')
-            print('Total time to achieve: {}'.format(datetime.now() - start_time))
-            print('############################################')
-#################################################### affected-family-wise-multipe sample and non-included
-        fam12sn={} 
-        fam12sn[i]=[ x for x in ped.loc[(ped.familyid!=i) & (ped.phenotype==2),'individualid']]
-        if fam12sn[i] and len(fam12sn[i])>1 and (1 in info_required) and (3 in info_required) and (4 in info_required) and (7 in info_required):
-            start_time = datetime.now()
-            stepofpip='info for affected family-multipe sample and non-included'
-            print('############################################')
-            print(f'Step: {stepofpip}, start')
-            print('############')
-            for ifs in fam12sn[i]:
-                listt12sn=[]
-                fam_sam2 = hl.literal(hl.set([ifs]))
-                fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
-                fam_sam_mt = fam_sam_mt.annotate_rows(familyid_aff_non = i)
-                listt12sn.append(f'familyid_aff_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sample_aff_non = [ifs])
-                listt12sn.append(f'sample_aff_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-                fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_aff_non'})
-                listt12sn.append(f'fam_wild_aff_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-                fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_aff_non'})
-                listt12sn.append(f'fam_ncl_aff_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-                fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_aff_non'})
-                listt12sn.append(f'fam_vrt_aff_non')
-                fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-                fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_aff_non'})
-                listt12sn.append(f'fam_homv_aff_non')
-                name1=f'{outfolder}/temp/fam_{i}_aff_non_{ifs}.csv'
-                fam_sam_mt.rows().select(*listt12sn).export(name1, delimiter='\t')
-                cmd_fam12_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_aff_non_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_aff_non_{ifs}.csv'
-                os.system(cmd_fam12_s)
-                cmd_pack12=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_aff_non_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_aff_non_{ifs}.csv'
-                os.system(cmd_pack12)
-                list_generated.append(f'fam_{i}_aff_non_{ifs}.csv')
-            print(f'Step: {stepofpip}, terminated')
-            print('############')
-            print('Total time to achieve: {}'.format(datetime.now() - start_time))
-            print('############################################')
-##################################################### unaffected-family-wise-multipe sample
-        fam11s={}
-        fam11s[i]=[ x for x in ped.loc[(ped.familyid==i) & (ped.phenotype==1),'individualid']]
-        run_below=True
-        if (just_phenotype==True &  len(fam12s[i])==0):
-            run_below=False
-        if run_below: 
-            if fam11s[i] and len(fam11s[i])>1  and (2 in info_required) and (3 in info_required) and (4 in info_required) and (6 in info_required):
-                start_time = datetime.now()
-                stepofpip='info for unaffected family-multipe sample'
-                print('############################################')
-                print(f'Step: {stepofpip}, start')
-                print('############')
-                for ifs in fam11s[i]:
-                    listt11s=[]
-                    fam_sam2 = hl.literal(hl.set([ifs]))
-                    fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
-                    fam_sam_mt = fam_sam_mt.annotate_rows(familyid_naf = i)
-                    listt11s.append(f'familyid_naf')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sample_naf = [ifs])
-                    listt11s.append(f'sample_naf')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_naf'})
-                    listt11s.append(f'fam_wild_naf')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_naf'})
-                    listt11s.append(f'fam_ncl_naf')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_naf'})
-                    listt11s.append(f'fam_vrt_naf')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_naf'})
-                    listt11s.append(f'fam_homv_naf')
-                    name1=f'{outfolder}/temp/fam_{i}_naf_{ifs}.csv'
-                    fam_sam_mt.rows().select(*listt11s).export(name1, delimiter='\t')
-                    cmd_fam11_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_naf_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_naf_{ifs}.csv'
-                    os.system(cmd_fam11_s)
-                    cmd_pack11=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_naf_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_naf_{ifs}.csv'
-                    os.system(cmd_pack11)
-                    list_generated.append(f'fam_{i}_naf_{ifs}.csv')
-                print(f'Step: {stepofpip}, terminated')
-                print('############')
-                print('Total time to achieve: {}'.format(datetime.now() - start_time))
-                print('############################################')
-##################################################### unaffected-family-wise-multipe sample and non-include
-        fam11sn={}
-        fam11sn[i]=[ x for x in ped.loc[(ped.familyid!=i) & (ped.phenotype==1),'individualid']]
-        run_below=True
-        if (just_phenotype==True &  len(fam12s[i])==0):
-            run_below=False
-        if run_below: 
-            if fam11sn[i] and len(fam11sn[i])>1 and (2 in info_required) and (3 in info_required) and (4 in info_required) and (7 in info_required):
-                start_time = datetime.now()
-                stepofpip='info for unaffected family-multipe sample, non-included'
-                print('############################################')
-                print(f'Step: {stepofpip}, start')
-                print('############')
-                for ifs in fam11sn[i]:
-                    listt11sn=[]
-                    fam_sam2 = hl.literal(hl.set([ifs]))
-                    fam_sam_mt=mt.filter_cols(fam_sam2.contains(mt.s))
-                    fam_sam_mt = fam_sam_mt.annotate_rows(familyid_naf_non = i)
-                    listt11sn.append(f'familyid_naf_non')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sample_naf_non = [ifs])
-                    listt11sn.append(f'sample_naf_non')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_wi = hl.agg.sum(fam_sam_mt.wild))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_wi': f'fam_wild_naf_non'})
-                    listt11sn.append(f'fam_wild_naf_non')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_ncl = hl.agg.sum(fam_sam_mt.ncl))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_ncl': f'fam_ncl_naf_non'})
-                    listt11sn.append(f'fam_ncl_naf_non')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_vrt = hl.agg.sum(fam_sam_mt.vrt))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_vrt': f'fam_vrt_naf_non'})
-                    listt11sn.append(f'fam_vrt_naf_non')
-                    fam_sam_mt = fam_sam_mt.annotate_rows(sam_homv = hl.agg.sum(fam_sam_mt.homv))
-                    fam_sam_mt=fam_sam_mt.rename({'sam_homv': f'fam_homv_naf_non'})
-                    listt11sn.append(f'fam_homv_naf_non')
-                    name1=f'{outfolder}/temp/fam_{i}_naf_non_{ifs}.csv'
-                    fam_sam_mt.rows().select(*listt11sn).export(name1, delimiter='\t')
-                    cmd_fam11_s=f'cd {outfolder}/temp ;  cut  -f 4- fam_{i}_naf_non_{ifs}.csv > temp.csv ; mv  temp.csv  fam_{i}_naf_non_{ifs}.csv'
-                    os.system(cmd_fam11_s)
-                    cmd_pack11=f'cd {outfolder}/temp ;paste -d\'\t\' fam_{i}.csv fam_{i}_naf_non_{ifs}.csv > tmptmp.csv; mv tmptmp.csv fam_{i}.csv; rm fam_{i}_naf_non_{ifs}.csv'
-                    os.system(cmd_pack11)
-                    list_generated.append(f'fam_{i}_naf_non_{ifs}.csv')
-                print(f'Step: {stepofpip}, terminated')
-                print('############')
-                print('Total time to achieve: {}'.format(datetime.now() - start_time))
-                print('############################################')
-    for run_list in list_exist:
-        if (csqlabel is not False)  and (1 in info_required) and (2 in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_csq.csv glb_aff.csv glb_naf.csv {run_list} > la_temp_{run_list}'; os.system(cmd_pack2)
-        elif (csqlabel is not False) and (1 in info_required) and (2 not in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_csq.csv glb_aff.csv {run_list} > la_temp_{run_list}';os.system(cmd_pack2)
-        elif (csqlabel is not False) and (1 not in info_required) and (2 in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_csq.csv glb_naf.csv {run_list} > la_temp_{run_list}';os.system(cmd_pack2)
-        elif (csqlabel is not False) and (1 not in info_required) and (2 not in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_csq.csv {run_list} > la_temp_{run_list}' ; os.system(cmd_pack2)
-        elif (csqlabel is False) and (1 in info_required) and (2 in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_aff.csv glb_naf.csv {run_list} > la_temp_{run_list}' ; os.system(cmd_pack2)
-        elif (csqlabel is False) and (1 in info_required) and (2 not in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_aff.csv {run_list} > la_temp_{run_list}' ; os.system(cmd_pack2)
-        elif (csqlabel is False) and (1 not in info_required) and (2 in info_required): 
-            cmd_pack2=f'cd {outfolder}/temp ;paste -d\'\t\' locus_alleles.csv glb_naf.csv {run_list} > la_temp_{run_list}' ; os.system(cmd_pack2)
-    cmd_rm2=f'cd {outfolder}/temp ;ls --hide=la_temp_*.csv | xargs rm'
-    os.system(cmd_rm2)
-    outputfile='finalseg.csv'
-    cmd_head=f'cd {outfolder}/temp ; head -1 la_temp_{list_exist[0]} > {outputfile}'
-    os.system(cmd_head)
-    for run_list in list_exist:
-        cmd_rem0=f'cd {outfolder}/temp ;  sed -i 1d la_temp_{run_list} ; cat la_temp_{run_list} >> {outputfile}'
-        os.system(cmd_rem0)
-    cmd_rmall=f'cd {outfolder}/temp ;rm la_temp_*.csv'
-    os.system(cmd_rmall)
-    cmd_prune1=f'cd {outfolder}/temp; sed -i finalseg.csv -e "s/\\"value\\"://g"'
-    os.system(cmd_prune1)
-    cmd_prune2=f'cd {outfolder}/temp;'+ " sed -i finalseg.csv -e \"s/{//g"+ "; s/}//g\""
-    os.system(cmd_prune2)
-    cmd_header=f'cd {outfolder}/temp; head -1  finalseg.csv > header.txt'
-    os.system(cmd_header)
-    cmd_final=f'mv {outfolder}/temp/header.txt {outfolder}/; mv {outfolder}/temp/finalseg.csv {outfolder}/; rm -r {outfolder}/temp'
-    os.system(cmd_final)
-    print(f'Segrun terminated')
-    print('############')
-    print('Total time to achieve: {}'.format(datetime.now() - start_time0))
-    print('############################################')
+        fam_aff_mt = generate_counts(fam_aff_mt, fam, sample_dict[fam]['fam']['aff'])
+        fam_naf_mt = generate_counts(fam_naf_mt, fam, sample_dict[fam]['fam']['naf'])
+        nfm_aff_mt = generate_counts(nfm_aff_mt, fam, sample_dict[fam]['nfm']['aff'])
+        nfm_naf_mt = generate_counts(nfm_naf_mt, fam, sample_dict[fam]['nfm']['naf'])
+        timekeeping(step, start_time)
+        #
+        ###
+        
+        ###
+        # print selected rows to temporary files for later concatenation into final output file
+
+        # processing family counts
+        step = f'family_{fam}:export_counting_rows'
+        # ... export locus and familyid to file
+        fam_aff_mt.rows().select(*['familyid']).export('out_locus',delimiter='\t')
+        # ... export counts to files
+        export_counts(fam_aff_mt, 'fam_aff', 'out_fam_aff')
+        export_counts(fam_naf_mt, 'fam_naf', 'out_fam_naf')
+        export_counts(nfm_aff_mt, 'nfm_aff', 'out_nfm_aff')
+        export_counts(nfm_naf_mt, 'nfm_naf', 'out_nfm_naf')
+        timekeeping(step, start_time)
+
+        # concatenate temporary files into single per-family output file
+        step = f'family_{fam}:finalize_family_output'
+        start_time = datetime.now()
+        # ... format counting files to remove locus columns
+        output_filenames = ['out_fam_aff','out_fam_naf','out_nfm_aff','out_nfm_naf']
+        for filename in output_filenames: formatTmpCsv(filename, f'{outfolder}/temp')
+        # NOTE: double curly braces in cmd below are literal curly braces 
+        #       to be interpreted by os.system(), not f-string notation for python
+        if csqlabel:
+            cmd_paste = f'eval paste out_{{locus,info,csq,{{fam,nfm}}_{{aff,naf}}}} > {fam}_seg'
+        else:
+            cmd_paste = f'eval paste out_{{locus,info,{{fam,nfm}}_{{aff,naf}}}} > {fam}_seg'
+        os.system(cmd_paste)
+        #
+        ###
+        
+        ###
+        # a little cleanup to remove unavoidable matrixTable formatting
+        cmd_format = f'sed -i -e "s/\\"value\\"://g" -e "s/{{//g" -e "s/}}//g" {fam}_seg'
+        os.system(cmd_format)
+        timekeeping(step, start_time)
+        #
+        ###
+        
+        ###
+        # garbage collection, to free up memory
+        step = f'family_{fam}:garbage_collection'
+        start_time = datetime.now()
+        del fam_aff_mt, fam_naf_mt, nfm_aff_mt, nfm_naf_mt
+        gc.collect()
+        timekeeping(step, start_time)
+        timekeeping(f'family_{fam}:TOTAL', start_time_fam)
+        #
+        ###
+    
+    # PER-FAMILY PROCESSING
+    ########################################
+   
+
+    ########################################
+    # GENERATE FINAL OUTPUT FILE
+    preOutfile = 'pre_out.csv'
+    outfile = f'{outfolder}/finalseg.csv'
+
+    # cat per-family results into a single file
+    step = 'concat_final_results'
+    start_time = datetime.now()
+    fam_seg_files_str = ' '.join([f'{x}_seg' for x in fam_list])
+    cmd_cat = f"awk 'NR==1||FNR>1' {fam_seg_files_str}  > {preOutfile}"
+    os.system(cmd_cat)
+    timekeeping(step, start_time)
+
+    # remove unwanted lines
+    step = 'filter_final_results_by_counts'
+    # ... parse counting column numbers from preOutfile
+    cmd_parse_1 =  f'head -n 1 {preOutfile}'
+    cmd_parse_2 = "awk -F'\t' '{for (i=1; i<=NF; i++) if ($i~/^(fam|nfm)_/) print $i,i}'"
+    pIn  = subprocess.Popen(cmd_parse_1, stdout=subprocess.PIPE, shell=True)
+    pOut = io.StringIO(subprocess.check_output(cmd_parse_2, stdin=pIn.stdout, shell=True, text=True).rstrip())
+    PandasDataFrameDict = pd.read_table(pOut, sep=' ', header=None).to_dict(orient='list')
+    columnName2Index = dict(zip(PandasDataFrameDict[0], PandasDataFrameDict[1]))
+    colKeys = ['fam_aff_vrt','fam_aff_homv','fam_naf_vrt','fam_naf_homv']
+    col_famAffVrt, col_famAffHomv, col_famNafVrt, col_famNafHomv = [columnName2Index.get(k, None) for k in colKeys]
+    # ... filter pre-output file using relevant counting column values
+    if affecteds_only:
+        cmd_filter =    f"""
+                            awk -F'\t'  \
+                                -v a_v={col_famAffVrt} \
+                                -v a_h={col_famAffHomv} \
+                                'NR==1 || $a_v + $a_h > 0' \
+                                {preOutfile} > {outfile}
+                         """
+    else:
+        cmd_filter =    f"""
+                            awk -F'\t'  \
+                                -v a_v={col_famAffVrt} \
+                                -v a_h={col_famAffHomv} \
+                                -v n_v={col_famNafVrt} \
+                                -v n_h={col_famNafHomv} \
+                                'NR==1 || $a_v + $a_h + $n_v + $n_h > 0' \
+                                {preOutfile} > {outfile}
+                         """
+    os.system(cmd_filter)
+    # GENERATE FINAL OUTPUT FILE
+    ########################################
 
 
+    ########################################
+    # FINAL CLEANUP AND LOGGING
+
+    # delete temporary files
+    # NOTE: any tmpdir created by function formatTmpCsv will NOT be deleted;
+    #       this is to avoid accidentally deleting unintended files if the user ever
+    #       happened to have anything else in their tmpfolder for whatever reason
+    step = 'cleanup_temporary_files'
+    start_time = datetime.now()
+    cmd_rm = 'rm ' + ' '.join([f'{fam}_seg' for fam in fam_list]) + f' {preOutfile}' + ' out_{locus,info,{fam,nfm}_{aff,naf}}'
+    if csqlabel: cmd_rm = cmd_rm + ' out_csq'
+    print('testing: skipping cleanup for now')#os.system(cmd_rm)  
+    timekeeping(step, start_time)
+    
+    # final timestamp
+    timekeeping('Segrun', start_time0)
+    # FINAL CLEANUP AND LOGGING
+    ########################################

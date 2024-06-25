@@ -1,15 +1,14 @@
 #!/bin/bash
 
+# initial setup
 umask 002
 echo timestamp $(date +%s)
 source $PIPELINE_HOME/tools/utils.sh
 source $OUTPUT_DIR/configs/segpy.config.ini
 source $OUTPUT_DIR/logs/.tmp/temp_config.ini
+[[ $QUEUE =~ bash ]] && call_parameter $1
 
-if [[ $QUEUE =~ bash ]]; then
-   call_parameter $1
-fi
-
+# log of input arguments
 echo "*******************************************"
 echo "* step 1: generate Matrix file"
 echo "*******************************************"
@@ -20,44 +19,37 @@ echo "* Python version:       $PYTHON_CMD"
 echo "* OUTPUT_DIR:           $OUTPUT_DIR"
 echo "* VCF:                  $VCF"
 echo "* GRCH:                 $GRCH"
-echo "* JAVATOOLOPTIONS:      ${JAVATOOLOPTIONS}"
+echo "* JAVATOOLOPTIONS:      $JAVATOOLOPTIONS"
 echo "*******************************************"
 
 #-----------------------------------------------------#
-# Step1: Create Matrix                                     #
+# Step1: Create Matrix                                #
 #-----------------------------------------------------#
+
+# set up environment: source configs, load modules, export program variables 
+# - java
+if [[ $QUEUE =~ sbatch ]]; then
+    [[ $MODULEUSE ]] && module use $MODULEUSE
+    module load $JAVA_CMD/$JAVA_VERSION
+fi
+export JAVA_TOOL_OPTIONS=$JAVATOOLOPTIONS
+
+# - spark
 export SPARK_HOME=$SPARK_PATH
 export SPARK_LOG_DIR=$OUTPUT_DIR/logs/spark
-# export PYSPARK_SUBMIT_ARGS=$PYSPARKSUBMITARGS
+$SPARK_HOME/sbin/start-master.sh
 
-source ${OUTPUT_DIR}/configs/segpy.config.ini
-if [[ $QUEUE =~ sbatch ]]; then
-   if [[ $MODULEUSE ]]; then module use $MODULEUSE ; fi
-fi
-if [[ $QUEUE =~ sbatch ]]; then
-   module load ${JAVA_CMD}/${JAVA_VERSION}
-fi
+# - python
+[[ $CONTAINER =~ False ]] && source $ENV_PATH/bin/activate
+export PYTHONPATH=$PIPELINE_HOME/../segpy:$PYTHON_LIB_PATH
 
-${SPARK_HOME}/sbin/start-master.sh
 
-if [[ ${CONTAINER} =~ False ]]; then 
-   source ${ENV_PATH}/bin/activate
-fi
-
-echo "PYTHON_LIB_PATH"
-echo $PYTHON_LIB_PATH
-export PYTHONPATH=$PYTHON_LIB_PATH
-# module load $PYTHON_MODULE
-export JAVA_TOOL_OPTIONS=${JAVATOOLOPTIONS}
-echo $JAVATOOLOPTIONS
-
+# set up run variables
 file2=$(basename $VCF)
 MTFILE=$OUTPUT_DIR/step1/${file2%.*}.mt
 
-if [[ ${CONTAINER} =~ False ]]; then 
-   ${ENV_PATH}/bin/${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step1/step1.py $MTFILE  $VCF $GRCH
-else
-  ${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step1/step1.py $MTFILE  $VCF $GRCH
-fi
+# run
+[[ $CONTAINER =~ False ]] && PYTHON_CMD=$ENV_PATH/bin/$PYTHON_CMD
+$PYTHON_CMD $PIPELINE_HOME/scripts/step1/step1.py $MTFILE $VCF $GRCH
 
-
+echo timestamp $(date +%s)
