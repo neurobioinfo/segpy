@@ -27,10 +27,10 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/>
 {famid}_vrt: Family - Affecteds: with variant<br/>
 {famid}_homv: Family - Affecteds: homozygous for ALT allele<br/>
 ##### Family - Affected
-{famid}_wild_aff: Family - Affecteds: wildtype <br/>
-{famid}_ncl_aff: Family - Affecteds: no call<br/>
-{famid}_vrt_aff: Family - Affecteds: with variant<br/>
-{famid}_homv_aff: Family - Affecteds: homozygous for ALT allele<br/>
+{famid}_aff_wild: Family - Affecteds: wildtype <br/>
+{famid}_aff_ncl: Family - Affecteds: no call<br/>
+{famid}_aff_vrt: Family - Affecteds: with variant<br/>
+{famid}_aff_homv: Family - Affecteds: homozygous for ALT allele<br/>
 ##### Family - Nonaffected   
 {famid}_wild_naf: Family - Nonaffecteds: wildtype <br/>
 {famid}_ncl_naf: Family - Nonaffecteds: no call<br/>
