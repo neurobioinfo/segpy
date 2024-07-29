@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.3/segpy_module/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>- - segpy module - segpy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "- - segpy module";
+        var mkdocs_page_input_path = "segpy_module.md";
+        var mkdocs_page_url = "/0.0.3/segpy_module/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> segpy
+        </a>
+        <div class="version">
+          {'default': 'stable'}
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">- - segpy module</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-run-spark">Step 1: Run Spark</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-create-table-matrix">Step 2: Create table matrix</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-run-segregation">Step 3: Run segregation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-4-parsing">Step 4: Parsing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-5-shut-down-spark">Step 5: Shut down spark</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">- - segpy slurm</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">- - segpy local</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../container/">- - container</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">- License</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">- Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">- Contributing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">- Acknowledgement</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">segpy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tutorial</li>
+      <li class="breadcrumb-item active">- - segpy module</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="segpy-module">Segpy module</h1>
+<p>The following steps illustrate how to execute the segregation pipeline directly by utilizing the Segpy module within the Python editor. </p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy.png" width="500" height="400"/></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><em>segpy workflow</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#Step-1-Run-Spark">Step 1: Run Spark</a></li>
+<li><a href="#Step-2-Create-table-matrix">Step 2: Create table matrix</a></li>
+<li><a href="#Step-3-Run-segregation">Step 3: Run segregation</a></li>
+<li><a href="#Step-4-Parsing">Step 4: Parsing</a></li>
+<li><a href="#Step-5-Shut-down-spark">Step 5: Shut down spark</a></li>
+</ul>
+<h3 id="step-1-run-spark">Step 1: Run Spark</h3>
+<p>Initially, activate Spark on your system. </p>
+<pre><code>export SPARK_HOME=$HOME/spark-3.1.3-bin-hadoop3.2
+export SPARK_LOG_DIR=$HOME/temp
+module load java/11.0.2
+${SPARK_HOME}/sbin/start-master.sh
+</code></pre>
+<h3 id="step-2-create-table-matrix">Step 2:  Create table matrix</h3>
+<p>Following that, initialize Hail, import your VCF file, and save it as a matrix table. The matrix table serves as a data structure for representing genetic data in matrix form. Below, we import the VCF file, save it as a MatrixTable, and proceed to read your matrix table. In the tutorial, additional data is incorporated to test the pipeline, which can be found at [https://github.com/The-Neuro-Bioinformatics-Core/segpy/data]. This dataset is utilized to illustrate the pipeline's functionality.</p>
+<p>The subsequent code imports a VCF file and represents it as a MatrixTable:</p>
+<pre><code>import sys
+import pandas as pd 
+import hail as hl
+hl.import_vcf('~/test/data/VEP.iPSC.vcf',force=True,reference_genome='GRCh38',array_elements_required=False).write('~/test/output/VEP.iPSC.mt', overwrite=True)
+mt = hl.read_matrix_table('~/test/output/VEP.iPSC.mt')
+</code></pre>
+<h3 id="step-3-run-segregation">Step 3: Run segregation</h3>
+<p>Execute the following code to generate the segregation. </p>
+<pre><code>from segpy import seg
+ped=pd.read_csv('~/test/data/iPSC_2.ped'.ped',sep='\t')
+destfolder= '~/test/output/'
+vcffile='~/test/data/VEP.iPSC.vcf'
+ncol=7
+CSQ=True
+seg.run(mt,ped,outfolder,hl,ncol,CSQ,vcffile)    
+</code></pre>
+<p>Running the provided code generates two files, namely <code>header.txt</code> and <a href="../FAQ/"><code>finalseg.csv</code></a>, in the <code>destfolder</code>. The <code>header.txt</code> file contains the header information found in <code>finalseg.csv</code>. The output in <code>finalseg.csv</code> is organized into the following categories: 1) locus and alleles, 2) CSQ, 3) Global-Non-Affected, 4) Global-Affected, 5) Family, 6) Family-Affected, and 7) Family-Non-Affected. If you prefer not to include CSQ in the output file, you can select <code>CSQ=False</code>.</p>
+<h3 id="step-4-parsing">Step 4: Parsing</h3>
+<p>To parse the file and remove unnecessary characters such as ", [, ], etc., run the following code.</p>
+<pre><code>from segpy import parser
+parser.clean_general(outfolder)  
+</code></pre>
+<p>The information consists of various components; to eliminate redundancy, execute the following code.</p>
+<pre><code>parser.clean_unique(outfolder)  
+</code></pre>
+<h3 id="step-5-shut-down-spark">Step 5:  Shut down spark</h3>
+<p>Do not forget to deactivate environment and stop the spark: </p>
+<pre><code>${SPARK_HOME}/sbin/stop-master.sh
+</code></pre>
+<p><strong><a href="#contents">⬆ back to top</a></strong></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../installation/" class="btn btn-neutral float-left" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../segpy_slurm/" class="btn btn-neutral float-right" title="- - segpy slurm">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../segpy_slurm/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+      <script src="../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
