@@ -3,18 +3,19 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/FAQ/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.2/FAQ/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
     <title>FAQ - segpy</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-select.css" rel="stylesheet" />
     
       <script>
         // Current page data
         var mkdocs_page_name = "FAQ";
         var mkdocs_page_input_path = "FAQ.md";
-        var mkdocs_page_url = "/FAQ/";
+        var mkdocs_page_url = "/0.0.2/FAQ/";
       </script>
     
     <!--[if lt IE 9]>
@@ -31,7 +32,10 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href=".." class="icon icon-home"> segpy
-        </a><div role="search">
+        </a>
+        <div class="version">
+          {'default': 'stable'}
+        </div><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -59,7 +63,7 @@
                   </li>
               </ul>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">FAQ</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">FAQ</a>
     <ul class="current">
     </ul>
                 </li>
@@ -113,19 +117,19 @@
 alleles:  a variant form of a gene</p>
 <h5 id="csq">CSQ</h5>
 <p>VEP put all the requested information in infront CSQ.  </p>
-<h5 id="global-non-affected">Global - Non-Affected</h5>
+<h5 id="global-non-affected-is-dropt">Global - Non-Affected- is dropt</h5>
 <p>glb_naf_wild:  Global - Non-Affecteds, wildtype<br/>
 glb_naf_ncl:     Global - Non-Affecteds, no call  <br/> <br />
 glb_naf_vrt:     Global - Non-Affecteds, with variant    <br/>
 glb_naf_homv:    Global - Non-Affecteds, homozygous for ALT allele<br/>
 glb_naf_altaf:   Global - Non-Affecteds, ALT allele frequency   <br/></p>
-<h5 id="global-affected">Global - Affected</h5>
+<h5 id="global-affected-is-dropt">Global - Affected - is dropt</h5>
 <p>glb_aff_wild: Global - Affecteds, wildtype <br/>
 glb_aff_ncl:     Global - Affecteds, no call    <br/> 
 glb_aff_vrt:     Global - Affecteds, with variant  <br/>
 glb_aff_homv:    Global - Affecteds, homozygous for ALT allele<br/>
 glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/></p>
-<h5 id="family">Family</h5>
+<h5 id="family-is-dropt">Family- Is dropt</h5>
 <p>{famid}_wild: Family - Affecteds: wildtype <br/>
 {famid}_ncl: Family - Affecteds: no call<br/>
 {famid}_vrt: Family - Affecteds: with variant<br/>
@@ -180,6 +184,7 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/></p>
     <script src="../js/theme_extra.js"></script>
     <script src="../js/theme.js"></script>
       <script src="../search/main.js"></script>
+      <script src="../js/version-select.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);

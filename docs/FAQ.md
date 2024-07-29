@@ -9,19 +9,19 @@ locus: chromosome <br/>
 alleles:  a variant form of a gene
 ##### CSQ
 VEP put all the requested information in infront CSQ.  
-##### Global - Non-Affected
+##### Global - Non-Affected- is dropt
 glb_naf_wild:  Global - Non-Affecteds, wildtype<br/>
 glb_naf_ncl:     Global - Non-Affecteds, no call  <br/>   
 glb_naf_vrt:     Global - Non-Affecteds, with variant    <br/>
 glb_naf_homv:    Global - Non-Affecteds, homozygous for ALT allele<br/>
 glb_naf_altaf:   Global - Non-Affecteds, ALT allele frequency   <br/>
-##### Global - Affected
+##### Global - Affected - is dropt
 glb_aff_wild: Global - Affecteds, wildtype <br/>
 glb_aff_ncl:     Global - Affecteds, no call    <br/> 
 glb_aff_vrt:     Global - Affecteds, with variant  <br/>
 glb_aff_homv:    Global - Affecteds, homozygous for ALT allele<br/>
 glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/>
-##### Family
+##### Family- Is dropt
 {famid}_wild: Family - Affecteds: wildtype <br/>
 {famid}_ncl: Family - Affecteds: no call<br/>
 {famid}_vrt: Family - Affecteds: with variant<br/>

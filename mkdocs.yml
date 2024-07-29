@@ -16,4 +16,7 @@ nav:
         - '- Contributing': contributing.md
         - '- Acknowledgement': Acknowledgement.md
 theme: readthedocs
-
+# Customization
+extra:
+  version:
+    default: stable 
