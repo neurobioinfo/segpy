@@ -17,6 +17,6 @@ nav:
         - '- Acknowledgement': Acknowledgement.md
 theme: readthedocs
 # Customization
-extra:
-  version:
-    default: stable 
+# extra:
+#   version:
+#     default: stable 

@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/</loc>
+         <loc>https://neurobioinfo.github.io/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/Acknowledgement/</loc>
+         <loc>https://neurobioinfo.github.io/Acknowledgement/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/FAQ/</loc>
+         <loc>https://neurobioinfo.github.io/FAQ/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/LICENSE/</loc>
+         <loc>https://neurobioinfo.github.io/LICENSE/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/about/</loc>
+         <loc>https://neurobioinfo.github.io/about/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/changelog/</loc>
+         <loc>https://neurobioinfo.github.io/changelog/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/container/</loc>
+         <loc>https://neurobioinfo.github.io/container/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/contributing/</loc>
+         <loc>https://neurobioinfo.github.io/contributing/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/installation/</loc>
+         <loc>https://neurobioinfo.github.io/installation/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/reference/</loc>
+         <loc>https://neurobioinfo.github.io/reference/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/segpy_local/</loc>
+         <loc>https://neurobioinfo.github.io/segpy_local/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/segpy_module/</loc>
+         <loc>https://neurobioinfo.github.io/segpy_module/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/segpy_slurm/</loc>
+         <loc>https://neurobioinfo.github.io/segpy_slurm/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://neurobioinfo.github.io/0.0.4/tutorial/</loc>
+         <loc>https://neurobioinfo.github.io/tutorial/</loc>
          <lastmod>2024-07-30</lastmod>
          <changefreq>daily</changefreq>
     </url>
