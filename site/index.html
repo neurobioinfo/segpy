@@ -3,18 +3,19 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><link rel="canonical" href="https://neurobioinfo.github.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.5/" />
       <link rel="shortcut icon" href="img/favicon.ico" />
     <title>segpy</title>
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="css/version-select.css" rel="stylesheet" />
     
       <script>
         // Current page data
         var mkdocs_page_name = "Home";
         var mkdocs_page_input_path = "index.md";
-        var mkdocs_page_url = "/";
+        var mkdocs_page_url = "/0.0.5/";
       </script>
     
     <!--[if lt IE 9]>
@@ -31,10 +32,7 @@
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
           <a href="." class="icon icon-home"> segpy
-        </a>
-        <div class="version">
-          {'default': 'stable'}
-        </div><div role="search">
+        </a><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
@@ -108,7 +106,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="welcome-to-segpys-documentation">Welcome to segpy's documentation!</h1>
-<p>TESTTTT: Segpy is a comprehensive pipeline designed for segregation analysis. This documentation provides a step-by-step tutorial on executing segregation analysis in a High-Performance Computing (HPC) environment utilizing the Slurm workload manager system (https://slurm.schedmd.com/), on a Linux workstation, or directly through the segpy module in Python. Segregation analysis is a crucial process for exploring genetic variants within a sample of sequence data. This pipeline facilitates the counting of affected and non-affected individuals with variants, including homozygous variants, those with no variants, and those with no calls. These counts are computed both within families and globally. Additionally, the pipeline offers a detailed breakdown not only of variants but also of alleles in each case. To execute segregation analysis successfully, it is imperative to have a pedigree file with six columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>{1:male; 2:female, 0:unknown}, and <code>phenotype</code>={1: control (unaffected), 2: proband(affected), -9:missing}. The genetic data must be provided in the vcf format.</p>
+<p>TESTTTT2: Segpy is a comprehensive pipeline designed for segregation analysis. This documentation provides a step-by-step tutorial on executing segregation analysis in a High-Performance Computing (HPC) environment utilizing the Slurm workload manager system (https://slurm.schedmd.com/), on a Linux workstation, or directly through the segpy module in Python. Segregation analysis is a crucial process for exploring genetic variants within a sample of sequence data. This pipeline facilitates the counting of affected and non-affected individuals with variants, including homozygous variants, those with no variants, and those with no calls. These counts are computed both within families and globally. Additionally, the pipeline offers a detailed breakdown not only of variants but also of alleles in each case. To execute segregation analysis successfully, it is imperative to have a pedigree file with six columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>{1:male; 2:female, 0:unknown}, and <code>phenotype</code>={1: control (unaffected), 2: proband(affected), -9:missing}. The genetic data must be provided in the vcf format.</p>
 <p>For guidance on how to use segpy's pipeline, consult the tutorial.</p>
 <h2 id="contents">Contents</h2>
 <ul>
@@ -160,6 +158,7 @@
     <script src="js/theme_extra.js"></script>
     <script src="js/theme.js"></script>
       <script src="search/main.js"></script>
+      <script src="js/version-select.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
@@ -171,5 +170,5 @@
 
 <!--
 MkDocs version : 1.6.0
-Build Date UTC : 2024-07-30 03:54:11.086610+00:00
+Build Date UTC : 2024-07-30 03:57:06.373780+00:00
 -->
