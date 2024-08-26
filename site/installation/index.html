@@ -3,19 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.1/installation/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/installation/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
     <title>Installation - segpy</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../css/version-select.css" rel="stylesheet" />
     
       <script>
         // Current page data
         var mkdocs_page_name = "Installation";
         var mkdocs_page_input_path = "installation.md";
-        var mkdocs_page_url = "/0.0.1/installation/";
+        var mkdocs_page_url = "/installation/";
       </script>
     
     <!--[if lt IE 9]>
@@ -104,12 +103,11 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="installation">Installation</h1>
-<p>I am HERE. 
-<code>segpy</code> is a Python module specifically designed for segregation analysis, developed on Python 3.10.2. The module can be easily downloaded using <code>pip</code> package manager:</p>
+<p><code>segpy</code> is a Python module specifically designed for segregation analysis, developed on Python 3.10.2. The module can be easily downloaded using <code>pip</code> package manager:</p>
 <pre><code>pip install 'git+https://github.com/neurobioinfo/segpy#subdirectory=segpy'
 </code></pre>
 <p>Segregation analysis can be conducted utilizing the segpy scheduler, <code>segpy.pip</code>. If you have access to an HPC or Linux workstation, you can automate the process using <code>segpy.pip</code>. The scheduler script is written in Bash, making it compatible with systems such as Slurm or a Linux workstation.</p>
-<pre><code>wget https://github.com/neurobioinfo/segpy/releases/download/v0.2.2.3/segpy.pip.zip
+<pre><code>wget https://github.com/neurobioinfo/segpy/releases/download/v0.0.2/segpy.pip.zip
 unzip segpy.pip.zip 
 </code></pre>
 <p>To obtain a brief overview of the pipeline, run the following code.</p>
@@ -155,7 +153,6 @@ unzip segpy.pip.zip
     <script src="../js/theme_extra.js"></script>
     <script src="../js/theme.js"></script>
       <script src="../search/main.js"></script>
-      <script src="../js/version-select.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);

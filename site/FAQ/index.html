@@ -3,19 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.1/FAQ/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/FAQ/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
     <title>FAQ - segpy</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../css/version-select.css" rel="stylesheet" />
     
       <script>
         // Current page data
         var mkdocs_page_name = "FAQ";
         var mkdocs_page_input_path = "FAQ.md";
-        var mkdocs_page_url = "/0.0.1/FAQ/";
+        var mkdocs_page_url = "/FAQ/";
       </script>
     
     <!--[if lt IE 9]>
@@ -105,42 +104,37 @@
               
                 <h2 id="frequently-asked-questions">Frequently asked questions</h2>
 <ul>
-<li><a href="#what-is-finalseg.csv">What is finalseg.csv</a></li>
+<li><a href="#what-is-finalseg.csv">finalseg.csv</a></li>
 </ul>
-<h1 id="what-is-finalsegcsv">What is finalseg.csv</h1>
-<p>The output  of <code>finalseg.csv</code> can be categorized to  1) locus and alleles, 2) CSQ, 3) Global- Non-Affected 4) Global-Affected,  5) Family, 6) Family-Affected 7) Family - Non-affected.  If you do not want to have CSQ in the output file, choose <code>CSQ=False</code>. </p>
+<h1 id="finalsegcsv">finalseg.csv</h1>
+<p>The output of <code>finalseg.csv</code> is the unpruned result from step 2.</p>
+<h1 id="finalseg_cleaned_generalcsv">finalseg_cleaned_general.csv</h1>
+<p>The output of <code>finalseg_cleaned_general.csv</code> is the pruned result store under step 3. The file can be categorized to  1) locus and alleles, 2) CSQ, 3) Family, 4) Family-Affected, 5) Family, 6) Family-Affected. If you do not want to have CSQ in the output file, choose <code>CSQ=False</code>. </p>
 <h5 id="locus-and-alleles">locus and alleles</h5>
 <p>locus: chromosome <br/>
 alleles:  a variant form of a gene</p>
 <h5 id="csq">CSQ</h5>
 <p>VEP put all the requested information in infront CSQ.  </p>
-<h5 id="global-non-affected-is-dropt">Global - Non-Affected- is dropt</h5>
-<p>glb_naf_wild:  Global - Non-Affecteds, wildtype<br/>
-glb_naf_ncl:     Global - Non-Affecteds, no call  <br/> <br />
-glb_naf_vrt:     Global - Non-Affecteds, with variant    <br/>
-glb_naf_homv:    Global - Non-Affecteds, homozygous for ALT allele<br/>
-glb_naf_altaf:   Global - Non-Affecteds, ALT allele frequency   <br/></p>
-<h5 id="global-affected-is-dropt">Global - Affected - is dropt</h5>
-<p>glb_aff_wild: Global - Affecteds, wildtype <br/>
-glb_aff_ncl:     Global - Affecteds, no call    <br/> 
-glb_aff_vrt:     Global - Affecteds, with variant  <br/>
-glb_aff_homv:    Global - Affecteds, homozygous for ALT allele<br/>
-glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/></p>
-<h5 id="family-is-dropt">Family- Is dropt</h5>
-<p>{famid}_wild: Family - Affecteds: wildtype <br/>
-{famid}_ncl: Family - Affecteds: no call<br/>
-{famid}_vrt: Family - Affecteds: with variant<br/>
-{famid}_homv: Family - Affecteds: homozygous for ALT allele<br/></p>
 <h5 id="family-affected">Family - Affected</h5>
-<p>{famid}_aff_wild: Family - Affecteds: wildtype <br/>
-{famid}_aff_ncl: Family - Affecteds: no call<br/>
-{famid}_aff_vrt: Family - Affecteds: with variant<br/>
-{famid}_aff_homv: Family - Affecteds: homozygous for ALT allele<br/></p>
+<p>fam_aff_wild: Family - Affecteds: wildtype <br/>
+fam_aff_ncl: Family - Affecteds: no call<br/>
+fam_aff_vrt: Family - Affecteds: with variant<br/>
+famid_aff_homv: Family - Affecteds: homozygous for ALT allele<br/></p>
 <h5 id="family-nonaffected">Family - Nonaffected</h5>
-<p>{famid}_wild_naf: Family - Nonaffecteds: wildtype <br/>
-{famid}_ncl_naf: Family - Nonaffecteds: no call<br/>
-{famid}_vrt_naf: Family - Nonaffecteds: with variant<br/>
-{famid}_homv_naf: Family - Nonaffecteds: homozygous for ALT allele<br/></p>
+<p>fam_naf_wild: Family - Affecteds: wildtype <br/>
+fam_naf_ncl: Family - Affecteds: no call<br/>
+fam_naf_vrt: Family - Affecteds: with variant<br/>
+fam_naf_homv: Family - Affecteds: homozygous for ALT allele<br/></p>
+<h5 id="nonfamily-affected">NonFamily - Affected</h5>
+<p>nfm_aff_wild: Family - Affecteds: wildtype <br/>
+nfm_aff_ncl: Family - Affecteds: no call<br/>
+nfm_aff_vrt: Family - Affecteds: with variant<br/>
+nfm_aff_homv: Family - Affecteds: homozygous for ALT allele<br/></p>
+<h5 id="nonfamily-nonaffected">NonFamily - Nonaffected</h5>
+<p>nfm_naf_wild: Family - Affecteds: wildtype <br/>
+nfm_naf_ncl: Family - Affecteds: no call<br/>
+nfm_naf_vrt: Family - Affecteds: with variant<br/>
+nfm_naf_homv: Family - Affecteds: homozygous for ALT allele<br/></p>
               
             </div>
           </div><footer>
@@ -181,7 +175,6 @@ glb_aff_altaf:   Global - Affecteds, ALT allele frequency   <br/></p>
     <script src="../js/theme_extra.js"></script>
     <script src="../js/theme.js"></script>
       <script src="../search/main.js"></script>
-      <script src="../js/version-select.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
