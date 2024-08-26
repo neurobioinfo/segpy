@@ -17,7 +17,7 @@ VEP put all the requested information in infront CSQ.
 fam_aff_wild: Family - Affecteds: wildtype <br/>
 fam_aff_ncl: Family - Affecteds: no call<br/>
 fam_aff_vrt: Family - Affecteds: with variant<br/>
-famid_aff_homv: Family - Affecteds: homozygous for ALT allele<br/>
+fam_aff_homv: Family - Affecteds: homozygous for ALT allele<br/>
 ##### Family - Nonaffected   
 fam_naf_wild: Family - Affecteds: wildtype <br/>
 fam_naf_ncl: Family - Affecteds: no call<br/>
