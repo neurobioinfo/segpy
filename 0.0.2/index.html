@@ -54,13 +54,9 @@
               </ul>
               <p class="caption"><span class="caption-text">Tutorial</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="segpy_module/">- - segpy module</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="segpy_slurm/">- - segpy slurm</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="segpy_local/">- - segpy local</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="container/">- - container</a>
+                  <li class="toctree-l1"><a class="reference internal" href="segpy_slurm/">- - segpy slurm</a>
                   </li>
               </ul>
               <ul>
@@ -106,16 +102,14 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="welcome-to-segpys-documentation">Welcome to segpy's documentation!</h1>
-<p>Segpy is a comprehensive pipeline designed for segregation analysis. This documentation provides a step-by-step tutorial on executing segregation analysis in a High-Performance Computing (HPC) environment utilizing the Slurm workload manager system (https://slurm.schedmd.com/), on a Linux workstation, or directly through the segpy module in Python. Segregation analysis is a crucial process for exploring genetic variants within a sample of sequence data. This pipeline facilitates the counting of affected and non-affected individuals with variants, including homozygous variants, those with no variants, and those with no calls. These counts are computed both within families and globally. Additionally, the pipeline offers a detailed breakdown not only of variants but also of alleles in each case. To execute segregation analysis successfully, it is imperative to have a pedigree file with six columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>{1:male; 2:female, 0:unknown}, and <code>phenotype</code>={1: control (unaffected), 2: proband(affected), -9:missing}. The genetic data must be provided in the vcf format.</p>
+<p>Segpy is a comprehensive pipeline designed for segregation analysis. This documentation provides a step-by-step tutorial on executing segregation analysis in a High-Performance Computing (HPC) environment utilizing the Slurm workload manager system (https://slurm.schedmd.com/), or on a Linux workstation. Segregation analysis is a crucial process for exploring genetic variants within a sample of sequence data. This pipeline facilitates the counting of affected and non-affected individuals with variants, including homozygous variants, those with no variants, and those with no calls. These counts are computed both within families and globally. Additionally, the pipeline offers a detailed breakdown not only of variants but also of alleles in each case. To execute segregation analysis successfully, it is imperative to have a pedigree file with six columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>{1:male; 2:female, 0:unknown}, and <code>phenotype</code>={1: control (unaffected), 2: proband(affected), -9:missing}. The genetic data must be provided in the vcf format.</p>
 <p>For guidance on how to use segpy's pipeline, consult the tutorial.</p>
 <h2 id="contents">Contents</h2>
 <ul>
 <li><a href="installation/">Installation</a></li>
 <li><a href="">Tutorial:</a><ul>
-<li><a href="segpy_module/">segpy module</a></li>
-<li><a href="segpy_slurm/">segpy slurm</a></li>
 <li><a href="segpy_local/">segpy local</a></li>
-<li><a href="container/">container</a></li>
+<li><a href="segpy_slurm/">segpy slurm</a></li>
 </ul>
 </li>
 <li><a href="FAQ/">FAQ</a></li>
@@ -170,5 +164,5 @@
 
 <!--
 MkDocs version : 1.6.0
-Build Date UTC : 2024-08-26 14:07:03.247873+00:00
+Build Date UTC : 2024-09-15 03:01:00.183604+00:00
 -->

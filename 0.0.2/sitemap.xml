@@ -2,72 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/Acknowledgement/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/FAQ/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/LICENSE/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/about/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/changelog/</loc>
-         <lastmod>2024-08-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://neurobioinfo.github.io/0.0.2/container/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/contributing/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/installation/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/reference/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/segpy_local/</loc>
-         <lastmod>2024-08-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://neurobioinfo.github.io/0.0.2/segpy_module/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/segpy_slurm/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://neurobioinfo.github.io/0.0.2/tutorial/</loc>
-         <lastmod>2024-08-26</lastmod>
+         <lastmod>2024-09-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
