@@ -1,61 +1,79 @@
 #!/bin/bash
 
-# initial setup
 umask 002
 echo timestamp $(date +%s)
 source $PIPELINE_HOME/tools/utils.sh
 source $OUTPUT_DIR/configs/segpy.config.ini
 source $OUTPUT_DIR/logs/.tmp/temp_config.ini
-[[ $QUEUE =~ bash ]] && call_parameter $1
 
-# log of input arguments
+if [[ $QUEUE =~ bash ]]; then
+   call_parameter $1
+fi
+
 echo "*******************************************"
 echo "* step 3: clean data"
 echo "*******************************************"
-echo "* DIR:                  $OUTPUT_DIR"
+echo "* OUTPUT_DIR:           $OUTPUT_DIR"
 echo "* PIPELINE_HOME:        $PIPELINE_HOME"
-echo "* Virtual ENV:          $ENV_PATH"
-echo "* Python Version:       $PYTHON_CMD"
-echo "* PYTHON_LIB_PATH:      $PYTHON_LIB_PATH"
+# echo "* Virtual ENV:          $ENV_PATH"
+# echo "* Python Version:       $PYTHON_CMD"
+# echo "* PYTHON_LIB_PATH:      $PYTHON_LIB_PATH"
 echo "* CLEAN:                $CLEAN"
 echo "* SPARKMEM:             $SPARKMEM"
 echo "*******************************************"
 
 #-----------------------------------------------------#
-# Step 3: Clean Output file                           #
+# Step 3: Clean Output file                                   #
 #-----------------------------------------------------#
+# 
+# if [[ $QUEUE =~ sbatch ]]; then
+#    [[ $MODULEUSE ]] && module use $MODULEUSE
+#    #  module load ${JAVA_CMD}/${JAVA_VERSION}
+#    cmd="module load $JAVA_CMD/$JAVA_VERSION"
+#    echo CMD: $cmd
+#    eval $cmd
+# fi 
 
-# set up environment: source configs, load modules, export program variables 
-# - java
-if [[ $QUEUE =~ sbatch ]]; then
-    [[ $MODULEUSE ]] && module use $MODULEUSE
-    #module load $JAVA_CMD/$JAVA_VERSION
-    cmd="module load $JAVA_CMD/$JAVA_VERSION"
-    echo CMD: $cmd
-    eval $cmd
-fi 
-export JAVA_TOOL_OPTIONS=$JAVATOOLOPTIONS
-
-# - spark (only needed for "clean" mode)
 if [[ $CLEAN =~ unique ]]; then
-    export SPARK_HOME=$SPARK_PATH
+   #  export SPARK_HOME=$SPARK_PATH
     export SPARK_LOG_DIR=$OUTPUT_DIR/logs/spark
-    #SPARK_HOME/sbin/start-master.sh
-    cmd="$SPARK_HOME/sbin/start-master.sh"
-    echo CMD: $cmd
-    eval $cmd
+    export JAVA_TOOL_OPTIONS=${JAVATOOLOPTIONS}
+   #  echo $JAVATOOLOPTIONS
+   #  ${SPARK_HOME}/sbin/start-master.sh
+   #  cmd="$SPARK_HOME/sbin/start-master.sh"
+   #  echo CMD: $cmd
+   #  eval $cmd
 fi
 
-# - python
-[[ $CONTAINER =~ False ]] && source $ENV_PATH/bin/activate
-export PYTHONPATH=$PIPELINE_HOME/../segpy:$PYTHON_LIB_PATH
+# [[ ${CONTAINER} =~ False ]] && source ${ENV_PATH}/bin/activate
 
-# run
-[[ $CONTAINER =~ False ]] && PYTHON_CMD=$ENV_PATH/bin/$PYTHON_CMD
+# source ${ENV_PATH}/bin/activate
 [[ -z $SPARKMEM ]] && SPARKMEM="False"
-#PYTHON_CMD $PIPELINE_HOME/scripts/step3/step3.py $OUTPUT_DIR $CLEAN $SPARKMEM
-cmd="$PYTHON_CMD $PIPELINE_HOME/scripts/step3/step3.py $OUTPUT_DIR $CLEAN $SPARKMEM"
-echo CMD: $cmd
-eval $cmd
+# export PYTHONPATH=$PYTHON_LIB_PATH
+# ${ENV_PATH}/bin/${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step3/step3.py $OUTPUT_DIR $CLEAN
+# if [[ ${CONTAINER} =~ False ]]; then 
+#    ${ENV_PATH}/bin/${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step3/step3.py $OUTPUT_DIR $CLEAN $SPARKMEM
+# else
+#    ${PYTHON_CMD} ${PIPELINE_HOME}/scripts/step3/step3.py $OUTPUT_DIR $CLEAN $SPARKMEM
+# fi
 
-echo timestamp $(date +%s)
+# echo "SPARKMEM"
+# echo $SPARKMEM
+# echo "Test"
+if [[ $QUEUE =~ bash ]] &&  [[ $CONTAINER =~ TRUE ]]; then 
+   # CONTAINER1=$PIPELINE_HOME/soft/container/scrnabox.sif
+   CONTAINER_PATH=$PIPELINE_HOME/soft/segpy.sif
+   PIPELINE_HOME_CONT=/opt/segpy.pip
+   $CONTAINER_CMD exec  --bind  $OUTPUT_DIR ${CONTAINER_PATH} python3 $PIPELINE_HOME_CONT/scripts/step3/step3.py $OUTPUT_DIR $CLEAN $SPARKMEM
+   exit 0
+fi
+#--------------
+#--------------
+if [[ $QUEUE =~ sbatch ]] && [[ $CONTAINER =~ TRUE ]]; then 
+   if [[ $MODULEUSE ]]; then module use $MODULEUSE ; fi
+   if [[ $CONTAINER_MODULE ]]; then module load $CONTAINER_MODULE ; fi
+   CONTAINER_PATH=$PIPELINE_HOME/soft/segpy.sif
+   PIPELINE_HOME_CONT=/opt/segpy.pip
+   $CONTAINER_CMD exec  --bind  $OUTPUT_DIR ${CONTAINER_PATH} python3 $PIPELINE_HOME_CONT/scripts/step3/step3.py $OUTPUT_DIR $CLEAN $SPARKMEM
+   exit 0
+fi 

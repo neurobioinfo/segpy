@@ -16,6 +16,10 @@ start_time0 = datetime.now()
 print('Local time: ', time.strftime("%Y-%m-%d %H:%M:%S"))
 print('############################################')
 
+# mt=hl.import_vcf(sys.argv[2],force=True,reference_genome=sys.argv[3],array_elements_required=False)
+# mt=hl.split_multi_hts(mt)
+# mt.write(sys.argv[1], overwrite=True)
+
 mt_file     = sys.argv[1]
 vcf_file    = sys.argv[2]
 ref_file    = sys.argv[3]

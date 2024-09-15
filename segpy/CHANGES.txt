@@ -1,13 +1,3 @@
-v0.2.2,3 2024-02-06
- * prune code
-v0.2.2,2 2024-01-30
- * add just_phenotype
- * prune code
-v0.2.2,01 2024-01-11
-v0.2, 2023-02-01
-v0.1, 2022-07-05
-v0.02, 2022-01-27
- * add README
- *license, and changes
-
-v0.01, 2021-09-10 -- Initial creation
+v0.0.2, 2024-08-07
+ * rewrite the module
+v0.0.1, 2024-07-10 -- Initial creation

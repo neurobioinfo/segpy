@@ -5,10 +5,11 @@
 
 import os
 import pandas as pd
+import sys 
 
 from segpy.segrun.segrun_family_wise_whole import segrun_family_wise_whole
 
-def run(mt, ped, outfolder, hl, vcffile, CSQ=True, affecteds_only=True):
+def run(mt, ped, outfolder, hl, vcffile, CSQ, affecteds_only, filter_variant):
     """
     mt: a hail MatrixTable object, passed to this function by step2.py
     ped: a pedigree file, this should file includes six columns: `familyid`, `individualid`, `parentalid`, `maternalid`, `sex`, `phenotype`, plus a header with those exact column names
@@ -17,7 +18,8 @@ def run(mt, ped, outfolder, hl, vcffile, CSQ=True, affecteds_only=True):
     vcffile: the annotated vcf file
     affecteds_only: if a family has >0 samples with phenotype=2 (affected), then we want to process only variants found in those samples in that family [default behaviour]
     """
-    if eval(str(str(CSQ)))==True: 
+    # CSQ=eval(str(str(CSQ)))
+    if CSQ == "TRUE":
         try:
             ext = vcffile.split('.')[-1]
             prog = 'zcat' if ext == 'gz' or ext == 'bgz' else 'cat'
@@ -26,12 +28,12 @@ def run(mt, ped, outfolder, hl, vcffile, CSQ=True, affecteds_only=True):
             csqlabel=[el+'_csq' for el in csqlabel]
             print("Segpy is processing on VCF with a CSQ annotation.")  
         except IndexError as e:
-            print("Error: Segpy can not exctract CSQ annotation from VCF") 
+            print("Error: Segpy can not exctract CSQ annotation from VCF")
     else:
-            print("Segpy is processing on VCF without a CSQ annotation.") 
-            csqlabel=False
-            
-    segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only)
+        print("Segpy is processing on VCF without a CSQ annotation.") 
+        csqlabel=False
+
+    segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant)
 
 if __name__ == "__main__":
     run()

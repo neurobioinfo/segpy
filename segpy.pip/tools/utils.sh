@@ -10,8 +10,15 @@ function call_parameter () {
    done
 }
 
-function remove_argument () {
-    X=(ACCOUNT MODULEUSE= THREADS MEM_ARRAY WALLTIME_ARRAY step JAVA_VERSION)
+function remove_argument_local () {
+    X=(ACCOUNT MODULEUSE= THREADS MEM_ARRAY WALLTIME_ARRAY step JAVA_VERSION SPARK_PATH  ENV_PATH JAVA_CMD NCOL PYTHON_CMD JUST_PHENOTYPE)
+    for item in ${X[@]}; do
+        sed -i $1 -e "/${item}/d"
+    done
+}
+
+function remove_argument_slurm () {
+    X=(SPARK_PATH ENV_PATH PYTHON_CMD JAVA_CMD JAVA_VERSION NCOL JUST_PHENOTYPE)
     for item in ${X[@]}; do
         sed -i $1 -e "/${item}/d"
     done

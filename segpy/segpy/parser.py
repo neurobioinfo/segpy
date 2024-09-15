@@ -11,6 +11,7 @@ from segpy.tools.utils import floatB,con_float,check_is_numberic,cal_mode_mean
 import hail as hl
 ##################################
 
+
 def clean(outfolder, method='general', sparkmem="False"):
     """
     outfolder: the folder that you want to save your output 

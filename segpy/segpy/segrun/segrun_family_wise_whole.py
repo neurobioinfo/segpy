@@ -52,7 +52,7 @@ def export_counts(mt, prefix, outfile):
 
 # os handling of per-family temp output files
 def formatTmpCsv(name, tmpfolder='./temp'):
-    cmd_check = f'[[ ! -d {tmpfolder} ]] && mkdir -p {tmpfolder}'
+    cmd_check = f'[ ! -d {tmpfolder} ] && mkdir -p {tmpfolder}'
     os.system(cmd_check)
     tmp = f'{tmpfolder}/tmp'
     cmd = f'cut -f3- {name} > {tmp}; mv {tmp} {name}'
@@ -64,12 +64,13 @@ def timekeeping(tag, start):
     logging.info('Runtime: %s\tStep: %s', runtime, tag)
 
 
-
 #################
 # MAIN FUNCTION #
 #################
 
-def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=True, ncol=7):
+def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant, ncol=7):
+    # affecteds_only=eval(str(str(affecteds_only)))
+    # filter_variant=eval(str(str(filter_variant)))
     ########################################
     # INPUT ARGUMENTS:
     #
@@ -98,8 +99,6 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
     #                                       Increased values will reduce runtime but may cause hail to die
     #
     ########################################
-
-
     ########################################
     # POPULATE INPUTS AND DERIVATIVE OBJECTS
     
@@ -143,11 +142,15 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
                 'naf':[x for x in ped.loc[(ped.familyid!=fam) & (ped.phenotype==1), 'individualid']]
             }
     }
-
+    timekeeping(step, start_time)
     # populate simple family list:
-    # all families, or all families with at least one affected sample if affecteds_only=True
-    fam_list = [fam for fam in sample_dict if len(sample_dict[fam]['fam']['aff'])>0] if affecteds_only else sample_dict.keys() 
-
+    # all families, or all families with at least one affected sample if affecteds_only=TRUE
+    # affecteds_only=TRUE
+    if affecteds_only == "TRUE": 
+        fam_list = [fam for fam in sample_dict if len(sample_dict[fam]['fam']['aff'])>0]
+    if affecteds_only == "FALSE":
+        fam_list = sample_dict.keys()
+    # fam_list =  sample_dict.keys() 
     timekeeping(step, start_time)
     #
     ###
@@ -216,12 +219,10 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
     # POPULATE GLOBAL ANNOTATIONS: CSQ, INFO
     ########################################
 
-    
     ########################################
     # PER-FAMILY PROCESSING
    
     for fam in fam_list:
-
         ###
         # create family-specific hail.MatrixTables, to be parsed for counts etc. below
         start_time_fam = datetime.now()
@@ -231,6 +232,7 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
         fam_naf_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['fam']['naf'])
         nfm_aff_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['nfm']['aff'])
         nfm_naf_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['nfm']['naf'])
+        timekeeping(step, start_time)
         #
         ###
         
@@ -269,9 +271,11 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
         # NOTE: double curly braces in cmd below are literal curly braces 
         #       to be interpreted by os.system(), not f-string notation for python
         if csqlabel:
-            cmd_paste = f'eval paste out_{{locus,info,csq,{{fam,nfm}}_{{aff,naf}}}} > {fam}_seg'
+            # cmd_paste = f'eval paste out_{{locus,info,csq,{{fam,nfm}}_{{aff,naf}}}} > {fam}_seg'
+            cmd_paste = f'eval paste out_locus out_info out_csq out_fam_aff out_fam_naf out_nfm_aff out_nfm_naf > {fam}_seg'
         else:
-            cmd_paste = f'eval paste out_{{locus,info,{{fam,nfm}}_{{aff,naf}}}} > {fam}_seg'
+            # cmd_paste = f'eval paste out_{{locus,info,{{fam,nfm}}_{{aff,naf}}}} > {fam}_seg'
+            cmd_paste = f'eval paste out_locus out_info out_fam_aff out_fam_naf out_nfm_aff out_nfm_naf > {fam}_seg'
         os.system(cmd_paste)
         #
         ###
@@ -298,7 +302,6 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
     # PER-FAMILY PROCESSING
     ########################################
    
-
     ########################################
     # GENERATE FINAL OUTPUT FILE
     preOutfile = 'pre_out.csv'
@@ -324,15 +327,17 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
     colKeys = ['fam_aff_vrt','fam_aff_homv','fam_naf_vrt','fam_naf_homv']
     col_famAffVrt, col_famAffHomv, col_famNafVrt, col_famNafHomv = [columnName2Index.get(k, None) for k in colKeys]
     # ... filter pre-output file using relevant counting column values
-    if affecteds_only:
-        cmd_filter =    f"""
-                            awk -F'\t'  \
-                                -v a_v={col_famAffVrt} \
-                                -v a_h={col_famAffHomv} \
-                                'NR==1 || $a_v + $a_h > 0' \
-                                {preOutfile} > {outfile}
-                         """
-    else:
+    # if affecteds_only=="TRUE":
+    #     cmd_filter_aff =    f"""
+    #                         awk -F'\t'  \
+    #                             -v a_v={col_famAffVrt} \
+    #                             -v a_h={col_famAffHomv} \
+    #                             'NR==1 || $a_v + $a_h > 0' \
+    #                             {preOutfile} > {outfile}
+    #                      """
+    #     os.system(cmd_filter_aff)
+
+    if filter_variant == "TRUE":
         cmd_filter =    f"""
                             awk -F'\t'  \
                                 -v a_v={col_famAffVrt} \
@@ -342,10 +347,13 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
                                 'NR==1 || $a_v + $a_h + $n_v + $n_h > 0' \
                                 {preOutfile} > {outfile}
                          """
+    else:
+        cmd_filter =    f"""
+                        cat {preOutfile} > {outfile}
+                        """
     os.system(cmd_filter)
     # GENERATE FINAL OUTPUT FILE
     ########################################
-
 
     ########################################
     # FINAL CLEANUP AND LOGGING
@@ -356,9 +364,12 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only=Tr
     #       happened to have anything else in their tmpfolder for whatever reason
     step = 'cleanup_temporary_files'
     start_time = datetime.now()
-    cmd_rm = 'rm ' + ' '.join([f'{fam}_seg' for fam in fam_list]) + f' {preOutfile}' + ' out_{locus,info,{fam,nfm}_{aff,naf}}'
+    cmd_rm = 'rm ' + ' '.join([f'{fam}_seg' for fam in fam_list]) + f' {preOutfile}' + ' out_locus out_info out_fam_aff out_fam_naf out_nfm_aff out_nfm_naf'
     if csqlabel: cmd_rm = cmd_rm + ' out_csq'
-    print('testing: skipping cleanup for now')#os.system(cmd_rm)  
+    os.system(cmd_rm)  
+    cmd_rm_out_all = 'rm .out_*'
+    os.system(cmd_rm_out_all)  
+    # print('testing: skipping cleanup for now')#os.system(cmd_rm)  
     timekeeping(step, start_time)
     
     # final timestamp
