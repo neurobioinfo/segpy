@@ -1,29 +1,41 @@
 # Installation
-The pipeline is containerized and can be run using Singularity, eliminating the need to install modules within the pipeline. It is compatible with both High-Performance Computing (HPC) systems and standard Linux workstations.
+A containerized version of the Segpy pipeline is publicly available from **Zenodo**, which includes the code, libraries, and dependicies required for running the analyses. The container is compatible with both High-Performance Computing (HPC) systems and standard Linux workstations.
 
-## Contents
--  [Step 1: Apptainer](#apptainer)
--  [Step 2: Download](#download)
--  [Step 3: Run](#run)
+To use the Segpy pipeline, the folowing must be installed on your system:
+
+-  [Apptainer](#apptainer)
+-  [segpy.pip](#segpypip)
+
+ - - - -
 
 ### Apptainer
-`segpy.pip`  is packaged and tested with Apptainer (formerly known as Singularity) version 1.2.4. Ensure that Apptainer/Singularity is installed on your system before proceeding.
-
-### Download
-Download the pipeline from Zenodo, which includes the segregated image.
+`segpy.pip` is packaged and tested with [Apptainer](https://apptainer.org/) (formerly Singularity) version 1.2.4. Before proceeding, ensure that Apptainer/Singularity is installed on your system. If you are using an HPC system, Apptainer is likely already installed, and you will simply need to load the module. If you encounter any issues while loading the Apptainer module, please contact your system administrator. Before running the Segpy pipeline, load the Apptainer module using the following command:
 
 ```
-????????
+# Load Apptainer
+module apptainer/1.2.4
 ```
 
-### Run
-To test the pipeline, execute the following code
+ - - - -
 
-``` 
-bash ~/segpy.pip/launch_segpy.sh -h
+### Segpy.pip
+To download the latest version of Segpy run the following command:
+
+```
+# Download the Segpy container
+#curl "https://zenodo.org/records/12751010/files/scrnabox.slurm.zip?download=1" --output segpy.pip.zip
+
+# Unzip the Segpy container
+unzip segpy.pip.zip
 ```
 
-If you see the following the pipeline is functioning correctly.
+To ensure that `segpy.pip` is installed properly, run the following command:
+
+```
+bash /path/to/segpy.pip/launch_segpy.sh -h
+```
+
+If `segpy.pip` is installed properly, the above command should return the folllowing:
 
 ```
 ------------------------------------
@@ -47,7 +59,8 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
                 -v  (--vcf)      = VCF file (mandatory for steps 1-3)
                 -p  (--ped)      = PED file (mandatory for steps 1-3)
                 -V  (--verbose)      = verbose output
-
 ```
 
-**[⬆ back to top](#contents)**
+After successfully installing `segpy.pip` we can proceed with the segregation analysis. 
+
+**[⬆ back to top](#installation)**

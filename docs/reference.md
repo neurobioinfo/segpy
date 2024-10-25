@@ -1,34 +1,38 @@
-# Adjustable execution parameters for the segregation pipeline
-- [Introduction](#introduction)
-- [Segpy parameters](#segpy-parameters)
-- - - -
+# Segpy configuration parameters
+The `configs` directory produced after initiating the Segpy pipeline (step 0) contains the `segpy.config.ini`, which contains execution parameters that users must modify prior to running their analysis. 
 
-## Introduction
-The configs/ directory contains the segpy.config.ini file which allows users to specify the parameters of interest explained below 
-## Segpy parameters
-`ACCOUNT` Specify user name for slurm module. <br />
-`SPARK_PATH` Environment variables to point to the correct Spark executable <br />
-`ENV_PATH` Environment variables to point to the correct Python executable <br />
-`PYTHON_CMD=python3.10` <br />
-`MODULEUSE` The path to the environmental module <br />
-`JAVA_CMD=java` <br /> 
-`JAVA_VERSION=11.0.2` <br /> Specify the version of Java
-`NCOL=7` To control usage of memory to process CSQ.  <br />
-`CSQ=True` To process CSQ in the output, Consequence annotations from Ensembl VEP.   <br />
-`GRCH=GRCh38` Genome Reference Consortium Human <br />
-`SPARKMEM="16g"` Spark Memory <br />
-`JAVATOOLOPTIONS="-Xmx8g"` Java Memory and any other options can be added to here.  <br />
-#### [step 1] Create table matrix
-`WALLTIME_ARRAY["step_1"]=00-01:00`  Set a limit on the total run time of the job allocation in the step 1 under slurm. <br />
-`THREADS_ARRAY["step_1"]=4` Request the maximum ntasks be invoked on each core in the step 1 under slurm. <br />
-`MEM_ARRAY["step_1"]=25g` Specify the real memory required per node in the step 1 under slurm.  <br />
-#### [step 2] Run segregation 
-`WALLTIME_ARRAY["step_2"]=00-02:00 ` Set a limit on the total run time of the job allocation in the step 2 under slurm.  <br />
-`THREADS_ARRAY["step_2"]=4` Request the maximum ntasks be invoked on each core in the step 2 under slurm. <br />
-`MEM_ARRAY["step_2"]=17g` Specify the real memory required per node in the step 2 under slurm. <br />
-`INFO_REQUIRED=[1,2,3,4]` One can determine the desired content to be included in the output <br />
- 1: Global affected, 2: Global unaffected, 3: family-wise, 4: phenotype-family-wise, 5: phenotype-family-wise and non-include, 6: phenotype-family-wise-multipe sample, 7: phenotype-family-wise-multipe sample and non-include
-#### [step 3] Parsing 
-`WALLTIME_ARRAY["step_3"]=00-01:00` Set a limit on the total run time of the job allocation in the step 3 under slurm.  <br />
-`THREADS_ARRAY["step_3"]=4` Request the maximum ntasks be invoked on each core in the step 3 under slurm. <br />
-`MEM_ARRAY["step_3"]=4g` Specify the real memory required per node in the step 3 under slurm.  <br />
+The `segpy.config.ini` can be modified using the following command:
+
+```
+# 1) Open .ini file to edit with nano
+nano $PWD/configs/segpy.config.ini
+
+# 2) Make appropriate changes.
+
+# 3) Save and exit the .ini file with ctrl+0, enter ,ctrl+x
+```
+
+The following parameters are adjustable for the Segpy pipeline:
+
+| Parameter   |      Default      |  Explanation |
+|----------|:-------------|:------|
+|CONTAINER_MODULE | CONTAINER_MODULE='apptainer/1.2.4' | The version of Singularity/Apptainer loaded onto your system.|
+|ACCOUNT|ACCOUNT=user| Your SLURM user account.|
+| CSQ | CSQ=TRUE | Whether or not to include variant annotations from VEP in the output file. |
+|GRCH| GRCH=GRCh38 | Reference genome version (GRCh38 or GRCh37).|
+|AFFECTEDS_ONLY|AFFECTEDS_ONLY=FALSE| Whether or not to only include families with at least one affected individual.|
+|FILTER_VARIANT|FILTER_VARIANT=TRUE| Filter the output file using relevant counting column values where 'fam_aff_vrt'+'fam_aff_homv'+'fam_naf_vrt'+'fam_naf_homv' >0. See [Step 3: Parse output file](#step-3-parse-output-file) for more information.|
+|JAVATOOLOPTIONS|JAVATOOLOPTIONS="-Xmx6g"| Java Virtual Machine (JVM) configuration setting. For most use cases the default value will be appropriate.|
+|WALLTIME_ARRAY["step1"]|WALLTIME_ARRAY["step1"]=00-5:00 | Number of CPUs for the step 1 job sumission. |
+|THREADS_ARRAY["step1"]|THREADS_ARRAY["step1"]=8| Amount of memory (RAM) for the step 1 job sumission. |
+|MEM_ARRAY["step1"]|MEM_ARRAY["step1"]=10g| Amount of time for the step 1 job sumission.|
+|WALLTIME_ARRAY["step2"]|WALLTIME_ARRAY["step2"]=00-5:00 | Number of CPUs for the step 2 job sumission. |
+|THREADS_ARRAY["step2"]|THREADS_ARRAY["step2"]=8| Amount of memory (RAM) for the step 2 job sumission. |
+|MEM_ARRAY["step2"]|MEM_ARRAY["step2"]=10g| Amount of time for the step 2 job sumission.|
+|WALLTIME_ARRAY["step3"]|WALLTIME_ARRAY["step3"]=00-5:00 | Number of CPUs for the step 3 job sumission. |
+|THREADS_ARRAY["step3"]|THREADS_ARRAY["step3"]=8| Amount of memory (RAM) for the step 3 job sumission. |
+|MEM_ARRAY["step3"]|MEM_ARRAY["step3"]=10g| Amount of time for the step 3 job sumission.|
+
+
+
+
