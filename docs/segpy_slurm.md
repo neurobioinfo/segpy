@@ -100,6 +100,7 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 -d $PWD \
 --steps 0 \
 --jobmode slurm
+--analysis_mode cohort_based
 ```
 
 After running this command, the working directory (PWD) should have the following structure:
@@ -270,6 +271,25 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 --steps 2 \
 --vcf $VCF
 --ped $PED
+--family familyID_1
+
+
+fam_list = familyID_1
+
+for fam in fam_list:
+        ###
+        # create family-specific hail.MatrixTables, to be parsed for counts etc. below
+        start_time_fam = datetime.now()
+        step = f'family_{fam}:generate fam/nfm x aff/naf matrixTables'
+        start_time = datetime.now()
+        fam_aff_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['fam']['aff'])
+        fam_naf_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['fam']['naf'])
+        nfm_aff_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['nfm']['aff'])
+        nfm_naf_mt = filterMatrixTableBySampleList(mt, sample_dict[fam]['nfm']['naf'])
+        timekeeping(step, start_time)
+
+
+
 ```
 
 After running this command, a `step2` directory will be created in the working directory (PWD), which will contain the output files from the segregation analysis. The `step2` directory should have the following structure:
@@ -311,7 +331,7 @@ Once the parameters have been adjusted, we can run step 3. If you simply want to
 ```
 bash $PIPELINE_HOME/launch_segpy.sh \
 -d $PWD \
---steps 2 \
+--steps 3 \
 --parser general
 ```
 
@@ -320,7 +340,7 @@ If you want to eliminate duplicated variant entries resulting from VEP annotatio
 ```
 bash $PIPELINE_HOME/launch_segpy.sh \
 -d $PWD \
---steps 2 \
+--steps 3 \
 --parser unique
 ```
 
@@ -349,7 +369,3 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 
 
 **[⬆ back to top](#segpy-slurm)**
-
-
-
-
