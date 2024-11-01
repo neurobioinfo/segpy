@@ -41,41 +41,37 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a>
     </li>
     </ul>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="installation/">Installation</a>
-                </li>
-              </ul>
               <p class="caption"><span class="caption-text">Tutorial</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="segpy_local/">- - segpy local</a>
+                  <li class="toctree-l1"><a class="reference internal" href="installation/">Installation</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="segpy_slurm/">- - segpy slurm</a>
+                  <li class="toctree-l1"><a class="reference internal" href="segpy_slurm/">Segpy SLURM</a>
                   </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="FAQ/">FAQ</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="reference/">Reference</a>
-                </li>
+                  <li class="toctree-l1"><a class="reference internal" href="segpy_local/">Segpy Local</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="reference/">Configuration parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="output/">Output files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="FAQ/">FAQ</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">About</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="LICENSE/">- License</a>
+                  <li class="toctree-l1"><a class="reference internal" href="LICENSE/">License</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="changelog/">- Changelog</a>
+                  <li class="toctree-l1"><a class="reference internal" href="changelog/">Changelog</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="contributing/">- Contributing</a>
+                  <li class="toctree-l1"><a class="reference internal" href="contributing/">Contributing</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="Acknowledgement/">- Acknowledgement</a>
+                  <li class="toctree-l1"><a class="reference internal" href="Acknowledgement/">Acknowledgement</a>
                   </li>
               </ul>
       </div>
@@ -91,7 +87,7 @@
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
       <li class="breadcrumb-item active">Home</li>
     <li class="wy-breadcrumbs-aside">
     </li>
@@ -101,19 +97,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="welcome-to-segpys-documentation">Welcome to segpy's documentation!</h1>
-<p>Segpy is a comprehensive pipeline designed for segregation analysis. This documentation provides a step-by-step tutorial on executing segregation analysis in a High-Performance Computing (HPC) environment utilizing the Slurm workload manager system (https://slurm.schedmd.com/), or on a Linux workstation. Segregation analysis is a crucial process for exploring genetic variants within a sample of sequence data. This pipeline facilitates the counting of affected and non-affected individuals with variants, including homozygous variants, those with no variants, and those with no calls. These counts are computed both within families and globally. Additionally, the pipeline offers a detailed breakdown not only of variants but also of alleles in each case. To execute segregation analysis successfully, it is imperative to have a pedigree file with six columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>{1:male; 2:female, 0:unknown}, and <code>phenotype</code>={1: control (unaffected), 2: proband(affected), -9:missing}. The genetic data must be provided in the vcf format.</p>
-<p>For guidance on how to use segpy's pipeline, consult the tutorial.</p>
+                <h1 id="welcome-to-segpys-documentation">Welcome to Segpy's documentation!</h1>
+<p>Segpy is a comprehensive pipeline to facilitate variant segregation analysis. Segregation analysis investigates how genetic variants are passed down through generations in a family in order to identify genetic traits that contribute to disease. In general, segregation analysis comprises a three-step process: <br></p>
+<ol>
+<li><strong>Family pedigree construction</strong>: A detailed family tree is created to visualize relationships and inheritance patterns among family members.</li>
+<li><strong>Genotyping</strong>: Family members are genotyped to identify the presence or absence of specific variants.</li>
+<li><strong>Data Analysis</strong>: Statistical methods are applied to analyze how the variants segregate with the phenotype within the family. This often involves comparing the genotype of affected individuals to that of unaffected individuals.</li>
+</ol>
+<p>While Segpy was originally designed for segregation analysis, it can also be used to analyze <strong>case-control cohorts</strong>. We provide comprehensive tutorials for each application case in the <strong>Tutorial</strong> section of this documentation. Regardless of the application case, Segpy computes the counts of affected and non-affected individuals, both in and out of families, based on reference allele, alternate allele, homozygous alternate allele, and no variant call. These counts are assembled into a comprehensive dataframe, where each row represents a single variant, which can be optionally annotated with <a href="https://useast.ensembl.org/info/docs/tools/vep/index.html">Variant Effect Predictor</a> (VEP) to facilitate downstream statistical analyses.</p>
+<p>The Segpy pipeline comprises four sequential steps shown in <strong>Figure 1</strong>. As input, users must provide a VCF file, which can be optionally annotated with VEP, and a pedigree file. The VCF file is then converted to the Hail MatrixTable format, the variants are segregated, and the counts data frame is parsed to only retain informative ouputs.</p>
+<p align="center">
+ <img src="https://github.com/user-attachments/assets/9beb08d2-49cd-41fc-a419-3caca8329c6d" width="450" height="100">
+ </p>
+
+<p><strong>Figure 1. Segpy pipeline workflow.</strong></p>
+<p>A containerized version of the Segpy pipeline is publicly available from <strong>Zenodo</strong>, which includes the code, libraries, and dependicies required for running the analyses. Segpy is configured to seamlessly integrate with High-Performance Computing (HPC) systems utilizing the <a href="https://slurm.schedmd.com/">SLURM</a> workload manager (Segpy SLURM), but can also be run locally on linux workstations (Segpy Local).</p>
+<p>In this documentation, we provide a step-by-step tutorial and explanation of the Segpy pipeline. We also provide a quick-start tutorial using a simulated dataset.</p>
+<hr />
 <h2 id="contents">Contents</h2>
 <ul>
-<li><a href="installation/">Installation</a></li>
-<li><a href="">Tutorial:</a><ul>
-<li><a href="segpy_local/">segpy local</a></li>
-<li><a href="segpy_slurm/">segpy slurm</a></li>
+<li>Tutorial:<ul>
+<li><a href="installation/">Installation</a> </li>
+<li><a href="segpy_slurm/">Segpy SLURM</a></li>
+<li><a href="segpy_local/">Segpy Local</a></li>
+<li><a href="reference/">Configuration parameters</a> </li>
+<li><a href="output/">Output files</a> </li>
+<li><a href="FAQ/">FAQ</a>           </li>
 </ul>
 </li>
-<li><a href="FAQ/">FAQ</a></li>
-<li><a href="reference/">Reference</a></li>
+<li>About:<ul>
+<li><a href="LICENSE/">License</a></li>
+<li><a href="changelog/">Changelog</a></li>
+<li><a href="contributing/">Contributing</a></li>
+<li><a href="Acknowledgement/">Acknowledgement</a></li>
+</ul>
+</li>
 </ul>
               
             </div>
@@ -163,6 +181,6 @@
 </html>
 
 <!--
-MkDocs version : 1.6.0
-Build Date UTC : 2024-09-15 03:01:00.183604+00:00
+MkDocs version : 1.5.2
+Build Date UTC : 2024-11-01 11:27:35.397861+00:00
 -->

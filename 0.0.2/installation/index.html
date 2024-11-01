@@ -44,46 +44,36 @@
                 <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Installation</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Installation</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#apptainer">Apptainer</a>
+    <li class="toctree-l2"><a class="reference internal" href="#apptainer">Apptainer</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#download">Download</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#run">Run</a>
-    </li>
-        </ul>
+    <li class="toctree-l2"><a class="reference internal" href="#segpypip">Segpy.pip</a>
     </li>
     </ul>
-                </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Tutorial</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">- - segpy local</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">- - segpy slurm</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">Segpy SLURM</a>
                   </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
-                </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">Segpy Local</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/">Configuration parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../output/">Output files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">About</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">- License</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">License</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">- Changelog</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">- Contributing</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">- Acknowledgement</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">Acknowledgement</a>
                   </li>
               </ul>
       </div>
@@ -99,7 +89,8 @@
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Tutorial &raquo;</li>
       <li class="breadcrumb-item active">Installation</li>
     <li class="wy-breadcrumbs-aside">
     </li>
@@ -110,24 +101,31 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="installation">Installation</h1>
-<p>The pipeline is containerized and can be run using Singularity, eliminating the need to install modules within the pipeline. It is compatible with both High-Performance Computing (HPC) systems and standard Linux workstations.</p>
-<h2 id="contents">Contents</h2>
+<p>A containerized version of the Segpy pipeline is publicly available from <strong>Zenodo</strong>, which includes the code, libraries, and dependicies required for running the analyses. The container is compatible with both High-Performance Computing (HPC) systems and standard Linux workstations.</p>
+<p>To use the Segpy pipeline, the folowing must be installed on your system:</p>
 <ul>
-<li><a href="#apptainer">Step 1: Apptainer</a></li>
-<li><a href="#download">Step 2: Download</a></li>
-<li><a href="#run">Step 3: Run</a></li>
+<li><a href="#apptainer">Apptainer</a></li>
+<li><a href="#segpypip">segpy.pip</a></li>
 </ul>
+<hr />
 <h3 id="apptainer">Apptainer</h3>
-<p><code>segpy.pip</code>  is packaged and tested with Apptainer (formerly known as Singularity) version 1.2.4. Ensure that Apptainer/Singularity is installed on your system before proceeding.</p>
-<h3 id="download">Download</h3>
-<p>Download the pipeline from Zenodo, which includes the segregated image.</p>
-<pre><code>????????
+<p><code>segpy.pip</code> is packaged and tested with <a href="https://apptainer.org/">Apptainer</a> (formerly Singularity) version 1.2.4. Before proceeding, ensure that Apptainer/Singularity is installed on your system. If you are using an HPC system, Apptainer is likely already installed, and you will simply need to load the module. If you encounter any issues while loading the Apptainer module, please contact your system administrator. Before running the Segpy pipeline, load the Apptainer module using the following command:</p>
+<pre><code># Load Apptainer
+module apptainer/1.2.4
 </code></pre>
-<h3 id="run">Run</h3>
-<p>To test the pipeline, execute the following code</p>
-<pre><code>bash ~/segpy.pip/launch_segpy.sh -h
+<hr />
+<h3 id="segpypip">Segpy.pip</h3>
+<p>To download the latest version of Segpy run the following command:</p>
+<pre><code># Download the Segpy container
+#curl &quot;https://zenodo.org/records/12751010/files/scrnabox.slurm.zip?download=1&quot; --output segpy.pip.zip
+
+# Unzip the Segpy container
+unzip segpy.pip.zip
 </code></pre>
-<p>If you see the following the pipeline is functioning correctly.</p>
+<p>To ensure that <code>segpy.pip</code> is installed properly, run the following command:</p>
+<pre><code>bash /path/to/segpy.pip/launch_segpy.sh -h
+</code></pre>
+<p>If <code>segpy.pip</code> is installed properly, the above command should return the folllowing:</p>
 <pre><code>------------------------------------
 segregation pipeline version 0.0.3 is loaded
 
@@ -149,15 +147,15 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
                 -v  (--vcf)      = VCF file (mandatory for steps 1-3)
                 -p  (--ped)      = PED file (mandatory for steps 1-3)
                 -V  (--verbose)      = verbose output
-
 </code></pre>
-<p><strong><a href="#contents">⬆ back to top</a></strong></p>
+<p>After successfully installing <code>segpy.pip</code> we can proceed with the segregation analysis. </p>
+<p><strong><a href="#installation">⬆ back to top</a></strong></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../segpy_local/" class="btn btn-neutral float-right" title="- - segpy local">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../segpy_slurm/" class="btn btn-neutral float-right" title="Segpy SLURM">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -183,7 +181,7 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
       <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../segpy_local/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../segpy_slurm/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

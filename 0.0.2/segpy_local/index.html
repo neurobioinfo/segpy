@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.2/segpy_local/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>- - segpy local - segpy</title>
+    <title>Segpy Local - segpy</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,7 +13,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "- - segpy local";
+        var mkdocs_page_name = "Segpy Local";
         var mkdocs_page_input_path = "segpy_local.md";
         var mkdocs_page_url = "/0.0.2/segpy_local/";
       </script>
@@ -44,50 +44,46 @@
                 <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
-                </li>
-              </ul>
               <p class="caption"><span class="caption-text">Tutorial</span></p>
               <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">- - segpy local</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">Segpy SLURM</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Segpy Local</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a>
         <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#input-data">Input data</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#step-0-setup">Step 0: Setup</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-1-create-table-matrix">Step 1: Create table matrix</a>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-vcf-to-matrixtable">Step 1: VCF to MatrixTable</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#step-2-run-segregation">Step 2: Run segregation</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-3-parsing">Step 3: Parsing</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#note">Note</a>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-parse-output-file">Step 3: Parse output file</a>
     </li>
         </ul>
     </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">- - segpy slurm</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/">Configuration parameters</a>
                   </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
-                </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../output/">Output files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">About</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">- License</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">License</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">- Changelog</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">- Contributing</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">- Acknowledgement</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">Acknowledgement</a>
                   </li>
               </ul>
       </div>
@@ -103,9 +99,9 @@
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Tutorial</li>
-      <li class="breadcrumb-item active">- - segpy local</li>
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Tutorial &raquo;</li>
+      <li class="breadcrumb-item active">Segpy Local</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -114,127 +110,270 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="segpy-on-workstation">Segpy on workstation</h1>
-<p><code>segpy.pip</code> can be used to executing on Linux workstation. Below, we illustrate the code to submit jobs for (steps 0 to 3) of the pipeline on Linux workstation. </p>
+                <h1 id="segpy-local">Segpy Local</h1>
+<p>In this tutorial we illustrate how to run the Segpy pipeline on a local Linux workstation.</p>
 <h2 id="contents">Contents</h2>
 <ul>
+<li><a href="#input-data">Input data</a></li>
 <li><a href="#step-0-setup">Step 0: Setup</a></li>
-<li><a href="#step-1-create-table-matrix">Step 1: Create table matrix</a></li>
+<li><a href="#step-1-VCF-to-MatrixTable">Step 1: VCF to MatrixTable</a></li>
 <li><a href="#step-2-run-segregation">Step 2: Run segregation</a></li>
-<li><a href="#step-3-parsing">Step 3: Clean final data</a></li>
-<li><a href="#note">Note</a></li>
+<li><a href="#step-3-parse-output-file">Step 3: Parse output file</a></li>
 </ul>
-<p>The following flowchart illustrates the steps for running the segregation analysis on Linux workstation.</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;"><img src="https://raw.githubusercontent.com/neurobioinfo/segpy/main/segpy_pip.png" width="200" height="400"/></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;"><em>segpy.pip local workflow</em></td>
-</tr>
-</tbody>
-</table>
-<p>To execute the pipeline, you require 1) the path of the pipeline (PIPELINE_HOME), 2) the working directory, 3) the VCF file, and 4) the PED file.</p>
-<pre><code>export PIPELINE_HOME=~/segpy.pip
-PWD=~/outfolder
-VCF=~/data/VEP_iPSC.vcf
-PED=~/data/iPSC.ped
-</code></pre>
+<p>The following flowchart illustrates the steps for running the segregation analysis on a local Linux workstation.</p>
+<p align="center">
+ <img src="https://github.com/user-attachments/assets/9beb08d2-49cd-41fc-a419-3caca8329c6d" width="450" height="100">
+ </p>
+
+<p><strong>Figure 1. Segpy pipeline workflow.</strong></p>
+<hr />
+<h3 id="input-data">Input data</h3>
+<p>To execute the pipeline, users must provide two separate input files: <br></p>
+<ol>
+<li><strong>VCF</strong></li>
+<li><strong>Pedigree file</strong></li>
+</ol>
+<p>The <strong>VCF</strong> should be formatted according to the standard VCF specifications, containing information about genetic variants, including their positions, alleles, and genotype information for each individual in the study. <br></p>
+<p>The <strong>Pedigree file</strong> should be in .ped format, structured such that each line describes an individual in the study and includes the following columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>, <code>phenotype</code>, facilitating the analysis of inheritance patterns and genetic associations within the family.</p>
+<ul>
+<li>The <code>familyid</code> column must contain identifiers for the family.</li>
+<li>The <code>individualid</code> column must contain identifiers for the individual that match the VCF file.</li>
+<li>The <code>parentalid</code> column must contain identifiers for the father (0 if unknown).</li>
+<li>The <code>maternalid</code> column must contain identifiers for the mother (0 if unknown).</li>
+<li>The <code>sex</code> column must describe the biological sex of the individual (1 = male, 2 = female, 0 = unknown).</li>
+<li>The <code>phenotype</code> column must describe the phenotypic data (1 = unaffected, 2 = affected, -9 = missing).</li>
+</ul>
+<p>We provide an example .ped file <strong>HERE</strong>. </p>
+<hr />
 <h3 id="step-0-setup">Step 0: Setup</h3>
-<p>Initially, execute the following code to set up the pipeline. You can modify the parameters in ${PWD}/job_output/segpy.config.ini.</p>
-<pre><code>sh $PIPELINE_HOME/launch_segpy.sh \
--d ${PWD} \
---steps 0 
+<p>Prior to initiating the pipeline, users must provide the paths to:</p>
+<ol>
+<li>The directory containing <code>segpy.pip</code> (PIPELINE_HOME)</li>
+<li>The directory designated for the pipeline's outputs (PWD)</li>
+<li>The VCF file (VCF)</li>
+<li>The pedigree file (PED)</li>
+</ol>
+<p>Use the following code to define these paths:</p>
+<pre><code># Define necessary paths
+export PIPELINE_HOME=path/to/segpy.pip
+PWD=path/to/outfolder
+VCF=path/to/VCF.vcf
+PED=path/to/pedigree.ped
 </code></pre>
-<p>The parameters are: </p>
+<p>To ensure that <code>segpy.pip</code> was defined properly, run the following command:</p>
+<pre><code>bash $PIPELINE_HOME/launch_segpy.sh -h
+</code></pre>
+<p>Which should return the following:</p>
+<pre><code>------------------------------------
+segregation pipeline version 0.0.3 is loaded
+
+-------------------
+Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
+        mandatory arguments:
+                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path)
+                -s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.
+                                steps:
+                                0: initial setup
+                                1: create hail matrix
+                                2: run segregation
+                                3: final cleanup and formatting
+
+        optional arguments:
+                -h  (--help)      = Get the program options and exit.
+                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument.
+                --parser             = 'general': to general parsing, 'unique': drop multiplicities
+                -v  (--vcf)      = VCF file (mandatory for steps 1-3)
+                -p  (--ped)      = PED file (mandatory for steps 1-3)
+                -V  (--verbose)      = verbose output
+</code></pre>
+<p>Once the necessary paths have been defined, we can initialize the pipeline using the following command:</p>
+<pre><code>module load apptainer/1.2.4
+
+bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
+--steps 0 \
+</code></pre>
+<p>After running this command, the working directory (PWD) should have the following structure:</p>
+<pre><code>PWD
+├── configs
+│   └── segpy.config.ini
+├── launch_summary_log.txt
+└── logs
+    ├── jobs
+    └── spark
+</code></pre>
+<p>The <code>configs</code> directory contains a .ini file with adjustable parameters for the pipeline. Please see <strong>HEREEEEEEEEEEEEEEEEE</strong> for more information regarding these parameters. The <code>logs</code> directory documents the parameters and outputs from each analytical step of the Segpy pipeline to ensure reproducibility. The <code>launch_summary_log.txt</code> is a cumulative documentation of all submitted jobs throughout the analysis.</p>
+<p>After completing Step 0, open the <code>segpy.config.ini</code> file to adjust the general parameters for the analysis. The following parameters must be adjusted:</p>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
-<th style="text-align: left;">default</th>
+<th style="text-align: left;">Default</th>
 <th style="text-align: left;">Explanation</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>CONTAINER_MODULE</td>
+<td style="text-align: left;">CONTAINER_MODULE=NA</td>
+<td style="text-align: left;">The version of Singularity/Apptainer loaded onto your system. For Local workstations, you can keep this parameter commented.</td>
+</tr>
+<tr>
 <td>CSQ</td>
 <td style="text-align: left;">CSQ=TRUE</td>
-<td style="text-align: left;">include CSQ information in the output by setting CSQ=TRUE. To exclude CSQ from the output, set CSQ=FALSE</td>
+<td style="text-align: left;">Whether or not to include variant annotations from VEP in the output file.</td>
 </tr>
 <tr>
 <td>GRCH</td>
 <td style="text-align: left;">GRCH=GRCh38</td>
-<td style="text-align: left;">set the reference genome</td>
+<td style="text-align: left;">Reference genome version (GRCh38 or GRCh37).</td>
 </tr>
 <tr>
 <td>AFFECTEDS_ONLY</td>
 <td style="text-align: left;">AFFECTEDS_ONLY=FALSE</td>
-<td style="text-align: left;">include all families with at least one affected sample if affecteds_only=TRUE</td>
+<td style="text-align: left;">Whether or not to only include families with at least one affected individual.</td>
 </tr>
 <tr>
 <td>FILTER_VARIANT</td>
 <td style="text-align: left;">FILTER_VARIANT=TRUE</td>
-<td style="text-align: left;">filter the output file using relevant counting column values where  'fam_aff_vrt'+'fam_aff_homv'+'fam_naf_vrt'+'fam_naf_homv' &gt;0.</td>
-</tr>
-<tr>
-<td>SPARKMEM</td>
-<td style="text-align: left;">SPARKMEM="16g"</td>
-<td style="text-align: left;">Amount of memory to use for the driver process, i.e. where SparkContext is initialized. Look at spark.driver.memory of "spark.apache"</td>
+<td style="text-align: left;">Filter the output file using relevant counting column values where 'fam_aff_vrt'+'fam_aff_homv'+'fam_naf_vrt'+'fam_naf_homv' &gt;0. See <a href="#step-3-parse-output-file">Step 3: Parse output file</a> for more information.</td>
 </tr>
 <tr>
 <td>JAVATOOLOPTIONS</td>
 <td style="text-align: left;">JAVATOOLOPTIONS="-Xmx6g"</td>
-<td style="text-align: left;">specify JVM arguments as an environment variable. Look at "JAVA_TOOL_OPTIONS" Environment Variable</td>
+<td style="text-align: left;">Java Virtual Machine (JVM) configuration setting. For most use cases the default value will be appropriate.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="step-1-create-table-matrix">Step 1: Create table matrix</h3>
-<p>The following code, create  MatrixTable from the VCF file.</p>
-<pre><code>sh $PIPELINE_HOME/launch_segpy.sh \
--d ${PWD} \
+<p>Use the following code to modify the <code>segpy.config.ini</code> file:</p>
+<pre><code># 1) Open .ini file to edit with nano
+nano $PWD/configs/segpy.config.ini
+
+# 2) Make appropriate changes.
+
+# 3) Save and exit the .ini file with ctrl+0, enter ,ctrl+x
+</code></pre>
+<hr />
+<h3 id="step-1-vcf-to-matrixtable">Step 1: VCF to MatrixTable</h3>
+<p>In step 1, we will convert the user-provided VCF file to the <a href="https://hail.is/docs/0.2/overview/matrix_table.html">Hail MatrixTable</a> format, which is designed to efficiently store and manipulate large-scale genomic datasets.</p>
+<p>To run step 1 using the following command:</p>
+<pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
 --steps 1 \
---vcf ${VCF}
+--vcf $VCF
 </code></pre>
+<p>After running this command, a <code>step1</code> directory will be created in the working directory (PWD), which will contain the output files from Hail. The <code>step1</code> directory should have the following structure:</p>
+<pre><code>step1
+└── VEP_iPSC.mt
+    ├── cols
+    │   ├── metadata.json.gz
+    │   ├── README.txt
+    │   ├── rows
+    │   │   ├── metadata.json.gz
+    │   │   └── parts
+    │   │       └── part-0
+    │   └── _SUCCESS
+    ├── entries
+    │   ├── metadata.json.gz
+    │   ├── README.txt
+    │   ├── rows
+    │   │   ├── metadata.json.gz
+    │   │   └── parts
+    │   │       ├── part-0-5eb5d5aa-c7b2-4acf-bea1-b55e6f4d9bff
+    │   │       ├── part-1-8ba09e12-618c-416b-8abe-8dd858760e2f
+    │   │       └── part-2-7b8e9e61-db1b-4697-8e27-c797f9082545
+    │   └── _SUCCESS
+    ├── globals
+    │   ├── globals
+    │   │   ├── metadata.json.gz
+    │   │   └── parts
+    │   │       └── part-0
+    │   ├── metadata.json.gz
+    │   ├── README.txt
+    │   ├── rows
+    │   │   ├── metadata.json.gz
+    │   │   └── parts
+    │   │       └── part-0
+    │   └── _SUCCESS
+    ├── index
+    │   ├── part-0-5eb5d5aa-c7b2-4acf-bea1-b55e6f4d9bff.idx
+    │   │   ├── index
+    │   │   └── metadata.json.gz
+    │   ├── part-1-8ba09e12-618c-416b-8abe-8dd858760e2f.idx
+    │   │   ├── index
+    │   │   └── metadata.json.gz
+    │   └── part-2-7b8e9e61-db1b-4697-8e27-c797f9082545.idx
+    │       ├── index
+    │       └── metadata.json.gz
+    ├── metadata.json.gz
+    ├── README.txt
+    ├── references
+    ├── rows
+    │   ├── metadata.json.gz
+    │   ├── README.txt
+    │   ├── rows
+    │   │   ├── metadata.json.gz
+    │   │   └── parts
+    │   │       ├── part-0-5eb5d5aa-c7b2-4acf-bea1-b55e6f4d9bff
+    │   │       ├── part-1-8ba09e12-618c-416b-8abe-8dd858760e2f
+    │   │       └── part-2-7b8e9e61-db1b-4697-8e27-c797f9082545
+    │   └── _SUCCESS
+    └── _SUCCESS
+</code></pre>
+<p>A deatiled description of the outputs can be found in the <a href="https://hail.is/docs/0.2/index.html">Hail documentation</a></p>
+<hr />
 <h3 id="step-2-run-segregation">Step 2: Run segregation</h3>
-<p>Execute the following code to generate the segregation. </p>
-<pre><code>sh $PIPELINE_HOME/launch_segpy.sh \
--d ${PWD} \
+<p>In step 2, we will leverage the Hail ouputs from step 1 to perform segregation analysis. </p>
+<p>To run step 2 using the following command:</p>
+<pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
 --steps 2 \
---vcf ${VCF} \
---ped ${PED}  
+--vcf $VCF
+--ped $PED
 </code></pre>
-<h3 id="step-3-parsing">Step 3: Parsing</h3>
-<p>To parse the file and remove unnecessary characters such as ", [, ], etc., run the following code.</p>
-<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
--d ${PWD} \
---steps 3 \
+<p>After running this command, a <code>step2</code> directory will be created in the working directory (PWD), which will contain the output files from the segregation analysis. The <code>step2</code> directory should have the following structure:</p>
+<pre><code>step2
+├── finalseg.csv
+└── temp
+</code></pre>
+<p>The <code>finalseg.csv</code> file contains the variant counts obtained from the segregation analysis, as well as the variant annotations supplied by VEP. Please see <strong>HEREEEEEEEEEEEEEEEEEEE</strong> for a comprehensive description of the file contents.  </p>
+<hr />
+<h3 id="step-3-parse-output-file">Step 3: Parse output file</h3>
+<p>In step 3, we will parse the <code>finalseg.csv</code> obtained from step 2 to simplify the outputs.</p>
+<p>If you simply want to remove unnecessary characters such as <code>"</code>, <code>[, ]</code>, etc., use the following command to run step 3:</p>
+<pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
+--steps 2 \
 --parser general
 </code></pre>
-<p>The following code eliminates duplicate information in CSQ. </p>
-<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
--d ${PWD} \
---steps 3 \
+<p>If you want to eliminate duplicated variant entries resulting from VEP annotations, use the following command to run step 3:</p>
+<pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
+--steps 2 \
 --parser unique
 </code></pre>
-<h3 id="note">Note</h3>
-<p>You can execute steps 1 to 3 sequentially, as illustrated below.</p>
-<pre><code>sh $PIPELINE_HOME/launch_pipeline.segpy.sh \
--d ${PWD} \
+<p>After running this command, a <code>step3</code> directory will be created in the working directory (PWD), which will contain the output files from the segregation analysis. The <code>step3</code> directory should have the following structure:</p>
+<pre><code>step3
+└── finalseg_cleaned_general.csv
+└── finalseg_cleaned_unique.csv
+</code></pre>
+<p>The <code>finalseg_cleaned_general.csv</code> and <code>finalseg_cleaned_unique.csv</code> files contain the parsed variant counts obtained from the segregation analysis, as well as the variant annotations supplied by VEP. Please see <strong>HEREEEEEEEEEEEEEEEEEEE</strong> for a comprehensive description of the file contents.  </p>
+<hr />
+<p><strong>Note</strong>: You can execute steps 1 to 3 sequentially, using the following command:</p>
+<pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
 --steps 1-3 \
---vcf ${VCF} \
---ped ${PED} \
+--vcf $VCF \
+--ped $PED \
 --parser general
 </code></pre>
-<p><strong><a href="#contents">⬆ back to top</a></strong></p>
+<p><strong><a href="#segpy-local">⬆ back to top</a></strong></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../installation/" class="btn btn-neutral float-left" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../segpy_slurm/" class="btn btn-neutral float-right" title="- - segpy slurm">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../segpy_slurm/" class="btn btn-neutral float-left" title="Segpy SLURM"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../reference/" class="btn btn-neutral float-right" title="Configuration parameters">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -257,10 +396,10 @@ PED=~/data/iPSC.ped
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../segpy_slurm/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../segpy_slurm/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../reference/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

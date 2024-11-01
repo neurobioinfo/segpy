@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.2/tutorial/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.2/output/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Tutorial - segpy</title>
+    <title>Output files - segpy</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Tutorial";
-        var mkdocs_page_input_path = "tutorial.md";
-        var mkdocs_page_url = "/0.0.2/tutorial/";
+        var mkdocs_page_name = "Output files";
+        var mkdocs_page_input_path = "output.md";
+        var mkdocs_page_url = "/0.0.2/output/";
       </script>
     
     <!--[if lt IE 9]>
@@ -45,7 +45,7 @@
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Tutorial</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">Segpy SLURM</a>
@@ -54,7 +54,9 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../reference/">Configuration parameters</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../output/">Output files</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Output files</a>
+    <ul class="current">
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
                   </li>
@@ -84,7 +86,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
-      <li class="breadcrumb-item active">Tutorial</li>
+          <li>Tutorial &raquo;</li>
+      <li class="breadcrumb-item active">Output files</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -93,13 +96,111 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="tutorial">Tutorial</h1>
-<p>This section contains tutorials for segregation analysis.</p>
-<h2 id="segpy-local">segpy local</h2>
-<h2 id="segpy-slurm">segpy slurm</h2>
+                <h1 id="segpy-outputs">Segpy outputs</h1>
+<p>The Segpy pipeline computes the counts of affected and non-affected individuals, both in and out of families, based on reference allele, alternate allele, homozygous alternate allele, and no variant call. These counts are assembled into a comprehensive dataframe, where each row represents a single variant, which can be optionally annotated with Variant Effect Predictor (VEP) to facilitate downstream statistical analyses.</p>
+<p>Step 3 of the Segpy pipeline produces two output files, depending on the parsing parameter used:</p>
+<ol>
+<li><strong>finalseg_cleaned_general.csv</strong>: produced using the <code>--parser general</code> tag to remove uncessary characters, such as <code>"</code>, <code>[, ]</code>, etc.</li>
+<li><strong>finalseg_cleaned_unique.csv</strong>: produced using the <code>--parser unique</code> tag to eliminate duplicated variant entries resulting from VEP annotations.</li>
+</ol>
+<p>Regardless of the parsing parameters used, the output file includes separate columns for the user-selected VEP annotations and distinct columns detailing the variant counts across individuals in the study, categorized by their disease and family status:</p>
+<table>
+<thead>
+<tr>
+<th>Column title</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Family - Affected</strong></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td>fam_aff_wild</td>
+<td style="text-align: left;">Family - Affecteds: wildtype</td>
+</tr>
+<tr>
+<td>fam_aff_ncl</td>
+<td style="text-align: left;">Family - Affecteds: no call</td>
+</tr>
+<tr>
+<td>fam_aff_vrt</td>
+<td style="text-align: left;">Family - Affecteds: with variant</td>
+</tr>
+<tr>
+<td>fam_aff_homv</td>
+<td style="text-align: left;">Family - Affecteds: homozygous for ALT allele</td>
+</tr>
+<tr>
+<td><strong>Family - Non-affected</strong></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td>fam_naf_wild</td>
+<td style="text-align: left;">Family - non-affecteds: wildtype</td>
+</tr>
+<tr>
+<td>fam_naf_ncl</td>
+<td style="text-align: left;">Family - non-affecteds: no call</td>
+</tr>
+<tr>
+<td>fam_naf_vrt</td>
+<td style="text-align: left;">Family - non-affecteds: with variant</td>
+</tr>
+<tr>
+<td>fam_naf_homv</td>
+<td style="text-align: left;">Family - non-affecteds: homozygous for ALT allele</td>
+</tr>
+<tr>
+<td><strong>Non-Family - Affected</strong></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td>nfm_aff_wild</td>
+<td style="text-align: left;">Non-family - Affecteds: wildtype</td>
+</tr>
+<tr>
+<td>nfm_aff_ncl</td>
+<td style="text-align: left;">Non-family - Affecteds: no call</td>
+</tr>
+<tr>
+<td>nfm_aff_vrt</td>
+<td style="text-align: left;">Non-family - Affecteds: with variant</td>
+</tr>
+<tr>
+<td>nfm_aff_homv</td>
+<td style="text-align: left;">Non-family - Affecteds: homozygous for ALT allele</td>
+</tr>
+<tr>
+<td><strong>Non-Family - Non-affected</strong></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td>nfm_naf_wild</td>
+<td style="text-align: left;">Non-family - non-affecteds: wildtype</td>
+</tr>
+<tr>
+<td>nfm_naf_ncl</td>
+<td style="text-align: left;">Non-family - non-affecteds: no call</td>
+</tr>
+<tr>
+<td>nfm_naf_vrt</td>
+<td style="text-align: left;">Non-family - non-affecteds: with variant</td>
+</tr>
+<tr>
+<td>nfm_naf_homv</td>
+<td style="text-align: left;">Non-family - non-affecteds: homozygous for ALT allele</td>
+</tr>
+</tbody>
+</table>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../reference/" class="btn btn-neutral float-left" title="Configuration parameters"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../FAQ/" class="btn btn-neutral float-right" title="FAQ">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -121,6 +222,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
+      <span><a href="../reference/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../FAQ/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
