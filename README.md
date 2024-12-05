@@ -23,7 +23,7 @@ To meet the requirements of various study designs, Segpy integrates the ability 
 Each analysis tracks consists of four dstinct steps shown in **Figure 1**. In brief, Step 0 establishes a working directory for the analyis and deposits a modifiable text file to adjust the analytical parameters. In Step 1, the user-provided VCF file is converted to the [Hail MatrixTable](https://hail.is/docs/0.2/overview/matrix_table.html) format. In Step 2, variant segregation is performed based on the sample information defined in the user-provided pedigree file using the MatrixTable. In Step 3, the carrier counts data frame produced in Step 2 is parsed based on user specifications to reduce the computational burden of downstream analyses. 
 
  <p align="center">
- <img src="https://github.com/user-attachments/assets/d7879700-3bba-4d53-a775-8556e3c3f6d3" width="300" height="300">
+ <img src="https://github.com/user-attachments/assets/d7879700-3bba-4d53-a775-8556e3c3f6d3" width="450" height="300">
  </p>
 
 **Figure 1. Segpy pipeline workflow.**
