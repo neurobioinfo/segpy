@@ -10,7 +10,7 @@
 -  [Running Segpy](#running-segpy)
 -  [Contributing](#contributing)
 -  [Running Segpy](#running-segpy)
--  [Change log](#change-log)
+-  [Changelog](#changelog)
 -  [License](#license)
 -  [Acknowledgement](#acknowledgement)
 
