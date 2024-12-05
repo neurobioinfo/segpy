@@ -7,7 +7,7 @@
 ## Contents
 -  [Introduction](#introduction)
 -  [Installation](#installation)
--  [How to run](#how-to-run)
+-  [Running Segpy](#running-segpy)
 
 ---
 
@@ -33,6 +33,8 @@ Each analysis tracks consists of four dstinct steps shown in **Figure 1**. In br
 A containerized version of the Segpy pipeline is publicly available from ******Zenodo*******, which includes the code, libraries, and dependicies required for running the analyses.
 
 Below, we provide a quick start guide for Segpy. Please refer to Segpy's [documentation](https://neurobioinfo.github.io/segpy/site/) for comprehensive tutorials. 
+
+---
 
 ## Installation
 
@@ -87,11 +89,60 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
 
 After successfully installing `segpy.pip` we can proceed with the segregation analysis. 
 
-## How to run
-If you have access to HPC, you can automate it using [`segpy via slurm`](https://neurobioinfo.github.io/segpy/latest/segpy_slurm/), 
-or on a Linux workstation[`segpy via local`](https://neurobioinfo.github.io/segpy/latest/segpy_local/). 
+---
 
-NOTE: vcf input files must have no more than one ALT allele per line. If your vcf file has multiallelic positions, they can be split using [bcftools](https://github.com/samtools/bcftools): `bcftools norm -m- [input.vcf]`
+## Running Segpy 
+Prior to initiating the pipeline, users must provide the paths to:
+
+1. The directory containing `segpy.pip` (PIPELINE_HOME)
+2. The directory designated for the pipeline's outputs (PWD)
+3. The VCF file (VCF)
+4. The pedigree file (PED)
+
+Use the following code to define these paths:
+
+```
+# Define necessary paths
+export PIPELINE_HOME=path/to/segpy.pip
+PWD=path/to/outfolder
+VCF=path/to/VCF.vcf
+PED=path/to/pedigree.ped
+```
+
+To initiate the Segpy pipeline on your local workstation, use the following code:
+
+```
+bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
+--steps 0 \
+--analysis_mode single_family
+```
+
+Where `analysis_mode` is one of `single_family`, `multi_family`, or `case_control` depending on the study design. 
+
+To initiate the Segpy pipeline on your local workstation, include the `--job_mode` tag as shown in the following code:
+
+```
+bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
+--steps 0 \
+--jobmode slurm
+--analysis_mode single_family
+```
+
+Upon initiating the Segpy, the entire pipeline can be run using the following code:
+
+```
+bash $PIPELINE_HOME/launch_segpy.sh \
+-d $PWD \
+--steps 1-3 \
+--vcf $VCF \
+--ped $PED \
+--parser general
+```
+
+Where `parser` is one of `general` or `unique`, depending on the user's preferred method for filtering the final output dataframe.
+
 
 ### Contributing
 This is an early version, any contribute or suggestion is appreciated, you can directly contact with [Saeid Amiri](https://github.com/saeidamiri1) or [Dan Spiegelman](https://github.com/danspiegelman).
