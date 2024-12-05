@@ -167,7 +167,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](https://gi
 
 ---
 
-## Acknowledgement
+### Acknowledgement
 The pipeline is done as part of MNI projects, it is written by [Saeid Amiri](https://github.com/saeidamiri1) in association with [Dan Spiegelman](https://github.com/danspiegelman), [Michael Fiorini](https://github.com/mfiorini9), Allison Dilliott, and Sali Farhan at Neuro Bioinformatics Core. Copyright belongs [MNI BIOINFO CORE](https://github.com/neurobioinfo). 
 
 
