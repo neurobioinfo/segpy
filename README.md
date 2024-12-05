@@ -130,7 +130,7 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 --analysis_mode single_family
 ```
 
-Upon initiating the Segpy, the entire pipeline can be run using the following code:
+Upon initiating Segpy, the entire pipeline can be run using the following code:
 
 ```
 bash $PIPELINE_HOME/launch_segpy.sh \
