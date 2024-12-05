@@ -109,7 +109,7 @@ VCF=path/to/VCF.vcf
 PED=path/to/pedigree.ped
 ```
 
-To initiate the Segpy pipeline on your local workstation, use the following code:
+To initiate the Segpy pipeline for your local workstation, use the following code:
 
 ```
 bash $PIPELINE_HOME/launch_segpy.sh \
@@ -120,7 +120,7 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 
 Where `analysis_mode` is one of `single_family`, `multi_family`, or `case_control` depending on the study design. 
 
-To initiate the Segpy pipeline on your local workstation, include the `--job_mode` tag as shown in the following code:
+To initiate the Segpy pipeline for your HPC cluster, include the `--job_mode` tag as shown in the following code:
 
 ```
 bash $PIPELINE_HOME/launch_segpy.sh \
