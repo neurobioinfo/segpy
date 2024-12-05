@@ -8,6 +8,11 @@
 -  [Introduction](#introduction)
 -  [Installation](#installation)
 -  [Running Segpy](#running-segpy)
+-  [Contributing](#contributing)
+-  [Running Segpy](#running-segpy)
+-  [Change log](#change-log)
+-  [License](#license)
+-  [Acknowledgement](#acknowledgement)
 
 ---
 
@@ -143,21 +148,27 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 
 Where `parser` is one of `general` or `unique`, depending on the user's preferred method for filtering the final output dataframe.
 
+---
 
 ### Contributing
-This is an early version, any contribute or suggestion is appreciated, you can directly contact with [Saeid Amiri](https://github.com/saeidamiri1) or [Dan Spiegelman](https://github.com/danspiegelman).
+This is an initial version, and any contributions or suggestions are welcomed. For direct contact, please reach out to The Neuro Bioinformatics Core at [neurobioinfo@mcgill.ca](mailto:neurobioinfo@mcgill.ca).
 
-### Citation
-Amiri, S., Spiegelman, D., & Farhan, S. (2024). segpy: A pipeline for segregation analysis (Version 0.3.0) [Computer software]. https://github.com/neurobioinfo/segpy
+If you encounter any [issue](https://github.com/neurobioinfo/segpy/issues), please report them on the GitHub repository.
+
+---
 
 ### Changelog
 Every release is documented on the [GitHub Releases page](https://github.com/neurobioinfo/segpy/releases).
 
+---
+
 ### License
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/neurobioinfo/segpy/blob/main/LICENSE) file for details
 
+---
+
 ## Acknowledgement
-The pipeline is done as a project by Neuro Bioinformatics Core, it is developed by [Saeid Amiri](https://github.com/saeidamiri1) with associate of Sali Farhan. 
+The pipeline is done as part of MNI projects, it is written by [Saeid Amiri](https://github.com/saeidamiri1) in association with [Dan Spiegelman](https://github.com/danspiegelman), [Michael Fiorini](https://github.com/mfiorini9), Allison Dilliott, and Sali Farhan at Neuro Bioinformatics Core. Copyright belongs [MNI BIOINFO CORE](https://github.com/neurobioinfo). 
 
 
 **[⬆ back to top](#contents)**
