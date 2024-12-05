@@ -30,7 +30,7 @@ Each analysis tracks consists of four dstinct steps shown in **Figure 1**. In br
 
 **Figure 1. Segpy pipeline workflow.**
 
-A containerized version of the Segpy pipeline is publicly available from <span style="background-color: yellow;">Zenodo</span>, which includes the code, libraries, and dependicies required for running the analyses.
+A containerized version of the Segpy pipeline is publicly available from ******Zenodo*******, which includes the code, libraries, and dependicies required for running the analyses.
 
 Please refer to Segpy's [documentation](https://neurobioinfo.github.io/segpy/site/) for comprehensive tutorials. 
 
