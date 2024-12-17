@@ -24,7 +24,7 @@ from segpy.tools.utils import str_list
 
 ####################
 # HELPER FUNCTIONS #
-# Case-control and single family # 
+# Multiple family
 ####################
 
 # empty-aware filtering of MatrixTable based on a parent MT
@@ -60,6 +60,70 @@ def export_counts(mt, prefix, outfile):
     # rename headers to be prefix-specific
     cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' {outfile} -i"
     os.system(cmd)
+
+# generate wild/ncl/vrt/homv counts for one matrixTable for multiple family
+def generate_counts_m(mt, fam, sample_list,ped):
+    fam_aff=[ x for x in ped.loc[ped.loc[:,'familyid']==fam,'individualid']]
+    aff_sam = hl.literal(hl.set(fam_aff))
+    aff_sam2=mt.filter_cols(aff_sam.contains(mt.s))
+    if len(sample_list) > 0:
+        mt2 =  aff_sam2.annotate_rows(  familyid = fam,
+                                glb_aff_r=fam_aff, 
+                                _wild = hl.agg.sum(aff_sam2.wild),
+                                _wild_c = hl.agg.collect(aff_sam2.wild),
+                                _ncl  = hl.agg.sum(aff_sam2.ncl),
+                                _ncl_c  = hl.agg.collect(aff_sam2.ncl),
+                                _vrt  = hl.agg.sum(aff_sam2.vrt),
+                                _vrt_c  = hl.agg.collect(aff_sam2.vrt),
+                                _homv = hl.agg.sum(aff_sam2.homv),
+                                _homv_c = hl.agg.collect(aff_sam2.homv))
+    else:
+        mt2 = aff_sam2.annotate_rows(familyid = fam,
+                                _wild  = 0,
+                                _wild_samp  = 0,
+                                _ncl   = 0,
+                                _ncl_samp   = 0,
+                                _vrt   = 0,
+                                _vrt_samp   = 0,
+                                _homv  = 0,
+                                _homv_samp  = 0)
+    return mt2
+
+def export_counts_m(mt2, prefix, outfile,sample_list):
+    if len(sample_list) > 0:
+        listt2=['glb_aff_r','_wild','_wild_c','_ncl','_ncl_c','_vrt','_vrt_c','_homv','_homv_c']
+        df3=mt2.rows().select(*listt2).to_spark()
+        udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
+        df4=df3.select('glb_aff_r','_wild','_wild_c',udf_i('_wild_c').alias('_wild_c2'),'_ncl','_ncl_c', udf_i('_ncl_c').alias('_ncl_c2'),'_vrt','_vrt_c',udf_i('_vrt_c').alias('_vrt_c2'),'_homv','_homv_c',udf_i('_homv_c').alias('_homv_c2'))
+        del df3
+        udf_2b = udf(lambda x,ref: [x[i] for i in ref])
+        df5=df4.select('_wild',udf_2b('glb_aff_r','_wild_c2').alias('_wild_s'),'_ncl',udf_2b('glb_aff_r','_ncl_c2').alias('_ncl_s'),'_vrt',udf_2b('glb_aff_r','_vrt_c2').alias('_vrt_s'),'_homv',udf_2b('glb_aff_r','_homv_c2').alias('_homv_s'))
+        str_udf = F.udf(str_list, T.StringType())
+        df6=df5.select('_wild',str_udf('_wild_s').alias('_wild_samp'),'_ncl',str_udf('_ncl_s').alias('_ncl_samp'),'_vrt',str_udf('_vrt_s').alias('_vrt_samp'),'_homv',str_udf('_homv_s').alias('_homv_samp'))
+        del df5
+        name_glb_csv=f'./samp/fam_affcsv'
+        df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name_glb_csv)
+        del df6
+        cmd_glb_aff0=f'cd ./samp/fam_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../fam_aff_out \; ; rm -r  ../fam_affcsv'
+        os.system(cmd_glb_aff0)
+        cmd_prune_glb=f'cd ./samp;' + ' sed -i fam_aff_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
+        os.system(cmd_prune_glb)
+        cmd_prune_glb_mv=f'mv ./samp/fam_aff_out ./{outfile}'
+        os.system(cmd_prune_glb_mv)
+        cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' ./{outfile} -i"
+        os.system(cmd)
+        cmd_paste = f'paste -d"\t" ./out_locus ./{outfile} > ./temp; rm ./{outfile}; mv ./temp ./{outfile}'
+        os.system(cmd_paste)
+    else:
+        counting_rows = ['_wild','_wild_samp','_ncl','_ncl_samp','_vrt','_vrt_samp','_homv','_homv_samp']
+        mt2.rows().select(*counting_rows).export(outfile, delimiter='\t')
+        # rename headers to be prefix-specific
+        cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' {outfile} -i"
+        os.system(cmd)
+        cmd = f'cut -f3- ./{outfile} > tmp; mv ./tmp ./{outfile}'
+        os.system(cmd)
+        cmd_paste = f'paste -d"\t" ./out_locus ./{outfile} > ./temp; rm ./{outfile}; mv ./temp ./{outfile}'
+        os.system(cmd_paste)
 
 
 # os handling of per-family temp output files
@@ -182,7 +246,8 @@ def sample_retrieve(mt, ped, outfolder):
 # MAIN FUNCTION #
 #################
 
-def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant, retrieve_sample_id, ncol):
+def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant, retrieve_sample_id, ncol):
+    print('temp 0')
     # ncol=7
     # affecteds_only=eval(str(str(affecteds_only)))
     # filter_variant=eval(str(str(filter_variant)))
@@ -255,7 +320,7 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
                 'aff':[x for x in ped.loc[(ped.familyid!=fam) & (ped.phenotype==2), 'individualid']], 
                 'naf':[x for x in ped.loc[(ped.familyid!=fam) & (ped.phenotype==1), 'individualid']]
             }
-    }
+        }
     timekeeping(step, start_time)
     # populate simple family list:
     # all families, or all families with at least one affected sample if affecteds_only=TRUE
@@ -302,7 +367,6 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         cmd_paste = 'paste $(ls -rt out_csq_*) > out_csq; rm out_csq_*'
         os.system(cmd_paste)
         timekeeping(step, start_time)
-    
     # processing the rest of the INFO field data
     # pseudo:   vcf INFO fields are not natively exportable as separate columns to tsv;
     #           therefore the process to do so is:
@@ -358,10 +422,10 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         # generate counts for each MT: fam/nfm x aff/naf. 
         step = f'family_{fam}:generate_counts'
         start_time = datetime.now()
-        fam_aff_mt = generate_counts(fam_aff_mt, fam, sample_dict[fam]['fam']['aff'])
-        fam_naf_mt = generate_counts(fam_naf_mt, fam, sample_dict[fam]['fam']['naf'])
-        nfm_aff_mt = generate_counts(nfm_aff_mt, fam, sample_dict[fam]['nfm']['aff'])
-        nfm_naf_mt = generate_counts(nfm_naf_mt, fam, sample_dict[fam]['nfm']['naf'])
+        fam_aff_mt = generate_counts_m(fam_aff_mt, fam, sample_dict[fam]['fam']['aff'],ped)
+        fam_naf_mt = generate_counts_m(fam_naf_mt, fam, sample_dict[fam]['fam']['naf'],ped)
+        nfm_aff_mt = generate_counts_m(nfm_aff_mt, fam, sample_dict[fam]['nfm']['aff'],ped)
+        nfm_naf_mt = generate_counts_m(nfm_naf_mt, fam, sample_dict[fam]['nfm']['naf'],ped)
         timekeeping(step, start_time)
         #
         ###
@@ -372,10 +436,10 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         # ... export locus and familyid to file
         fam_aff_mt.rows().select(*['familyid']).export('out_locus',delimiter='\t')
         # ... export counts to files
-        export_counts(fam_aff_mt, 'fam_aff', 'out_fam_aff')
-        export_counts(fam_naf_mt, 'fam_naf', 'out_fam_naf')
-        export_counts(nfm_aff_mt, 'nfm_aff', 'out_nfm_aff')
-        export_counts(nfm_naf_mt, 'nfm_naf', 'out_nfm_naf')
+        export_counts_m(fam_aff_mt, 'fam_aff', 'out_fam_aff', sample_dict[fam]['fam']['aff'])
+        export_counts_m(fam_naf_mt, 'fam_naf', 'out_fam_naf', sample_dict[fam]['fam']['naf'])
+        export_counts_m(nfm_aff_mt, 'nfm_aff', 'out_nfm_aff', sample_dict[fam]['nfm']['aff'])
+        export_counts_m(nfm_naf_mt, 'nfm_naf', 'out_nfm_naf', sample_dict[fam]['nfm']['naf'])
         timekeeping(step, start_time)
         # concatenate temporary files into single per-family output file
         step = f'family_{fam}:finalize_family_output'
@@ -416,8 +480,6 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         gc.collect()
         timekeeping(step, start_time)
         timekeeping(f'family_{fam}:TOTAL', start_time_fam)
-        #
-        ###
     # PER-FAMILY PROCESSING
     ########################################
     ########################################
@@ -444,6 +506,7 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
     # os.system(cmd_glb_paste)
     # remove unwanted lines
     step = 'filter_final_results_by_counts'
+    print('temp 3')
     # ... parse counting column numbers from preOutfile
     cmd_parse_1 =  f'head -n 1 {preOutfile}'
     cmd_parse_2 = "awk -F'\t' '{for (i=1; i<=NF; i++) if ($i~/^(fam|nfm)_/) print $i,i}'"

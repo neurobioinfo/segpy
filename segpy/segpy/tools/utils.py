@@ -26,7 +26,6 @@ def eval2(x):
         return (eval(x))
     
 
-
 #################
 ################  clean_seg_calculate_mean_mode
 

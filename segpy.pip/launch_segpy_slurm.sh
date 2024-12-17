@@ -11,6 +11,7 @@ unset FOUND_ERROR
 source $OUTPUT_DIR/configs/segpy.config.ini
 source $OUTPUT_DIR/logs/.tmp/temp_config.ini
 source $PIPELINE_HOME/tools/utils.sh
+CSQ=${CSQ_VEP}
 
 if [[ $MODULEUSE ]]; then export MODULEUSE=$MODULEUSE ; fi
 
@@ -89,12 +90,7 @@ if [[  ${MODE0[@]} =~ 1 ]] ; then
   export THREADS=$THREADS
   export WALLTIME=$WALLTIME
   export MEM=$MEM
-  # if [[(! -s $VCF) ]]; then echo "ERROR: missing mandatory option for steps 1-3: -v (--vcf) empty, not specified or does not exist"; FOUND_ERROR=1; fi
-  # TIMESTAMP  >> $LAUNCH_LOG
-  # echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
-  # echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
-  # echo "-------------------------------------------"  >> $LAUNCH_LOG
-  # echo "STEP 1 submitted"  >> $LAUNCH_LOG
+
   [[ ! -s $VCF ]] && FOUND_ERROR=1
   [[ ! -s $VCF ]] && echo ${msg_fail_VCF}
   [[ $FOUND_ERROR ]] && exit ${fail_exit_code}
@@ -149,12 +145,6 @@ if [[  ${MODE0[@]}  =~  2 ]]  &&  [[  ${MODE0[@]} =~ 1 ]] ; then
   else
     mkdir -p $OUTPUT_DIR/step2/ &
   fi 
-  #  if [[ (! -s $VCF) && (! -s $PED) ]]; then echo "ERROR: missing mandatory option for steps 1-3: -v (--vcf) empty, not specified or does not exist"; FOUND_ERROR=1; fi
-  # TIMESTAMP  >> $LAUNCH_LOG
-  # echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
-  # echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
-  # echo "-------------------------------------------"  >> $LAUNCH_LOG
-  # echo "STEP 2 submitted following step 1"  >> $LAUNCH_LOG
     [[ ! -s $VCF || ! -s $PED ]] && FOUND_ERROR=1
     [[ ! -s $VCF ]] && echo ${msg_fail_VCF}
     [[ ! -s $PED ]] && echo ${msg_fail_PED}
@@ -180,12 +170,6 @@ elif [[  ${MODE0[@]}  =~  2  ]]  &&  [[  ${MODE0[@]} != 1 ]]; then
   else
     mkdir -p $OUTPUT_DIR/step2/ &
   fi 
-  # echo "just step 2 at" $(TIMESTAMP) >> $LAUNCH_LOG
-  # TIMESTAMP  >> $LAUNCH_LOG
-  # echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
-  # echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
-  # echo "-------------------------------------------"  >> $LAUNCH_LOG
-  # echo "STEP 2 submitted (without following  step 1) "  >> $LAUNCH_LOG
   LOGGING $LAUNCH_LOG $VERSION $STEP
   step_2="$QUEUE -A $ACCOUNT  \
     --ntasks-per-node=${THREADS} \
@@ -232,11 +216,6 @@ if [[  ${MODE0[@]}  =~  3 ]]  &&  [[  ${MODE0[@]} =~ 2 ]] ; then
   else
     mkdir -p $OUTPUT_DIR/step3/ &
   fi 
-  # TIMESTAMP  >> $LAUNCH_LOG
-  # echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
-  # echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
-  # echo "-------------------------------------------"  >> $LAUNCH_LOG
-  # echo "STEP 3 submitted following step 2"  >> $LAUNCH_LOG
   LOGGINGFOLLOW $LAUNCH_LOG $VERSION $STEP step2  
   step_3="$QUEUE -A $ACCOUNT  \
     --ntasks-per-node=${THREADS} \
@@ -258,12 +237,6 @@ elif [[  ${MODE0[@]}  =~  3  ]]  &&  [[  ${MODE0[@]} != 2 ]]; then
   else
     mkdir -p $OUTPUT_DIR/step3/ &
   fi 
-  # echo "just step 3 at" $(TIMESTAMP) >> $LAUNCH_LOG
-  # TIMESTAMP  >> $LAUNCH_LOG
-  # echo -e "\n-------------------------------------------"  >> $LAUNCH_LOG
-  # echo -e  "--------Job submitted using pipeline-------" $VERSION >> $LAUNCH_LOG
-  # echo "-------------------------------------------"  >> $LAUNCH_LOG
-  # echo "STEP 3 submitted (without following  step 2) "  >> $LAUNCH_LOG
   LOGGING $LAUNCH_LOG $VERSION $STEP
   step_3="$QUEUE -A $ACCOUNT  \
     --ntasks-per-node=${THREADS} \

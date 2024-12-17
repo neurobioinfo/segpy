@@ -1,15 +1,15 @@
 #!/bin/bash
 # The pipeline is done as a Project at MNI Neuro Bioinformatics Core
 # Copyright belongs Neuro Bioinformatics Core
-# Developed by Saeid Amiri (saeid.amiri@mcgill.ca) 
+# Developed\Scripted by Saeid Amiri (saeid.amiri@mcgill.ca) 
 
-VERSION=0.0.3;
-DATE0=2024-09-04
+VERSION=0.0.6;
+DATE0=2024-12-16
 PIPELINE_NAME=segregation
 echo -e "------------------------------------ "
 echo -e "$PIPELINE_NAME pipeline version $VERSION is loaded"
 
-# test on hail 0.2.107,  spark-3.1.3-bin-hadoop3.2
+# test on hail 0.2.109,  spark-3.1.3-bin-hadoop3.2
 # ===============================================
 # default variables values
 # ===============================================
@@ -19,8 +19,8 @@ export VERSION=${VERSION}
 #Assuming script is in root of PIPELINE_HOME
 export PIPELINE_HOME=$(cd $(dirname $0) && pwd -P)
 
-TIMESTAMP() { date +%FT%H.%M.%S; }
-CONTAINER=False
+TIMESTAMP() { date +%FT%H.%M.%S;}
+CONTAINER=TRUE
 #set queue-specific values, depending on system check
 # QUEUE="sbatch"            # default job scheduler: sbatch
 
@@ -36,16 +36,20 @@ Usage() {
 	echo -e "\toptional arguments:\n " \
           "\t\t-h  (--help)      = Get the program options and exit.\n" \
           "\t\t--jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument. \n" \
+          "\t\t--analysis_mode  = The default for the pipeline is analysing single or multiple family. If you want to run the pipeline on case-control, use case-control as  the argumnet. \n" \
           "\t\t--parser             = 'general': to general parsing, 'unique': drop multiplicities \n" \
           "\t\t-v  (--vcf)      = VCF file (mandatory for steps 1-3)\n" \
           "\t\t-p  (--ped)      = PED file (mandatory for steps 1-3)\n" \
           "\t\t-c  (--config)      = config file [CURRENT: \"$(realpath $(dirname $0))/configs/segpy.config.ini\"]\n" \
-          "\t\t-V  (--verbose)      = verbose output\n"
+          "\t\t-V  (--verbose)      = verbose output \n \n" \
+          "------------------- \n" \
+          "For a comprehensive help, visit  https://neurobioinfo.github.io/segpy/latest/ for documentation. "
+
         echo
 }
 
 
-if ! options=$(getopt --name pipeline --alternative --unquoted --options hv:p:d:s:c:a:V --longoptions dir:,steps:,jobmode:,vcf:,ped:,parser:,config:,account:,verbose,help -- "$@")
+if ! options=$(getopt --name pipeline --alternative --unquoted --options hv:p:d:s:c:a:V --longoptions dir:,steps:,jobmode:,analysis_mode:,vcf:,ped:,parser:,config:,account:,verbose,help -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     echo "Error processing options."
@@ -79,7 +83,6 @@ done
 set -- $options
 
 while [ $# -gt 0 ]
-
 do
     case $1 in
     -h| --help) Usage; exit 0;;
@@ -87,6 +90,7 @@ do
     -V| --verbose) VERBOSE=1 ;; 
     -s| --steps) MODE="$2"; shift ;;
     --jobmode) JOB_MODE="$2"; shift ;;
+    --analysis_mode) ANA_MODE="$2"; shift ;;
     -v| --vcf) VCF="$2"; shift ;;
     -p| --ped) PED="$2"; shift ;;
     --parser) CLEAN="$2"; shift ;;
@@ -103,10 +107,12 @@ if [[ "$MODE" == *"-"* ]]; then
 else 
   MODE0=$MODE
 fi
+
 source $PIPELINE_HOME/tools/utils.sh
 FOUND_ERROR=0
 
 TEMPCONFIG=$OUTPUT_DIR/logs/.tmp/temp_config.ini
+INICONFIG=$OUTPUT_DIR/logs/.tmp/ini_config.ini
 LAUNCH_LOG=$OUTPUT_DIR/launch_summary_log.txt
 # ===============================================
 # CHECKING VARIABLES
@@ -117,29 +123,38 @@ if [[ ! -d $OUTPUT_DIR ]]; then echo "ERROR: mandatory option: -d (--dir) not sp
 if [ -z $MODE ]; then echo "ERROR: missing mandatory option: --steps ('ALL' to run all, 1 to run step 1, step 1-3, run steps 1 through 3) must be specified"; FOUND_ERROR=1; fi
 if (( $FOUND_ERROR )); then echo "Please check options and try again"; exit 42; fi
 if [ $MODE == 'ALL' ]; then  MODE0=`echo {0..3}`; fi 
+# if [ -z $ANA_MODE ]; then ANA_MODE=other ; fi
 
+# echo $ANA_MODE
 # set default variables
 # CONFIG_FILE=${CONFIG_FILE:-$PIPELINE_HOME/configs/segpy.config.ini}
-
+cd $OUTPUT_DIR
 # STEP 1: RUN setting 
 # ===============================================
 #
-
 for d in $OUTPUT_DIR/logs/{jobs,spark}; do [[ ! -d $d ]] && mkdir -p $d; done
 # LAUNCH_LOG=$OUTPUT_DIR/logs/launch_log.$(TIMESTAMP)
 
 if [[ ${MODE0[@]} =~ 0 ]]; then 
   if [[ -d $OUTPUT_DIR/configs ]]; then
-      echo "config file $($OUTPUT_DIR/configs) already exists in PWD: $OUTPUT_DIR. Overwrite? y|n"
+      echo "Config file already exists in PWD: $OUTPUT_DIR. Overwrite? y|n"
       read answer
       answer=${answer,,}; answer=${answer:0:1}  # reduce all possible versions of "yes" to "y" for simplicity
-      [[ $answer == "y" ]] && cp $PIPELINE_HOME/configs/segpy.config.ini $OUTPUT_DIR/configs/ || echo "will not overwrite existing config file"
+      if [[ $answer == "y" ]]; then 
+          rm -rf $OUTPUT_DIR/configs/segpy.config.ini
+          rm -rf $OUTPUT_DIR/logs/*
+          # rm -rf $OUTPUT_DIR/launch_summary_log.txt
+          cp $PIPELINE_HOME/configs/segpy.config.ini $OUTPUT_DIR/configs/ 
+      fi
   else
       mkdir -p $OUTPUT_DIR/configs
       cp $PIPELINE_HOME/configs/segpy.config.ini $OUTPUT_DIR/configs/
   fi
   echo -e " The config file (segpy.config.ini) is in \n ./configs"
   LAUNCH_LOG=$OUTPUT_DIR/launch_summary_log.txt
+  if [ -f $LAUNCH_LOG ]; then
+    rm $OUTPUT_DIR/launch_summary_log.txt
+  fi
   touch $LAUNCH_LOG
   chmod 775 $LAUNCH_LOG 
   if [[ -d $OUTPUT_DIR/logs/.tmp ]]; then rm -rf $OUTPUT_DIR/logs/.tmp; fi
@@ -169,6 +184,7 @@ if [[ ${MODE0[@]} =~ 0 ]]; then
       echo "JOB_MODE=local" >> $OUTPUT_DIR/configs/segpy.config.ini
       remove_argument_local $OUTPUT_DIR/configs/segpy.config.ini
   fi 
+
   echo "-------------------------------------------"  >> $LAUNCH_LOG
   echo -e "The Output is under \n ${OUTPUT_DIR}/" >> $LAUNCH_LOG
   echo -e  "------------------------------------------------------------------\n" >> $LAUNCH_LOG
@@ -187,6 +203,24 @@ if [[ ${MODE0[@]} =~ 0 ]]; then
   echo QUEUE=$QUEUE >> $TEMPCONFIG
   echo OUTPUT_DIR=$OUTPUT_DIR >> $TEMPCONFIG
   echo LAUNCH_LOG=$LAUNCH_LOG >> $TEMPCONFIG
+  if [[ $ANA_MODE ]]; then
+  echo ANA_MODE=${ANA_MODE} >> $INICONFIG
+  echo "NOTE: User selected analysis_mode: ${ANA_MODE} "
+  echo "NOTE: User selected analysis_mode: ${ANA_MODE}" >> $LAUNCH_LOG
+  else
+    echo ANA_MODE=other >> $INICONFIG
+    echo "User did not specify --analysis_mode, so the pipeline will determine how to handle the analysis based on the pedigree file"
+    echo "User did not specify --analysis_mode, so the pipeline will determine how to handle the analysis based on the pedigree file." >> $LAUNCH_LOG
+  fi
+  source $OUTPUT_DIR/configs/segpy.config.ini
+   if [[ $JOB_MODE =~ local ]]; then 
+      if [[ ! $($CONTAINER_CMD --version) ]]; then
+          echo " Apptainer\singularity does not exist on system"
+          exit 0 
+      else
+          echo -e "$($CONTAINER_CMD --version) is installed on the system " >> $LAUNCH_LOG
+      fi
+   fi 
   exit 0
 fi
 
@@ -199,7 +233,8 @@ declare -A THREADS_ARRAY
 declare -A  WALLTIME_ARRAY
 declare -A  MEM_ARRAY
 
-source $OUTPUT_DIR/configs/segpy.config.ini
+
+
 PYTHON_LIB_PATH=${ENV_PATH}/lib/${PYTHON_CMD}/site-packages
 if [[ $PYTHON_LIB_PATH ]];  then   sed -i '/PYTHON_LIB_PATH=/d' $TEMPCONFIG; echo PYTHON_LIB_PATH=$PYTHON_LIB_PATH >> $TEMPCONFIG  ; fi
 
@@ -211,6 +246,9 @@ if [[ $PED ]];  then sed -i '/PED=/d' $TEMPCONFIG; echo PED=${PED} >> $TEMPCONFI
 if [[ $CLEAN ]];  then  sed -i "/CLEAN=/d" $TEMPCONFIG; echo CLEAN=$CLEAN >> $TEMPCONFIG   ; fi
 if [[ $LAUNCH_LOG ]];  then  sed -i '/LAUNCH_LOG=/d' $TEMPCONFIG; echo LAUNCH_LOG=$LAUNCH_LOG >> $TEMPCONFIG  ; fi
 if [[ $MODE ]];  then   sed -i '/MODE=/d' $TEMPCONFIG; echo MODE=$MODE >> $TEMPCONFIG   ; fi
+
+
+
 echo CONTAINER=$CONTAINER >> $TEMPCONFIG
 
 source $OUTPUT_DIR/logs/.tmp/temp_config.ini

@@ -1,6 +1,3 @@
-# from segpy.segrun.segrun_family_wise_CSQ_dev import segrun_family_wise_CSQ_dev
-# from segpy.segrun.segrun_family_wise_CSQ_one_dev import segrun_family_wise_CSQ_one_dev
-# from segpy.segrun.segrun_family_wise import segrun_family_wise
 import os
 
 __doc__ = """
@@ -11,4 +8,4 @@ For the documentaion, visit  https://neurobioinfo.github.io/segpy/site/
 To report a bug, please open an issue in  https://github.com/neurobioinfo/segpy/issues
 """
 
-__version__ = "0.2.2.3"
+__version__ = "0.0.6"

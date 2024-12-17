@@ -1,3 +1,9 @@
+v0.0.6, 2024-12-12
+ * Retieve the sample ID in Family. 
+v0.0.4, 2024-10-19
+ * correct issue  ClassTooLargeException: Class too large. 
+v0.0.3, 2024-10-07
+ * add sample retieve id. 
 v0.0.2, 2024-08-07
  * rewrite the module
 v0.0.1, 2024-07-10 -- Initial creation

@@ -11,14 +11,14 @@ function call_parameter () {
 }
 
 function remove_argument_local () {
-    X=(ACCOUNT MODULEUSE= THREADS MEM_ARRAY WALLTIME_ARRAY step JAVA_VERSION SPARK_PATH  ENV_PATH JAVA_CMD NCOL PYTHON_CMD JUST_PHENOTYPE)
+    X=(ACCOUNT MODULEUSE= THREADS MEM_ARRAY WALLTIME_ARRAY step JAVA_VERSION SPARK_PATH  ENV_PATH JAVA_CMD NCOL PYTHON_CMD)
     for item in ${X[@]}; do
         sed -i $1 -e "/${item}/d"
     done
 }
 
 function remove_argument_slurm () {
-    X=(SPARK_PATH ENV_PATH PYTHON_CMD JAVA_CMD JAVA_VERSION NCOL JUST_PHENOTYPE)
+    X=(SPARK_PATH ENV_PATH PYTHON_CMD JAVA_CMD JAVA_VERSION NCOL)
     for item in ${X[@]}; do
         sed -i $1 -e "/${item}/d"
     done

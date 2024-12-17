@@ -25,6 +25,9 @@ sparkmem    = sys.argv[3]
 out_dir     = os.path.expanduser(outfolder)
 outfile     = f'{outfolder}/step2/finalseg_cleaned_{clean_m}.csv'
 
+if sparkmem != "False": hl.init(spark_conf={'spark.driver.memory': sparkmem})
+
+
 # print("AAAAA")
 # print(os.path.join(out_dir, 'step2'))
 # print(outfolder)
