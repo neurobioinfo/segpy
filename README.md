@@ -17,7 +17,7 @@
 ---
 
 ## Introduction
-Segpy is a streamlined, user-friendly pipeline designed for variant segregation analysis, allowing investigators to compute allelic carrier counts at variant sites across study subjects. The  pipeline can be applied to both pedigree-based family cohorts — those involving single or multi-family trios, quartets, or extended families — and population-based case-control cohorts. Considering the scale of modern datasets and the computational power required for their analysis, the Segpy pipeline was designed for seamless integration with the users’ high-performance computing (HPC) clusters using the [SLURM](https://slurm.schedmd.com/) Workload Manager (Segpy SLURM); however, users may also run the pipleine directly from their local linux workstation (Segpy Local). 
+Segpy is a streamlined, user-friendly pipeline designed for variant segregation analysis, allowing investigators to compute allelic carrier counts at variant sites across study subjects. The  pipeline can be applied to both pedigree-based family cohorts — those involving single or multi-family trios, quartets, or extended families — and population-based case-control cohorts. Considering the scale of modern datasets and the computational power required for their analysis, the Segpy pipeline was designed for seamless integration with the users’ high-performance computing (HPC) clusters using the [SLURM](https://slurm.schedmd.com/) Workload Manager (Segpy SLURM); however, users may also run the pipleine directly from their Linux workstation or any PC with Bash and Singularity installed (Segpy Local).
 
 As input, users must provide a single VCF file describing the genetic variants of all study subjects and a pedigree file describing the familial relationships among those individuals (if applicable) and their disease status. As output, Segpy computes variant carrier counts for affected and unaffected individuals, both within and outside of families, by categorizing wild-type individuals, heterozygous carriers, and homozygous carriers at specific loci. These counts are organized into a comprehensive data frame, with each row representing a single variant and labeled with the Sample IDs of the corresponding carriers to facilitate donwstream analysis. 
 
@@ -35,7 +35,7 @@ Each analysis tracks consists of four dstinct steps shown in **Figure 1**. In br
 
 **Figure 1. Segpy pipeline workflow.**
 
-A containerized version of the Segpy pipeline is publicly available from ******Zenodo*******, which includes the code, libraries, and dependicies required for running the analyses.
+A containerized version of the Segpy pipeline is publicly available from [Zenodo](https://zenodo.org/records/14503733), which includes the code, libraries, and dependicies required for running the analyses.
 
 Below, we provide a quick start guide for Segpy. Please refer to Segpy's [documentation](https://neurobioinfo.github.io/segpy/site/) for comprehensive tutorials. 
 
@@ -43,11 +43,11 @@ Below, we provide a quick start guide for Segpy. Please refer to Segpy's [docume
 
 ## Installation
 
-The following code can be used to install `segpy.pip`, which includes the code, libraries, and dependicies required for running the analyses:
+The following code can be used to download `segpy.pip`, which includes the code, libraries, and dependicies required for running the analyses:
 
 ```
 # Download the Segpy container
-#curl "https://zenodo.org/records/12751010/files/scrnabox.slurm.zip?download=1" --output segpy.pip.zip
+curl "https://zenodo.org/records/14503733/files/segpy.pip.zip?download=1" --output segpy.pip.zip
 
 # Unzip the Segpy container
 unzip segpy.pip.zip
@@ -60,7 +60,7 @@ In addition to `segpy.pip`, users must install Apptainer/Singularity onto their 
 module apptainer/1.2.4
 ```
 
-To ensure that `segpy.pip` is installed properly, run the following command:
+To ensure that `segpy.pip` is downloaded properly, run the following command:
 
 ```
 bash /path/to/segpy.pip/launch_segpy.sh -h
@@ -69,13 +69,13 @@ bash /path/to/segpy.pip/launch_segpy.sh -h
 Which should return the folllowing:
 
 ```
-------------------------------------
-segregation pipeline version 0.0.3 is loaded
+------------------------------------ 
+segregation pipeline version 0.0.6 is loaded
 
--------------------
-Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
+------------------- 
+Usage:  segpy.pip/launch_segpy.sh [arguments]
         mandatory arguments:
-                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path)
+                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) 
                 -s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.
                                 steps:
                                 0: initial setup
@@ -85,14 +85,19 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
 
         optional arguments:
                 -h  (--help)      = Get the program options and exit.
-                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument.
-                --parser             = 'general': to general parsing, 'unique': drop multiplicities
+                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument. 
+                --analysis_mode  = The default for the pipeline is analysing single or multiple family. If you want to run the pipeline on case-control, use case-control as  the argumnet. 
+                --parser             = 'general': to general parsing, 'unique': drop multiplicities 
                 -v  (--vcf)      = VCF file (mandatory for steps 1-3)
                 -p  (--ped)      = PED file (mandatory for steps 1-3)
-                -V  (--verbose)      = verbose output
+                -c  (--config)      = config file [CURRENT: "/scratch/fiorini9/segpy.pip/configs/segpy.config.ini"]
+                -V  (--verbose)      = verbose output 
+
+ ------------------- 
+ For a comprehensive help, visit  https://neurobioinfo.github.io/segpy/latest/ for documentation. 
 ```
 
-After successfully installing `segpy.pip` we can proceed with the segregation analysis. 
+After successfully downloading `segpy.pip` we can proceed with the segregation analysis. 
 
 ---
 
@@ -123,7 +128,7 @@ bash $PIPELINE_HOME/launch_segpy.sh \
 --analysis_mode single_family
 ```
 
-Where `analysis_mode` is one of `single_family`, `multi_family`, or `case_control` depending on the study design. 
+Where `analysis_mode` is one of `single_family`, `multiple_family`, or `case-control` depending on the study design. 
 
 To initiate the Segpy pipeline for your HPC cluster, include the `--job_mode` tag as shown in the following code:
 
@@ -151,7 +156,7 @@ Where `parser` is one of `general` or `unique`, depending on the user's preferre
 ---
 
 ### Contributing
-This is an initial version, and any contributions or suggestions are welcomed. For direct contact, please reach out to The Neuro Bioinformatics Core at [neurobioinfo@mcgill.ca](mailto:neurobioinfo@mcgill.ca).
+Any contributions or suggestions for the Segpy pipeline are welcomed. For direct contact, please reach out to The Neuro Bioinformatics Core at [neurobioinfo@mcgill.ca](mailto:neurobioinfo@mcgill.ca).
 
 If you encounter any [issue](https://github.com/neurobioinfo/segpy/issues), please report them on the GitHub repository.
 
