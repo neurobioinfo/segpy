@@ -126,7 +126,7 @@ nano $PWD/configs/segpy.config.ini
 <td style="text-align: left;">Your SLURM user account.</td>
 </tr>
 <tr>
-<td>CSQ</td>
+<td>CSQ_VEP</td>
 <td style="text-align: left;">CSQ=TRUE</td>
 <td style="text-align: left;">Whether or not to include variant annotations from VEP in the output file.</td>
 </tr>
@@ -143,7 +143,12 @@ nano $PWD/configs/segpy.config.ini
 <tr>
 <td>FILTER_VARIANT</td>
 <td style="text-align: left;">FILTER_VARIANT=TRUE</td>
-<td style="text-align: left;">Filter the output file using relevant counting column values where 'fam_aff_vrt'+'fam_aff_homv'+'fam_naf_vrt'+'fam_naf_homv' &gt;0. See <a href="#step-3-parse-output-file">Step 3: Parse output file</a> for more information.</td>
+<td style="text-align: left;">Filter the output file using relevant variant count values. See <a href="#step-3-parse-output-file">Step 3: Parse output file</a> for more information.</td>
+</tr>
+<tr>
+<td>RETRIEVE_SAMPLE_ID</td>
+<td style="text-align: left;">RETRIEVE_SAMPLE_ID=TRUE</td>
+<td style="text-align: left;">Whether or not to retain SampleIDs in the final output file.</td>
 </tr>
 <tr>
 <td>JAVATOOLOPTIONS</td>

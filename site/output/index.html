@@ -55,6 +55,12 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Output files</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#single-family">Single-family</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-family">Multi-family</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#case-control">Case-control</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
@@ -96,13 +102,21 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="segpy-outputs">Segpy outputs</h1>
-<p>The Segpy pipeline computes the counts of affected and non-affected individuals, both in and out of families, based on reference allele, alternate allele, homozygous alternate allele, and no variant call. These counts are assembled into a comprehensive dataframe, where each row represents a single variant, which can be optionally annotated with Variant Effect Predictor (VEP) to facilitate downstream statistical analyses.</p>
+<p>As output, Segpy computes variant counts for affected and unaffected individuals, both within and outside of families, by categorizing wild-type individuals, heterozygous carriers, and homozygous carriers at specific loci. These counts are organized into a comprehensive data frame, with each row representing a single variant and labeled with the Sample IDs of the corresponding carriers. </p>
 <p>Step 3 of the Segpy pipeline produces two output files, depending on the parsing parameter used:</p>
 <ol>
 <li><strong>finalseg_cleaned_general.csv</strong>: produced using the <code>--parser general</code> tag to remove uncessary characters, such as <code>"</code>, <code>[, ]</code>, etc.</li>
 <li><strong>finalseg_cleaned_unique.csv</strong>: produced using the <code>--parser unique</code> tag to eliminate duplicated variant entries resulting from VEP annotations.</li>
 </ol>
-<p>Regardless of the parsing parameters used, the output file includes separate columns for the user-selected VEP annotations and distinct columns detailing the variant counts across individuals in the study, categorized by their disease and family status:</p>
+<p>Regardless of the parsing parameters used, the output file includes separate columns for the user-selected VEP annotations and distinct columns detailing the variant counts across individuals in the study, categorized by their disease status and family status (if applicable). </p>
+<p>The final output files will vary depending on the selected analysis track:</p>
+<ul>
+<li><a href="#single-family">Single-family</a> </li>
+<li><a href="#multi-family">Multi-family</a></li>
+<li><a href="#case-control">Case-control</a></li>
+</ul>
+<hr />
+<h3 id="single-family">Single-family</h3>
 <table>
 <thead>
 <tr>
@@ -112,84 +126,277 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>Family - Affected</strong></td>
-<td style="text-align: left;"></td>
+<td>affected_WT</td>
+<td style="text-align: left;"># of affected individuals that are homozygous for the wildtype allele</td>
 </tr>
 <tr>
-<td>fam_aff_wild</td>
-<td style="text-align: left;">Family - Affecteds: wildtype</td>
+<td>affected_nocall</td>
+<td style="text-align: left;"># of affected individuals with no variant call</td>
 </tr>
 <tr>
-<td>fam_aff_ncl</td>
-<td style="text-align: left;">Family - Affecteds: no call</td>
+<td>affected_heterozygous</td>
+<td style="text-align: left;"># of affected individuals that are heterozygous for the variant</td>
 </tr>
 <tr>
-<td>fam_aff_vrt</td>
-<td style="text-align: left;">Family - Affecteds: with variant</td>
+<td>affected_homozygous</td>
+<td style="text-align: left;"># of affected individuals that are homozygous for the variant</td>
 </tr>
 <tr>
-<td>fam_aff_homv</td>
-<td style="text-align: left;">Family - Affecteds: homozygous for ALT allele</td>
+<td>unaffected_WT</td>
+<td style="text-align: left;"># of unaffected individuals that are homozygous for the wildtype allele</td>
 </tr>
 <tr>
-<td><strong>Family - Non-affected</strong></td>
-<td style="text-align: left;"></td>
+<td>unaffected_nocall</td>
+<td style="text-align: left;"># of unaffected individuals with no variant call</td>
 </tr>
 <tr>
-<td>fam_naf_wild</td>
-<td style="text-align: left;">Family - non-affecteds: wildtype</td>
+<td>unaffected_heterozygous</td>
+<td style="text-align: left;"># of unaffected individuals that are heterozygous for the variant</td>
 </tr>
 <tr>
-<td>fam_naf_ncl</td>
-<td style="text-align: left;">Family - non-affecteds: no call</td>
+<td>unaffected_homozygous</td>
+<td style="text-align: left;"># of unaffected individuals that are homozygous for the variant</td>
 </tr>
 <tr>
-<td>fam_naf_vrt</td>
-<td style="text-align: left;">Family - non-affecteds: with variant</td>
+<td>affected_WT_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals that are homozygous for the wildtype allele</td>
 </tr>
 <tr>
-<td>fam_naf_homv</td>
-<td style="text-align: left;">Family - non-affecteds: homozygous for ALT allele</td>
+<td>affected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals with no variant call</td>
 </tr>
 <tr>
-<td><strong>Non-Family - Affected</strong></td>
-<td style="text-align: left;"></td>
+<td>affected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals that are heterozygous for the variant</td>
 </tr>
 <tr>
-<td>nfm_aff_wild</td>
-<td style="text-align: left;">Non-family - Affecteds: wildtype</td>
+<td>affected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals that are homozygous for the variant</td>
 </tr>
 <tr>
-<td>nfm_aff_ncl</td>
-<td style="text-align: left;">Non-family - Affecteds: no call</td>
+<td>unaffected_WT_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals that are homozygous for the wildtype allele</td>
 </tr>
 <tr>
-<td>nfm_aff_vrt</td>
-<td style="text-align: left;">Non-family - Affecteds: with variant</td>
+<td>unaffected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals with no variant call</td>
 </tr>
 <tr>
-<td>nfm_aff_homv</td>
-<td style="text-align: left;">Non-family - Affecteds: homozygous for ALT allele</td>
+<td>unaffected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals that are heterozygous for the variant</td>
 </tr>
 <tr>
-<td><strong>Non-Family - Non-affected</strong></td>
-<td style="text-align: left;"></td>
+<td>unaffected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals that are homozygous for the variant</td>
 </tr>
 <tr>
-<td>nfm_naf_wild</td>
-<td style="text-align: left;">Non-family - non-affecteds: wildtype</td>
+<td>affected_AF</td>
+<td style="text-align: left;">Allele frequency among affected individuals</td>
 </tr>
 <tr>
-<td>nfm_naf_ncl</td>
-<td style="text-align: left;">Non-family - non-affecteds: no call</td>
+<td>unaffected_AF</td>
+<td style="text-align: left;">Allele frequency among unaffected individuals</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="multi-family">Multi-family</h3>
+<p><strong>NOTE:</strong> For the multi-family analysis, each family will have a separate row for each variant that is observed in any individual within that family.</p>
+<table>
+<thead>
+<tr>
+<th>Column title</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>family_affected_WT</td>
+<td style="text-align: left;"># of affected individuals within the family that are homozygous for the wildtype allele</td>
 </tr>
 <tr>
-<td>nfm_naf_vrt</td>
-<td style="text-align: left;">Non-family - non-affecteds: with variant</td>
+<td>family_affected_nocall</td>
+<td style="text-align: left;"># of affected individuals within the family with no variant call</td>
 </tr>
 <tr>
-<td>nfm_naf_homv</td>
-<td style="text-align: left;">Non-family - non-affecteds: homozygous for ALT allele</td>
+<td>family_affected_heterozygous</td>
+<td style="text-align: left;"># of affected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_affected_homozygous</td>
+<td style="text-align: left;"># of affected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_WT</td>
+<td style="text-align: left;"># of unaffected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_unaffected_nocall</td>
+<td style="text-align: left;"># of unaffected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_unaffected_heterozygous</td>
+<td style="text-align: left;"># of unaffected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_homozygous</td>
+<td style="text-align: left;"># of unaffected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>total_affected_WT</td>
+<td style="text-align: left;"># of affected individuals across all families that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>total_affected_nocall</td>
+<td style="text-align: left;"># of affected individuals across all families with no variant call</td>
+</tr>
+<tr>
+<td>total_affected_heterozygous</td>
+<td style="text-align: left;"># of affected individuals across all families that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>total_affected_homozygous</td>
+<td style="text-align: left;"># of affected individuals across all families that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>total_unaffected_WT</td>
+<td style="text-align: left;"># of unaffected individuals across all families that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>total_unaffected_nocall</td>
+<td style="text-align: left;"># of unaffected individuals across all families with no variant call</td>
+</tr>
+<tr>
+<td>total_unaffected_heterozygous</td>
+<td style="text-align: left;"># of unaffected individuals across all families that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>total_unaffected_homozygous</td>
+<td style="text-align: left;"># of unaffected individuals across all families that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>family_affected_WT_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_affected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_affected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_affected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_WT_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_unaffected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_unaffected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>affected_AF</td>
+<td style="text-align: left;">Allele frequency among affected individuals</td>
+</tr>
+<tr>
+<td>unaffected_AF</td>
+<td style="text-align: left;">Allele frequency among unaffected individuals</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="case-control">Case-control</h3>
+<table>
+<thead>
+<tr>
+<th>Column title</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>case_WT</td>
+<td style="text-align: left;"># of cases that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>case_nocall</td>
+<td style="text-align: left;"># of cases with no variant call</td>
+</tr>
+<tr>
+<td>case_heterozygous</td>
+<td style="text-align: left;"># of cases that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>case_homozygous</td>
+<td style="text-align: left;"># of cases that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>control_WT</td>
+<td style="text-align: left;"># of controls that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>control_nocall</td>
+<td style="text-align: left;"># of controls with no variant call</td>
+</tr>
+<tr>
+<td>control_heterozygous</td>
+<td style="text-align: left;"># of controls that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>control_homozygous</td>
+<td style="text-align: left;"># of controls that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>case_WT_ID</td>
+<td style="text-align: left;">Sample ID of cases that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>case_nocall_ID</td>
+<td style="text-align: left;">Sample ID of cases with no variant call</td>
+</tr>
+<tr>
+<td>case_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of cases that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>case_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of cases that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>control_WT_ID</td>
+<td style="text-align: left;">Sample ID of controls that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>control_nocall_ID</td>
+<td style="text-align: left;">Sample ID of controls with no variant call</td>
+</tr>
+<tr>
+<td>control_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of controls that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>control_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of controls that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>case_AF</td>
+<td style="text-align: left;">Allele frequency among cases</td>
+</tr>
+<tr>
+<td>control_AF</td>
+<td style="text-align: left;">Allele frequency among controls</td>
 </tr>
 </tbody>
 </table>

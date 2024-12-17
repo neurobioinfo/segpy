@@ -1,5 +1,5 @@
 # Installation
-A containerized version of the Segpy pipeline is publicly available from **Zenodo**, which includes the code, libraries, and dependicies required for running the analyses. The container is compatible with both High-Performance Computing (HPC) systems and standard Linux workstations.
+A containerized version of the Segpy pipeline is publicly available from [Zenodo](https://zenodo.org/records/14503733), which includes the code, libraries, and dependicies required for running the analyses. The container is compatible with High-Performance Computing (HPC) systems, Linux workstations, or any PC with Bash and Singularity installed.
 
 To use the Segpy pipeline, the folowing must be installed on your system:
 
@@ -23,28 +23,28 @@ To download the latest version of Segpy run the following command:
 
 ```
 # Download the Segpy container
-#curl "https://zenodo.org/records/12751010/files/scrnabox.slurm.zip?download=1" --output segpy.pip.zip
+curl "https://zenodo.org/records/14503733/files/segpy.pip.zip?download=1" --output segpy.pip.zip
 
 # Unzip the Segpy container
 unzip segpy.pip.zip
 ```
 
-To ensure that `segpy.pip` is installed properly, run the following command:
+To ensure that `segpy.pip` is downloaded properly, run the following command:
 
 ```
 bash /path/to/segpy.pip/launch_segpy.sh -h
 ```
 
-If `segpy.pip` is installed properly, the above command should return the folllowing:
+If `segpy.pip` is downloaded properly, the above command should return the folllowing:
 
 ```
-------------------------------------
-segregation pipeline version 0.0.3 is loaded
+------------------------------------ 
+segregation pipeline version 0.0.6 is loaded
 
--------------------
-Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
+------------------- 
+Usage:  segpy.pip/launch_segpy.sh [arguments]
         mandatory arguments:
-                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path)
+                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) 
                 -s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.
                                 steps:
                                 0: initial setup
@@ -54,13 +54,18 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
 
         optional arguments:
                 -h  (--help)      = Get the program options and exit.
-                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument.
-                --parser             = 'general': to general parsing, 'unique': drop multiplicities
+                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument. 
+                --analysis_mode  = The default for the pipeline is analysing single or multiple family. If you want to run the pipeline on case-control, use case-control as  the argumnet. 
+                --parser             = 'general': to general parsing, 'unique': drop multiplicities 
                 -v  (--vcf)      = VCF file (mandatory for steps 1-3)
                 -p  (--ped)      = PED file (mandatory for steps 1-3)
-                -V  (--verbose)      = verbose output
+                -c  (--config)      = config file [CURRENT: "/scratch/fiorini9/segpy.pip/configs/segpy.config.ini"]
+                -V  (--verbose)      = verbose output 
+ 
+ ------------------- 
+ For a comprehensive help, visit  https://neurobioinfo.github.io/segpy/latest/ for documentation. 
 ```
 
-After successfully installing `segpy.pip` we can proceed with the segregation analysis. 
+After successfully downloading `segpy.pip` we can proceed with the segregation analysis. 
 
 **[⬆ back to top](#installation)**

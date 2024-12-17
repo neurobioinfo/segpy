@@ -121,7 +121,7 @@
 </ul>
 <p>The following flowchart illustrates the steps for running the segregation analysis on an HPC system.</p>
 <p align="center">
- <img src="https://github.com/user-attachments/assets/9beb08d2-49cd-41fc-a419-3caca8329c6d" width="450" height="100">
+ <img src="https://github.com/user-attachments/assets/d7879700-3bba-4d53-a775-8556e3c3f6d3" width="300" height="100">
  </p>
 
 <p><strong>Figure 1. Segpy pipeline workflow.</strong></p>
@@ -133,7 +133,7 @@
 <li><strong>Pedigree file</strong></li>
 </ol>
 <p>The <strong>VCF</strong> should be formatted according to the standard VCF specifications, containing information about genetic variants, including their positions, alleles, and genotype information for each individual in the study. <br></p>
-<p>The <strong>Pedigree file</strong> should be in .ped format, structured such that each line describes an individual in the study and includes the following columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>, <code>phenotype</code>, facilitating the analysis of inheritance patterns and genetic associations within the family.</p>
+<p>The <strong>Pedigree file</strong> should be in .ped format, structured such that each line describes an individual in the study and includes the following columns: <code>familyid</code>, <code>individualid</code>, <code>parentalid</code>, <code>maternalid</code>, <code>sex</code>, <code>phenotype</code>.</p>
 <ul>
 <li>The <code>familyid</code> column must contain identifiers for the family.</li>
 <li>The <code>individualid</code> column must contain identifiers for the individual that match the VCF file.</li>
@@ -142,7 +142,8 @@
 <li>The <code>sex</code> column must describe the biological sex of the individual (1 = male, 2 = female, 0 = unknown).</li>
 <li>The <code>phenotype</code> column must describe the phenotypic data (1 = unaffected, 2 = affected, -9 = missing).</li>
 </ul>
-<p>We provide an example .ped file <strong>HERE</strong>. </p>
+<p>We provide an example .ped file <a href="https://github.com/neurobioinfo/segpy/blob/main/test/data/iPSC_2.ped">HERE</a>. </p>
+<p><strong>NOTE:</strong> For Case-control analyses, the <code>familyid</code> column should be 'case' for affected individuals and 'control' for unaffected individuals. Furthermore, the <code>parentalid</code> and <code>maternalid</code> can be '0' for every listed individual in case-control analyses. </p>
 <hr />
 <h3 id="step-0-setup">Step 0: Setup</h3>
 <p>Prior to initiating the pipeline, users must provide the paths to:</p>
@@ -165,13 +166,13 @@ PED=path/to/pedigree.ped
 bash $PIPELINE_HOME/launch_segpy.sh -h
 </code></pre>
 <p>Which should return the following:</p>
-<pre><code>------------------------------------
-segregation pipeline version 0.0.3 is loaded
+<pre><code>------------------------------------ 
+segregation pipeline version 0.0.6 is loaded
 
--------------------
-Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
+------------------- 
+Usage:  segpy.pip/launch_segpy.sh [arguments]
         mandatory arguments:
-                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path)
+                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) 
                 -s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.
                                 steps:
                                 0: initial setup
@@ -181,11 +182,16 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
 
         optional arguments:
                 -h  (--help)      = Get the program options and exit.
-                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument.
-                --parser             = 'general': to general parsing, 'unique': drop multiplicities
+                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument. 
+                --analysis_mode  = The default for the pipeline is analysing single or multiple family. If you want to run the pipeline on case-control, use case-control as  the argumnet. 
+                --parser             = 'general': to general parsing, 'unique': drop multiplicities 
                 -v  (--vcf)      = VCF file (mandatory for steps 1-3)
                 -p  (--ped)      = PED file (mandatory for steps 1-3)
-                -V  (--verbose)      = verbose output
+                -c  (--config)      = config file [CURRENT: &quot;/scratch/fiorini9/segpy.pip/configs/segpy.config.ini&quot;]
+                -V  (--verbose)      = verbose output 
+
+ ------------------- 
+ For a comprehensive help, visit  https://neurobioinfo.github.io/segpy/latest/ for documentation. 
 </code></pre>
 <p>Once the necessary paths have been defined, we can initialize the pipeline using the following command:</p>
 <pre><code>module load apptainer/1.2.4
@@ -193,8 +199,11 @@ Usage:  /home/sam/seg_cont/segpy003/segpy.pip/launch_segpy.sh [arguments]
 bash $PIPELINE_HOME/launch_segpy.sh \
 -d $PWD \
 --steps 0 \
+--analysis_mode single_family \
 --jobmode slurm
+
 </code></pre>
+<p>Where <code>analysis_mode</code> is one of <code>single_family</code>, <code>multiple_family</code>, or <code>case-control</code> depending on the study design. </p>
 <p>After running this command, the working directory (PWD) should have the following structure:</p>
 <pre><code>PWD
 ├── configs
@@ -204,7 +213,7 @@ bash $PIPELINE_HOME/launch_segpy.sh \
     ├── jobs
     └── spark
 </code></pre>
-<p>The <code>configs</code> directory contains a .ini file with adjustable parameters for the pipeline. Please see <strong>HERE</strong> for more information regarding these parameters. The <code>logs</code> directory documents the parameters and outputs from each analytical step of the Segpy pipeline to ensure reproducibility. The <code>launch_summary_log.txt</code> is a cumulative documentation of all submitted jobs throughout the analysis.</p>
+<p>The <code>configs</code> directory contains a .ini file with adjustable parameters for the pipeline. Please see the <a href="../reference/">Configuration parameters</a> section of this documentation for more information regarding the adjustable parameters. The <code>logs</code> directory documents the parameters and outputs from each analytical step of the Segpy pipeline to ensure reproducibility. The <code>launch_summary_log.txt</code> is a cumulative documentation of all submitted jobs throughout the analysis.</p>
 <p>After completing Step 0, open the <code>segpy.config.ini</code> file to adjust the general parameters for the analysis. The following parameters must be adjusted:</p>
 <table>
 <thead>
@@ -363,10 +372,10 @@ nano $PWD/configs/segpy.config.ini
     │   └── _SUCCESS
     └── _SUCCESS
 </code></pre>
-<p>A deatiled description of the outputs can be found in the <a href="https://hail.is/docs/0.2/index.html">Hail documentation</a></p>
+<p>A deatiled description of the outputs can be found in the <a href="https://hail.is/docs/0.2/index.html">Hail documentation</a>.</p>
 <hr />
 <h3 id="step-2-run-segregation">Step 2: Run segregation</h3>
-<p>In step 2, we will leverage the Hail ouputs from step 1 to perform segregation analysis. </p>
+<p>In step 2, we will leverage the Hail ouputs from step 1 to perform segregation analysis based on the information described in the user-provided pedigree file.  </p>
 <p>Prior to running step 2, open the segpy.config.ini file to adjust the job submission parameters for step 2:</p>
 <table>
 <thead>
@@ -414,10 +423,10 @@ nano $PWD/configs/segpy.config.ini
 ├── finalseg.csv
 └── temp
 </code></pre>
-<p>The <code>finalseg.csv</code> file contains the variant counts obtained from the segregation analysis, as well as the variant annotations supplied by VEP. Please see <strong>HEREEEEEEEEEEEEEEEEEEE</strong> for a comprehensive description of the file contents.  </p>
+<p>The <code>finalseg.csv</code> file contains the variant counts obtained from the segregation analysis, as well as the variant annotations supplied by VEP. Please see the <a href="../output/">Output files</a> section of this documentation for a comprehensive description of the file contents.  </p>
 <hr />
 <h3 id="step-3-parse-output-file">Step 3: Parse output file</h3>
-<p>In step 3, we will parse the <code>finalseg.csv</code> obtained from step 2 to simplify the outputs.</p>
+<p>In step 3, we will parse the <code>finalseg.csv</code> file obtained from step 2 to simplify it and reduce its size.</p>
 <p>Prior to running step 3, open the segpy.config.ini file to adjust the job submission parameters for step 3:</p>
 <table>
 <thead>
@@ -453,16 +462,16 @@ nano $PWD/configs/segpy.config.ini
 
 # 3) Save and exit the .ini file with ctrl+0, enter ,ctrl+x
 </code></pre>
-<p>Once the parameters have been adjusted, we can run step 3. If you simply want to remove unnecessary characters such as <code>"</code>, <code>[, ]</code>, etc., use the following command:</p>
+<p>Once the parameters have been adjusted, we can run step 3. If you simply want to remove unnecessary characters  (e.g., <code>"</code> and <code>[ ]</code>) use the following command:</p>
 <pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
 -d $PWD \
---steps 2 \
+--steps 3 \
 --parser general
 </code></pre>
 <p>If you want to eliminate duplicated variant entries resulting from VEP annotations, use the following command:</p>
 <pre><code>bash $PIPELINE_HOME/launch_segpy.sh \
 -d $PWD \
---steps 2 \
+--steps 3 \
 --parser unique
 </code></pre>
 <p>After running this command, a <code>step3</code> directory will be created in the working directory (PWD), which will contain the output files from the segregation analysis. The <code>step3</code> directory should have the following structure:</p>
@@ -470,7 +479,7 @@ nano $PWD/configs/segpy.config.ini
 └── finalseg_cleaned_general.csv
 └── finalseg_cleaned_unique.csv
 </code></pre>
-<p>The <code>finalseg_cleaned_general.csv</code> and <code>finalseg_cleaned_unique.csv</code> files contain the parsed variant counts obtained from the segregation analysis, as well as the variant annotations supplied by VEP. Please see <strong>HEREEEEEEEEEEEEEEEEEEE</strong> for a comprehensive description of the file contents.  </p>
+<p>The <code>finalseg_cleaned_general.csv</code> and <code>finalseg_cleaned_unique.csv</code> files contain the parsed variant counts obtained from the segregation analysis, as well as the variant annotations supplied by VEP. Please see the <a href="../output/">Output files</a> section of this documentation for a comprehensive description of the file contents.  </p>
 <hr />
 <p><strong>Note</strong>: You can execute steps 1 to 3 sequentially, using the following command:</p>
 <pre><code>bash $PIPELINE_HOME/launch_segpy.sh \

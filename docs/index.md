@@ -1,21 +1,27 @@
 # Welcome to Segpy's documentation!
-Segpy is a comprehensive pipeline to facilitate variant segregation analysis. Segregation analysis investigates how genetic variants are passed down through generations in a family in order to identify genetic traits that contribute to disease. In general, segregation analysis comprises a three-step process: <br>
 
-1. **Family pedigree construction**: A detailed family tree is created to visualize relationships and inheritance patterns among family members.
-2. **Genotyping**: Family members are genotyped to identify the presence or absence of specific variants.
-3. **Data Analysis**: Statistical methods are applied to analyze how the variants segregate with the phenotype within the family. This often involves comparing the genotype of affected individuals to that of unaffected individuals.
+## Introduction
+Segpy is a streamlined, user-friendly pipeline designed for variant segregation analysis, allowing investigators to compute allelic counts at variant sites across study subjects. The  pipeline can be applied to both pedigree-based family cohorts — those involving single or multi-family trios, quartets, or extended families — and population-based case-control cohorts. Considering the scale of modern datasets and the computational power required for their analysis, the Segpy pipeline was designed for seamless integration with the user's high-performance computing (HPC) clusters using the [SLURM](https://slurm.schedmd.com/) Workload Manager (Segpy SLURM); however, users may also run the pipleine directly from their Linux workstation or any PC with Bash and Singularity installed (Segpy Local). 
 
-While Segpy was originally designed for segregation analysis, it can also be used to analyze **case-control cohorts**. We provide comprehensive tutorials for each application case in the **Tutorial** section of this documentation. Regardless of the application case, Segpy computes the counts of affected and non-affected individuals, both in and out of families, based on reference allele, alternate allele, homozygous alternate allele, and no variant call. These counts are assembled into a comprehensive dataframe, where each row represents a single variant, which can be optionally annotated with [Variant Effect Predictor](https://useast.ensembl.org/info/docs/tools/vep/index.html) (VEP) to facilitate downstream statistical analyses.
+As input, users must provide a single VCF file describing the genetic variants of all study subjects and a pedigree file describing the familial relationships among those individuals (if applicable) and their disease status. As output, Segpy computes variant carrier counts for affected and unaffected individuals, both within and outside of families, by categorizing wild-type individuals, heterozygous carriers, and homozygous carriers at specific loci. These counts are organized into a comprehensive data frame, with each row representing a single variant and labeled with the Sample IDs of the corresponding carriers to facilitate donwstream analysis. 
 
-The Segpy pipeline comprises four sequential steps shown in **Figure 1**. As input, users must provide a VCF file, which can be optionally annotated with VEP, and a pedigree file. The VCF file is then converted to the Hail MatrixTable format, the variants are segregated, and the counts data frame is parsed to only retain informative ouputs.
+To meet the requirements of various study designs, Segpy integrates the ability to analyze pedigree-based and population-based datasets by providing three distinct, yet highly comparable analysis tracks: <br>
+
+1) Single-family <br>
+2) Multi-family <br>
+3) Case-control <br>
+
+We provide comprehensive tutorials for running these analysis tracks in subsequent sections of this documentation. 
+
+Each analysis tracks consists of four dstinct steps shown in **Figure 1**. In brief, Step 0 establishes a working directory for the analyis and deposits a modifiable text file to adjust the analytical parameters. In Step 1, the user-provided VCF file is converted to the [Hail MatrixTable](https://hail.is/docs/0.2/overview/matrix_table.html) format. In Step 2, variant segregation is performed based on the sample information defined in the user-provided pedigree file using the MatrixTable. In Step 3, the carrier counts data frame produced in Step 2 is parsed based on user specifications to reduce the computational burden of downstream analyses. 
 
  <p align="center">
- <img src="https://github.com/user-attachments/assets/9beb08d2-49cd-41fc-a419-3caca8329c6d" width="450" height="100">
+ <img src="https://github.com/user-attachments/assets/d7879700-3bba-4d53-a775-8556e3c3f6d3" width="300" height="100">
  </p>
 
 **Figure 1. Segpy pipeline workflow.**
 
-A containerized version of the Segpy pipeline is publicly available from **Zenodo**, which includes the code, libraries, and dependicies required for running the analyses. Segpy is configured to seamlessly integrate with High-Performance Computing (HPC) systems utilizing the [SLURM](https://slurm.schedmd.com/) workload manager (Segpy SLURM), but can also be run locally on linux workstations (Segpy Local).
+A containerized version of the Segpy pipeline is publicly available from [Zenodo](https://zenodo.org/records/14503733), which includes the code, libraries, and dependicies required for running the analyses. 
 
 In this documentation, we provide a step-by-step tutorial and explanation of the Segpy pipeline. We also provide a quick-start tutorial using a simulated dataset.
 
