@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.6/output/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Output files - segpy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Output files";
+        var mkdocs_page_input_path = "output.md";
+        var mkdocs_page_url = "/0.0.6/output/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> segpy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">Segpy SLURM</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">Segpy Local</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/">Configuration parameters</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Output files</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#single-family">Single-family</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-family">Multi-family</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#case-control">Case-control</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">License</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">Acknowledgement</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">segpy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Tutorial &raquo;</li>
+      <li class="breadcrumb-item active">Output files</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="segpy-outputs">Segpy outputs</h1>
+<p>As output, Segpy computes variant counts for affected and unaffected individuals, both within and outside of families, by categorizing wild-type individuals, heterozygous carriers, and homozygous carriers at specific loci. These counts are organized into a comprehensive data frame, with each row representing a single variant and labeled with the Sample IDs of the corresponding carriers. </p>
+<p>Step 3 of the Segpy pipeline produces two output files, depending on the parsing parameter used:</p>
+<ol>
+<li><strong>finalseg_cleaned_general.csv</strong>: produced using the <code>--parser general</code> tag to remove uncessary characters, such as <code>"</code>, <code>[, ]</code>, etc.</li>
+<li><strong>finalseg_cleaned_unique.csv</strong>: produced using the <code>--parser unique</code> tag to eliminate duplicated variant entries resulting from VEP annotations.</li>
+</ol>
+<p>Regardless of the parsing parameters used, the output file includes separate columns for the user-selected VEP annotations and distinct columns detailing the variant counts across individuals in the study, categorized by their disease status and family status (if applicable). </p>
+<p>The final output files will vary depending on the selected analysis track:</p>
+<ul>
+<li><a href="#single-family">Single-family</a> </li>
+<li><a href="#multi-family">Multi-family</a></li>
+<li><a href="#case-control">Case-control</a></li>
+</ul>
+<hr />
+<h3 id="single-family">Single-family</h3>
+<table>
+<thead>
+<tr>
+<th>Column title</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>affected_WT</td>
+<td style="text-align: left;"># of affected individuals that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>affected_nocall</td>
+<td style="text-align: left;"># of affected individuals with no variant call</td>
+</tr>
+<tr>
+<td>affected_heterozygous</td>
+<td style="text-align: left;"># of affected individuals that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>affected_homozygous</td>
+<td style="text-align: left;"># of affected individuals that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>unaffected_WT</td>
+<td style="text-align: left;"># of unaffected individuals that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>unaffected_nocall</td>
+<td style="text-align: left;"># of unaffected individuals with no variant call</td>
+</tr>
+<tr>
+<td>unaffected_heterozygous</td>
+<td style="text-align: left;"># of unaffected individuals that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>unaffected_homozygous</td>
+<td style="text-align: left;"># of unaffected individuals that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>affected_WT_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>affected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals with no variant call</td>
+</tr>
+<tr>
+<td>affected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>affected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>unaffected_WT_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>unaffected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals with no variant call</td>
+</tr>
+<tr>
+<td>unaffected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>unaffected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>affected_AF</td>
+<td style="text-align: left;">Allele frequency among affected individuals</td>
+</tr>
+<tr>
+<td>unaffected_AF</td>
+<td style="text-align: left;">Allele frequency among unaffected individuals</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="multi-family">Multi-family</h3>
+<p><strong>NOTE:</strong> For the multi-family analysis, each family will have a separate row for each variant that is observed in any individual within that family.</p>
+<table>
+<thead>
+<tr>
+<th>Column title</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>family_affected_WT</td>
+<td style="text-align: left;"># of affected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_affected_nocall</td>
+<td style="text-align: left;"># of affected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_affected_heterozygous</td>
+<td style="text-align: left;"># of affected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_affected_homozygous</td>
+<td style="text-align: left;"># of affected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_WT</td>
+<td style="text-align: left;"># of unaffected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_unaffected_nocall</td>
+<td style="text-align: left;"># of unaffected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_unaffected_heterozygous</td>
+<td style="text-align: left;"># of unaffected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_homozygous</td>
+<td style="text-align: left;"># of unaffected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>total_affected_WT</td>
+<td style="text-align: left;"># of affected individuals across all families that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>total_affected_nocall</td>
+<td style="text-align: left;"># of affected individuals across all families with no variant call</td>
+</tr>
+<tr>
+<td>total_affected_heterozygous</td>
+<td style="text-align: left;"># of affected individuals across all families that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>total_affected_homozygous</td>
+<td style="text-align: left;"># of affected individuals across all families that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>total_unaffected_WT</td>
+<td style="text-align: left;"># of unaffected individuals across all families that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>total_unaffected_nocall</td>
+<td style="text-align: left;"># of unaffected individuals across all families with no variant call</td>
+</tr>
+<tr>
+<td>total_unaffected_heterozygous</td>
+<td style="text-align: left;"># of unaffected individuals across all families that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>total_unaffected_homozygous</td>
+<td style="text-align: left;"># of unaffected individuals across all families that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>family_affected_WT_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_affected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_affected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_affected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of affected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_WT_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>family_unaffected_nocall_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family with no variant call</td>
+</tr>
+<tr>
+<td>family_unaffected_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>family_unaffected_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of unaffected individuals within the family that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>affected_AF</td>
+<td style="text-align: left;">Allele frequency among affected individuals</td>
+</tr>
+<tr>
+<td>unaffected_AF</td>
+<td style="text-align: left;">Allele frequency among unaffected individuals</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="case-control">Case-control</h3>
+<table>
+<thead>
+<tr>
+<th>Column title</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>case_WT</td>
+<td style="text-align: left;"># of cases that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>case_nocall</td>
+<td style="text-align: left;"># of cases with no variant call</td>
+</tr>
+<tr>
+<td>case_heterozygous</td>
+<td style="text-align: left;"># of cases that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>case_homozygous</td>
+<td style="text-align: left;"># of cases that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>control_WT</td>
+<td style="text-align: left;"># of controls that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>control_nocall</td>
+<td style="text-align: left;"># of controls with no variant call</td>
+</tr>
+<tr>
+<td>control_heterozygous</td>
+<td style="text-align: left;"># of controls that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>control_homozygous</td>
+<td style="text-align: left;"># of controls that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>case_WT_ID</td>
+<td style="text-align: left;">Sample ID of cases that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>case_nocall_ID</td>
+<td style="text-align: left;">Sample ID of cases with no variant call</td>
+</tr>
+<tr>
+<td>case_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of cases that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>case_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of cases that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>control_WT_ID</td>
+<td style="text-align: left;">Sample ID of controls that are homozygous for the wildtype allele</td>
+</tr>
+<tr>
+<td>control_nocall_ID</td>
+<td style="text-align: left;">Sample ID of controls with no variant call</td>
+</tr>
+<tr>
+<td>control_heterozygous_ID</td>
+<td style="text-align: left;">Sample ID of controls that are heterozygous for the variant</td>
+</tr>
+<tr>
+<td>control_homozygous_ID</td>
+<td style="text-align: left;">Sample ID of controls that are homozygous for the variant</td>
+</tr>
+<tr>
+<td>case_AF</td>
+<td style="text-align: left;">Allele frequency among cases</td>
+</tr>
+<tr>
+<td>control_AF</td>
+<td style="text-align: left;">Allele frequency among controls</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../reference/" class="btn btn-neutral float-left" title="Configuration parameters"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../FAQ/" class="btn btn-neutral float-right" title="FAQ">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../reference/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../FAQ/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+      <script src="../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

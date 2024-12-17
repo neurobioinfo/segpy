@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.6/reference/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Configuration parameters - segpy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Configuration parameters";
+        var mkdocs_page_input_path = "reference.md";
+        var mkdocs_page_url = "/0.0.6/reference/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> segpy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">Segpy SLURM</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">Segpy Local</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Configuration parameters</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../output/">Output files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">License</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">Acknowledgement</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">segpy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Tutorial &raquo;</li>
+      <li class="breadcrumb-item active">Configuration parameters</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="segpy-configuration-parameters">Segpy configuration parameters</h1>
+<p>The <code>configs</code> directory produced after initiating the Segpy pipeline (step 0) contains the <code>segpy.config.ini</code>, which contains execution parameters that users must modify prior to running their analysis. </p>
+<p>The <code>segpy.config.ini</code> can be modified using the following command:</p>
+<pre><code># 1) Open .ini file to edit with nano
+nano $PWD/configs/segpy.config.ini
+
+# 2) Make appropriate changes.
+
+# 3) Save and exit the .ini file with ctrl+0, enter ,ctrl+x
+</code></pre>
+<p>The following parameters are adjustable for the Segpy pipeline:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTAINER_MODULE</td>
+<td style="text-align: left;">CONTAINER_MODULE='apptainer/1.2.4'</td>
+<td style="text-align: left;">The version of Singularity/Apptainer loaded onto your system.</td>
+</tr>
+<tr>
+<td>ACCOUNT</td>
+<td style="text-align: left;">ACCOUNT=user</td>
+<td style="text-align: left;">Your SLURM user account.</td>
+</tr>
+<tr>
+<td>CSQ_VEP</td>
+<td style="text-align: left;">CSQ=TRUE</td>
+<td style="text-align: left;">Whether or not to include variant annotations from VEP in the output file.</td>
+</tr>
+<tr>
+<td>GRCH</td>
+<td style="text-align: left;">GRCH=GRCh38</td>
+<td style="text-align: left;">Reference genome version (GRCh38 or GRCh37).</td>
+</tr>
+<tr>
+<td>AFFECTEDS_ONLY</td>
+<td style="text-align: left;">AFFECTEDS_ONLY=FALSE</td>
+<td style="text-align: left;">Whether or not to only include families with at least one affected individual.</td>
+</tr>
+<tr>
+<td>FILTER_VARIANT</td>
+<td style="text-align: left;">FILTER_VARIANT=TRUE</td>
+<td style="text-align: left;">Filter the output file using relevant variant count values. See <a href="#step-3-parse-output-file">Step 3: Parse output file</a> for more information.</td>
+</tr>
+<tr>
+<td>RETRIEVE_SAMPLE_ID</td>
+<td style="text-align: left;">RETRIEVE_SAMPLE_ID=TRUE</td>
+<td style="text-align: left;">Whether or not to retain SampleIDs in the final output file.</td>
+</tr>
+<tr>
+<td>JAVATOOLOPTIONS</td>
+<td style="text-align: left;">JAVATOOLOPTIONS="-Xmx6g"</td>
+<td style="text-align: left;">Java Virtual Machine (JVM) configuration setting. For most use cases the default value will be appropriate.</td>
+</tr>
+<tr>
+<td>WALLTIME_ARRAY["step1"]</td>
+<td style="text-align: left;">WALLTIME_ARRAY["step1"]=00-5:00</td>
+<td style="text-align: left;">Number of CPUs for the step 1 job sumission.</td>
+</tr>
+<tr>
+<td>THREADS_ARRAY["step1"]</td>
+<td style="text-align: left;">THREADS_ARRAY["step1"]=8</td>
+<td style="text-align: left;">Amount of memory (RAM) for the step 1 job sumission.</td>
+</tr>
+<tr>
+<td>MEM_ARRAY["step1"]</td>
+<td style="text-align: left;">MEM_ARRAY["step1"]=10g</td>
+<td style="text-align: left;">Amount of time for the step 1 job sumission.</td>
+</tr>
+<tr>
+<td>WALLTIME_ARRAY["step2"]</td>
+<td style="text-align: left;">WALLTIME_ARRAY["step2"]=00-5:00</td>
+<td style="text-align: left;">Number of CPUs for the step 2 job sumission.</td>
+</tr>
+<tr>
+<td>THREADS_ARRAY["step2"]</td>
+<td style="text-align: left;">THREADS_ARRAY["step2"]=8</td>
+<td style="text-align: left;">Amount of memory (RAM) for the step 2 job sumission.</td>
+</tr>
+<tr>
+<td>MEM_ARRAY["step2"]</td>
+<td style="text-align: left;">MEM_ARRAY["step2"]=10g</td>
+<td style="text-align: left;">Amount of time for the step 2 job sumission.</td>
+</tr>
+<tr>
+<td>WALLTIME_ARRAY["step3"]</td>
+<td style="text-align: left;">WALLTIME_ARRAY["step3"]=00-5:00</td>
+<td style="text-align: left;">Number of CPUs for the step 3 job sumission.</td>
+</tr>
+<tr>
+<td>THREADS_ARRAY["step3"]</td>
+<td style="text-align: left;">THREADS_ARRAY["step3"]=8</td>
+<td style="text-align: left;">Amount of memory (RAM) for the step 3 job sumission.</td>
+</tr>
+<tr>
+<td>MEM_ARRAY["step3"]</td>
+<td style="text-align: left;">MEM_ARRAY["step3"]=10g</td>
+<td style="text-align: left;">Amount of time for the step 3 job sumission.</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../segpy_local/" class="btn btn-neutral float-left" title="Segpy Local"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../output/" class="btn btn-neutral float-right" title="Output files">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../segpy_local/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../output/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+      <script src="../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
