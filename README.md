@@ -1,7 +1,8 @@
 # Segpy: a streamlined, user-friendly pipline for variant segregation analysis
 
 
-[![](https://img.shields.io/badge/Documentation-segpy-blue)](https://neurobioinfo.github.io/segpy/site/) 
+[![](https://img.shields.io/badge/Documentation-segpy-blue)](https://neurobioinfo.github.io/segpy/site/) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14503733.svg)](https://doi.org/10.5281/zenodo.14503733)
+
 
 -------------
 ## Contents
