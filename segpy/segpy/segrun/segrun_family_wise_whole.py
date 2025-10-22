@@ -22,6 +22,7 @@ import pyspark.sql.functions as F
 import pyspark.sql.types as T
 from segpy.tools.utils import str_list
 
+
 ####################
 # HELPER FUNCTIONS #
 # Case-control and single family # 
@@ -297,9 +298,10 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         # export to tsv: must split csq_rows into sub-lists of size ncol in order to avoid busting memory
         csq_list_of_lists = [csq_rows[i:i + ncol] for i in range(0, len(csq_rows), ncol)]
         for i in range(0, len(csq_list_of_lists)):
-                mt.rows().select(*csq_list_of_lists[i]).export(f'out_csq_{i}', delimiter='\t')
-                formatTmpCsv(f'out_csq_{i}', f'{outfolder}/temp')
-        cmd_paste = 'paste $(ls -rt out_csq_*) > out_csq; rm out_csq_*'
+                mt.rows().select(*csq_list_of_lists[i]).export(f'{outfolder}/out_csq_{i}', delimiter='\t')
+                formatTmpCsv(f'{outfolder}/out_csq_{i}', f'{outfolder}/temp')
+        # cmd_paste = 'paste $(ls -rt out_csq_*) > out_csq; rm out_csq_*'
+        cmd_paste = 'paste $(ls -rt ' +  f'{outfolder}/out_csq_*) > {outfolder}/out_csq; rm {outfolder}/out_csq_*'
         os.system(cmd_paste)
         timekeeping(step, start_time)
     
@@ -318,14 +320,14 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
     # split info into sub-lists of size ncol in order to be able to export to csv without busting memory for larger datasets
     info_list_of_lists = [info_columns[i:i + ncol] for i in range(0, len(info_columns), ncol)]
     for i in range(0, len(info_list_of_lists)):
-        ht.select(*info_list_of_lists[i]).export(f'out_info_{i}', delimiter='\t')
+        ht.select(*info_list_of_lists[i]).export(f'{outfolder}/out_info_{i}', delimiter='\t')
     # cleanup unwanted formatting
-    cmd_sed_header = "sed '1!b; s/info.//g' -i out_info_*"
-    cmd_sed_body  = "sed 's/\<NA\>//g' -i out_info_*"
+    cmd_sed_header = "sed '1!b; s/info.//g'" + f" -i {outfolder}/out_info_*"
+    cmd_sed_body  = "sed 's/\<NA\>//g' " + f" -i {outfolder}/out_info_*"
     os.system(cmd_sed_header)
     os.system(cmd_sed_body)
     # paste split outfiles into a single outfile for ease of processing later
-    cmd_paste = 'paste $(ls -1 out_info_*|sort -t_ -k3g) > out_info; rm out_info_*'
+    cmd_paste = f'paste $(ls -1 {outfolder}/out_info_*|sort -t_ -k3g) > {outfolder}/out_info; rm {outfolder}/out_info_*'
     os.system(cmd_paste)
     timekeeping(step, start_time)
     # POPULATE GLOBAL ANNOTATIONS: CSQ, INFO
@@ -370,12 +372,12 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         # processing family counts
         step = f'family_{fam}:export_counting_rows'
         # ... export locus and familyid to file
-        fam_aff_mt.rows().select(*['familyid']).export('out_locus',delimiter='\t')
+        fam_aff_mt.rows().select(*['familyid']).export(f'{outfolder}/out_locus',delimiter='\t')
         # ... export counts to files
-        export_counts(fam_aff_mt, 'fam_aff', 'out_fam_aff')
-        export_counts(fam_naf_mt, 'fam_naf', 'out_fam_naf')
-        export_counts(nfm_aff_mt, 'nfm_aff', 'out_nfm_aff')
-        export_counts(nfm_naf_mt, 'nfm_naf', 'out_nfm_naf')
+        export_counts(fam_aff_mt, 'fam_aff',  f'{outfolder}/out_fam_aff')
+        export_counts(fam_naf_mt, 'fam_naf',  f'{outfolder}/out_fam_naf')
+        export_counts(nfm_aff_mt, 'nfm_aff',  f'{outfolder}/out_nfm_aff')
+        export_counts(nfm_naf_mt, 'nfm_naf',  f'{outfolder}/out_nfm_naf')
         timekeeping(step, start_time)
         # concatenate temporary files into single per-family output file
         step = f'family_{fam}:finalize_family_output'

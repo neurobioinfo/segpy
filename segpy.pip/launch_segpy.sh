@@ -3,8 +3,8 @@
 # Copyright belongs Neuro Bioinformatics Core
 # Developed\Scripted by Saeid Amiri (saeid.amiri@mcgill.ca) 
 
-VERSION=0.0.6;
-DATE0=2024-12-16
+VERSION=0.0.7;
+DATE0=2025-09-12
 PIPELINE_NAME=segregation
 echo -e "------------------------------------ "
 echo -e "$PIPELINE_NAME pipeline version $VERSION is loaded"

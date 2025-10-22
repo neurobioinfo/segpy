@@ -4,7 +4,7 @@ In this tutorial we illustrate how to run the Segpy pipeline on a High-Performan
 ## Contents
 - [Input data](#input-data)
 - [Step 0: Setup](#step-0-setup)
-- [Step 1: VCF to MatrixTable](#step-1-VCF-to-MatrixTable)
+- [Step 1: VCF to MatrixTable](#step-1-vcf-to-matrixtable)
 - [Step 2: Run segregation](#step-2-run-segregation)
 - [Step 3: Parse output file](#step-3-parse-output-file)
 

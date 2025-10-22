@@ -34,7 +34,7 @@ def clean_unique(outfolder, sparkmem):
     if sparkmem != "False": hl.init(spark_conf={'spark.driver.memory': sparkmem})
     finalseg = 'finalseg.csv'
     finalseg_cleaned = 'finalseg_cleaned_unique.csv'
-    final_name = f'{outfolder}/{finalseg}'        
+    final_name = f'{outfolder}/{finalseg}'
     final = pd.read_csv(final_name, sep='\t',index_col=False)
     columns_all = final.columns.to_list()
     # identify all columns to process, by excluding id and counting columns

@@ -21,7 +21,7 @@ The following parameters are adjustable for the Segpy pipeline:
 | CSQ_VEP | CSQ=TRUE | Whether or not to include variant annotations from VEP in the output file. |
 |GRCH| GRCH=GRCh38 | Reference genome version (GRCh38 or GRCh37).|
 |AFFECTEDS_ONLY|AFFECTEDS_ONLY=FALSE| Whether or not to only include families with at least one affected individual.|
-|FILTER_VARIANT|FILTER_VARIANT=TRUE| Filter the output file using relevant variant count values. See [Step 3: Parse output file](#step-3-parse-output-file) for more information.|
+|FILTER_VARIANT|FILTER_VARIANT=TRUE| Filter the output file using relevant variant count values. See [Step 3: Parse output file](segpy_local.md#step-3-parse-output-file) for more information.|
 |RETRIEVE_SAMPLE_ID|RETRIEVE_SAMPLE_ID=TRUE| Whether or not to retain SampleIDs in the final output file. |
 |JAVATOOLOPTIONS|JAVATOOLOPTIONS="-Xmx6g"| Java Virtual Machine (JVM) configuration setting. For most use cases the default value will be appropriate.|
 |WALLTIME_ARRAY["step1"]|WALLTIME_ARRAY["step1"]=00-5:00 | Number of CPUs for the step 1 job sumission. |

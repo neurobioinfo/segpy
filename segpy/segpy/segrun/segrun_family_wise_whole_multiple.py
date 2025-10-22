@@ -89,7 +89,7 @@ def generate_counts_m(mt, fam, sample_list,ped):
                                 _homv_samp  = 0)
     return mt2
 
-def export_counts_m(mt2, prefix, outfile,sample_list):
+def export_counts_m(mt2, prefix, outfile,sample_list,outfolder):
     if len(sample_list) > 0:
         listt2=['glb_aff_r','_wild','_wild_c','_ncl','_ncl_c','_vrt','_vrt_c','_homv','_homv_c']
         df3=mt2.rows().select(*listt2).to_spark()
@@ -101,18 +101,18 @@ def export_counts_m(mt2, prefix, outfile,sample_list):
         str_udf = F.udf(str_list, T.StringType())
         df6=df5.select('_wild',str_udf('_wild_s').alias('_wild_samp'),'_ncl',str_udf('_ncl_s').alias('_ncl_samp'),'_vrt',str_udf('_vrt_s').alias('_vrt_samp'),'_homv',str_udf('_homv_s').alias('_homv_samp'))
         del df5
-        name_glb_csv=f'./samp/fam_affcsv'
+        name_glb_csv=f'{outfolder}/samp/fam_affcsv'
         df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name_glb_csv)
         del df6
-        cmd_glb_aff0=f'cd ./samp/fam_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../fam_aff_out \; ; rm -r  ../fam_affcsv'
+        cmd_glb_aff0=f'cd {outfolder}/samp/fam_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} {outfolder}/samp/fam_aff_out \; ; rm -r  {outfolder}/samp/fam_affcsv'
         os.system(cmd_glb_aff0)
-        cmd_prune_glb=f'cd ./samp;' + ' sed -i fam_aff_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
+        cmd_prune_glb=f'cd {outfolder}/samp;' + ' sed -i fam_aff_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
         os.system(cmd_prune_glb)
-        cmd_prune_glb_mv=f'mv ./samp/fam_aff_out ./{outfile}'
+        cmd_prune_glb_mv=f'mv {outfolder}/samp/fam_aff_out {outfile}'
         os.system(cmd_prune_glb_mv)
-        cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' ./{outfile} -i"
+        cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' {outfile} -i"
         os.system(cmd)
-        cmd_paste = f'paste -d"\t" ./out_locus ./{outfile} > ./temp; rm ./{outfile}; mv ./temp ./{outfile}'
+        cmd_paste = f'paste -d"\t" {outfolder}/out_locus {outfile} > {outfolder}/tempf; rm {outfile}; mv {outfolder}/tempf {outfile}'
         os.system(cmd_paste)
     else:
         counting_rows = ['_wild','_wild_samp','_ncl','_ncl_samp','_vrt','_vrt_samp','_homv','_homv_samp']
@@ -120,9 +120,9 @@ def export_counts_m(mt2, prefix, outfile,sample_list):
         # rename headers to be prefix-specific
         cmd = f"sed '1!b; s/[^\t]\+/{prefix}&/g' {outfile} -i"
         os.system(cmd)
-        cmd = f'cut -f3- ./{outfile} > tmp; mv ./tmp ./{outfile}'
+        cmd = f'cut -f3- {outfile} > {outfolder}/tmp; mv {outfolder}/tmp {outfile}'
         os.system(cmd)
-        cmd_paste = f'paste -d"\t" ./out_locus ./{outfile} > ./temp; rm ./{outfile}; mv ./temp ./{outfile}'
+        cmd_paste = f'paste -d"\t" {outfolder}/out_locus {outfile} > {outfolder}/tempf; rm {outfile}; mv {outfolder}/tempf {outfile}'
         os.system(cmd_paste)
 
 
@@ -247,7 +247,7 @@ def sample_retrieve(mt, ped, outfolder):
 #################
 
 def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant, retrieve_sample_id, ncol):
-    print('temp 0')
+    # print('temp 0')
     # ncol=7
     # affecteds_only=eval(str(str(affecteds_only)))
     # filter_variant=eval(str(str(filter_variant)))
@@ -325,14 +325,16 @@ def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affected
     # populate simple family list:
     # all families, or all families with at least one affected sample if affecteds_only=TRUE
     # affecteds_only=TRUE
-    if affecteds_only == "TRUE": 
+    if affecteds_only == "TRUE":
         fam_list = [fam for fam in sample_dict if len(sample_dict[fam]['fam']['aff'])>0]
     else:
         fam_list = list(sample_dict.keys())
     # fam_list =  sample_dict.keys() 
-    if len(fam_list)<3:
-        fam_list=[fam_list[0]]
+    # if len(fam_list)<3:
+        # fam_list=[fam_list[0]]
     timekeeping(step, start_time)
+    # print("AAAAAA")
+    # print(fam_list)
     #
     ###
     # POPULATE INPUTS AND DERIVATIVE OBJECTS
@@ -362,9 +364,9 @@ def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affected
         # export to tsv: must split csq_rows into sub-lists of size ncol in order to avoid busting memory
         csq_list_of_lists = [csq_rows[i:i + ncol] for i in range(0, len(csq_rows), ncol)]
         for i in range(0, len(csq_list_of_lists)):
-                mt.rows().select(*csq_list_of_lists[i]).export(f'out_csq_{i}', delimiter='\t')
-                formatTmpCsv(f'out_csq_{i}', f'{outfolder}/temp')
-        cmd_paste = 'paste $(ls -rt out_csq_*) > out_csq; rm out_csq_*'
+                mt.rows().select(*csq_list_of_lists[i]).export(f'{outfolder}/out_csq_{i}', delimiter='\t')
+                formatTmpCsv(f'{outfolder}/out_csq_{i}', f'{outfolder}/temp')
+        cmd_paste = f'paste $(ls -rt {outfolder}/out_csq_*) > {outfolder}/out_csq; rm {outfolder}/out_csq_*'
         os.system(cmd_paste)
         timekeeping(step, start_time)
     # processing the rest of the INFO field data
@@ -382,14 +384,14 @@ def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affected
     # split info into sub-lists of size ncol in order to be able to export to csv without busting memory for larger datasets
     info_list_of_lists = [info_columns[i:i + ncol] for i in range(0, len(info_columns), ncol)]
     for i in range(0, len(info_list_of_lists)):
-        ht.select(*info_list_of_lists[i]).export(f'out_info_{i}', delimiter='\t')
+        ht.select(*info_list_of_lists[i]).export(f'{outfolder}/out_info_{i}', delimiter='\t')
     # cleanup unwanted formatting
-    cmd_sed_header = "sed '1!b; s/info.//g' -i out_info_*"
-    cmd_sed_body  = "sed 's/\<NA\>//g' -i out_info_*"
+    cmd_sed_header = f"sed '1!b; s/info.//g' -i {outfolder}/out_info_*"
+    cmd_sed_body  = f"sed 's/\<NA\>//g' -i {outfolder}/out_info_*"
     os.system(cmd_sed_header)
     os.system(cmd_sed_body)
     # paste split outfiles into a single outfile for ease of processing later
-    cmd_paste = 'paste $(ls -1 out_info_*|sort -t_ -k3g) > out_info; rm out_info_*'
+    cmd_paste = f'paste $(ls -1 {outfolder}/out_info_*|sort -t_ -k3g) > {outfolder}/out_info; rm {outfolder}/out_info_*'
     os.system(cmd_paste)
     timekeeping(step, start_time)
     # POPULATE GLOBAL ANNOTATIONS: CSQ, INFO
@@ -434,12 +436,12 @@ def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affected
         # processing family counts
         step = f'family_{fam}:export_counting_rows'
         # ... export locus and familyid to file
-        fam_aff_mt.rows().select(*['familyid']).export('out_locus',delimiter='\t')
+        fam_aff_mt.rows().select(*['familyid']).export(f'{outfolder}/out_locus',delimiter='\t')
         # ... export counts to files
-        export_counts_m(fam_aff_mt, 'fam_aff', 'out_fam_aff', sample_dict[fam]['fam']['aff'])
-        export_counts_m(fam_naf_mt, 'fam_naf', 'out_fam_naf', sample_dict[fam]['fam']['naf'])
-        export_counts_m(nfm_aff_mt, 'nfm_aff', 'out_nfm_aff', sample_dict[fam]['nfm']['aff'])
-        export_counts_m(nfm_naf_mt, 'nfm_naf', 'out_nfm_naf', sample_dict[fam]['nfm']['naf'])
+        export_counts_m(fam_aff_mt, 'fam_aff', f'{outfolder}/out_fam_aff', sample_dict[fam]['fam']['aff'],outfolder)
+        export_counts_m(fam_naf_mt, 'fam_naf', f'{outfolder}/out_fam_naf', sample_dict[fam]['fam']['naf'],outfolder)
+        export_counts_m(nfm_aff_mt, 'nfm_aff', f'{outfolder}/out_nfm_aff', sample_dict[fam]['nfm']['aff'],outfolder)
+        export_counts_m(nfm_naf_mt, 'nfm_naf', f'{outfolder}/out_nfm_naf', sample_dict[fam]['nfm']['naf'],outfolder)
         timekeeping(step, start_time)
         # concatenate temporary files into single per-family output file
         step = f'family_{fam}:finalize_family_output'
@@ -506,7 +508,7 @@ def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affected
     # os.system(cmd_glb_paste)
     # remove unwanted lines
     step = 'filter_final_results_by_counts'
-    print('temp 3')
+    # print('temp 3')
     # ... parse counting column numbers from preOutfile
     cmd_parse_1 =  f'head -n 1 {preOutfile}'
     cmd_parse_2 = "awk -F'\t' '{for (i=1; i<=NF; i++) if ($i~/^(fam|nfm)_/) print $i,i}'"
@@ -569,7 +571,7 @@ def segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affected
     os.system(cmd_rm_out_all)  
     # print('testing: skipping cleanup for now')#os.system(cmd_rm)  
     timekeeping(step, start_time)
-    cmd_rm = f'rm -rf {outfolder}/temp; rm {outfolder}/glb_aff_naf_out '
+    cmd_rm = f'rm -rf {outfolder}/temp; rm -rf {outfolder}/samp; rm {outfolder}/glb_aff_naf_out '
     os.system(cmd_rm)
     # final timestamp
     timekeeping('Segrun', start_time0)

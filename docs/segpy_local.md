@@ -4,7 +4,7 @@ In this tutorial we illustrate how to run the Segpy pipeline on Linux workstatio
 ## Contents
 - [Input data](#input-data)
 - [Step 0: Setup](#step-0-setup)
-- [Step 1: VCF to MatrixTable](#step-1-VCF-to-MatrixTable)
+- [Step 1: VCF to MatrixTable](#step-1-vcf-to-matrixtable)
 - [Step 2: Run segregation](#step-2-run-segregation)
 - [Step 3: Parse output file](#step-3-parse-output-file)
 
@@ -151,8 +151,8 @@ nano $PWD/configs/segpy.config.ini
 
  - - - -
 
-### Step 1: VCF to MatrixTable
 
+### Step 1: VCF to MatrixTable
 In step 1, we will convert the user-provided VCF file to the [Hail MatrixTable](https://hail.is/docs/0.2/overview/matrix_table.html) format, which is designed to efficiently store and manipulate large-scale genomic datasets.
 
 To run step 1 using the following command:

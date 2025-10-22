@@ -37,5 +37,6 @@ def run(mt, ped, outfolder, hl, vcffile, CSQ, affecteds_only, filter_variant, re
         segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant, retrieve_sample_id, ncol)
     else:
         segrun_family_wise_whole_multiple(mt, ped, outfolder, hl, csqlabel, affecteds_only, filter_variant, retrieve_sample_id, ncol)
+
 if __name__ == "__main__":
     run()

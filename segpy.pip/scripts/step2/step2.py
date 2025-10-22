@@ -43,7 +43,7 @@ elif len(ped.iloc[:,0].unique())==1:
 else:
     ana_mode='multiple'
 
-
+os.chdir(outfolder)
 seg.run(mt, ped, outfolder, hl, vcffile, CSQ, affecteds_only, filter_variant, retrieve_sample_id, ncol, ana_mode)
 
 
@@ -54,12 +54,13 @@ preOutfile = f'{outfolder}/finalseg.csv'
 preOutfile_temp = f'{outfolder}/finalseg_temp.csv'
 
 
+
 if ana_mode=='case-control':
     print('############')
     print('NOTE: Pipeline run case-control')
     print('############')
     cmd_parse_1 =  f'head -n 1 {preOutfile}'
-    cmd_parse_2 = "awk -F'\t' '{for (i=1; i<=NF; i++) if ($i~/(glb_aff_wild?$|glb_aff_ncl?$|glb_aff_vrt?$|glb_aff_homv?$|glb_naf_wild?$|glb_naf_ncl?$|glb_naf_vrt?$|glb_naf_homv?$|nfm_aff_wild?$|nfm_aff_ncl?$|nfm_aff_vrt?$|nfm_aff_homv?$|nfm_naf_wild?$|nfm_naf_ncl?$|nfm_naf_vrt?$|nfm_naf_homv?$)/) print $i,i}'"
+    cmd_parse_2 = "awk -F'\t' '{for (i=1; i<=NF; i++) if ($i~/(fam_aff_wild|fam_aff_ncl|fam_aff_vrt|fam_aff_homv|fam_naf_wild|fam_naf_ncl|fam_naf_vrt|fam_naf_homv|nfm_aff_wild?$|nfm_aff_ncl?$|nfm_aff_vrt?$|nfm_aff_homv?$|nfm_naf_wild?$|nfm_naf_ncl?$|nfm_naf_vrt?$|nfm_naf_homv?$)/) print $i,i}'"
     #
     pIn  = subprocess.Popen(cmd_parse_1, stdout=subprocess.PIPE, shell=True)
     pOut = io.StringIO(subprocess.check_output(cmd_parse_2, stdin=pIn.stdout, shell=True, text=True).rstrip())
@@ -71,7 +72,7 @@ if ana_mode=='case-control':
     cmd_rm = f'rm -rf {preOutfile} '
     os.system(cmd_rm)
     #
-    cmd_sed = f"sed 's/\<fam_aff_wild\>/case_WT/g;s/\<fam_aff_ncl\>/case_nocall/g;s/\<fam_aff_vrt\>/case_heterozygous/g;s/\<fam_aff_homv\>/case_homozygous/g;s/\<fam_naf_wild\>/control_WT/g;s/\<fam_naf_ncl\>/control_nocall/g;s/\<fam_naf_vrt\>/control_heterozygous/g;s/\<fam_naf_homv\>/control_homozygous/g;s/glb_aff_vrt_samp/case_heterozygous_ID/g;s/glb_aff_homv_samp/case_homozygous_ID/g;s/glb_naf_vrt_samp/control_heterozygous_ID/g;s/glb_naf_homv_samp/control_homozygous_ID/g;s/glb_aff_altaf/case_AF/g;s/glb_naf_altaf/control_AF/g;s/glb_aff_wild_samp/case_WT_ID/g;s/glb_aff_ncl_samp/case_nocall_ID/g;s/glb_naf_wild_samp/control_WT_ID/g;s/glb_naf_ncl_samp/control_nocall_ID/g' -i {preOutfile_temp}"
+    cmd_sed = f"sed 's/\<glb_aff_wild\>/case_WT/g;s/\<glb_aff_ncl\>/case_nocall/g;s/\<glb_aff_vrt\>/case_heterozygous/g;s/\<glb_aff_homv\>/case_homozygous/g;s/\<glb_naf_wild\>/control_WT/g;s/\<glb_naf_ncl\>/control_nocall/g;s/\<glb_naf_vrt\>/control_heterozygous/g;s/\<glb_naf_homv\>/control_homozygous/g;s/glb_aff_vrt_samp/case_heterozygous_ID/g;s/glb_aff_homv_samp/case_homozygous_ID/g;s/glb_naf_vrt_samp/control_heterozygous_ID/g;s/glb_naf_homv_samp/control_homozygous_ID/g;s/glb_aff_altaf/case_AF/g;s/glb_naf_altaf/control_AF/g;s/glb_aff_wild_samp/case_WT_ID/g;s/glb_aff_ncl_samp/case_nocall_ID/g;s/glb_naf_wild_samp/control_WT_ID/g;s/glb_naf_ncl_samp/control_nocall_ID/g' -i {preOutfile_temp}"
     os.system(cmd_sed)
     #
     cmd_rename = f'mv {preOutfile_temp}  {preOutfile} '
@@ -102,6 +103,8 @@ else:
     print('############')
     print('NOTE: Pipeline run multiple family')
     print('############')
+    if len(ped.iloc[:, 0].unique())==2:
+        print("WARNING: ped file has just two family")
     cmd_parse_1 =  f'head -n 1 {preOutfile}'
     cmd_parse_2 = "awk -F'\t' '{for (i=1; i<=NF; i++) if ($i~/(nfm_aff_wild?$|nfm_aff_ncl?$|nfm_aff_vrt?$|nfm_aff_homv?$|nfm_naf_wild?$|nfm_naf_ncl?$|nfm_naf_vrt?$|nfm_naf_homv?$|nfm_aff_wild_samp?$|nfm_aff_ncl_samp?$|nfm_aff_vrt_samp?$|nfm_aff_homv_samp?$|nfm_naf_wild_samp?$|nfm_naf_ncl_samp?$|nfm_naf_vrt_samp?$|nfm_naf_homv_samp?$|glb_aff_wild_samp?$|glb_aff_wild_samp?$|glb_aff_ncl_samp?$|glb_aff_vrt_samp?$|glb_aff_homv_samp?$|glb_naf_wild_samp?$|glb_naf_ncl_samp?$|glb_naf_vrt_samp?$|glb_naf_homv_samp?$)/) print $i,i}'"
     #
