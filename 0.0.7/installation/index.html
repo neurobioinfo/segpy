@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://neurobioinfo.github.io/0.0.7/installation/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Installation - segpy</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Installation";
+        var mkdocs_page_input_path = "installation.md";
+        var mkdocs_page_url = "/0.0.7/installation/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> segpy
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Installation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#apptainer">Apptainer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#segpypip">Segpy.pip</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_slurm/">Segpy SLURM</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../segpy_local/">Segpy Local</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../reference/">Configuration parameters</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../output/">Output files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../LICENSE/">License</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Acknowledgement/">Acknowledgement</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">segpy</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tutorial</li>
+      <li class="breadcrumb-item active">Installation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="installation">Installation</h1>
+<p>A containerized version of the Segpy pipeline is publicly available from <a href="https://zenodo.org/records/14503733">Zenodo</a>, which includes the code, libraries, and dependicies required for running the analyses. The container is compatible with High-Performance Computing (HPC) systems, Linux workstations, or any PC with Bash and Singularity installed.</p>
+<p>To use the Segpy pipeline, the folowing must be installed on your system:</p>
+<ul>
+<li><a href="#apptainer">Apptainer</a></li>
+<li><a href="#segpypip">segpy.pip</a></li>
+</ul>
+<hr />
+<h3 id="apptainer">Apptainer</h3>
+<p><code>segpy.pip</code> is packaged and tested with <a href="https://apptainer.org/">Apptainer</a> (formerly Singularity) version 1.2.4. Before proceeding, ensure that Apptainer/Singularity is installed on your system. If you are using an HPC system, Apptainer is likely already installed, and you will simply need to load the module. If you encounter any issues while loading the Apptainer module, please contact your system administrator. Before running the Segpy pipeline, load the Apptainer module using the following command:</p>
+<pre><code># Load Apptainer
+module apptainer/1.2.4
+</code></pre>
+<hr />
+<h3 id="segpypip">Segpy.pip</h3>
+<p>To download the latest version of Segpy run the following command:</p>
+<pre><code># Download the Segpy container
+curl &quot;https://zenodo.org/records/14503733/files/segpy.pip.zip?download=1&quot; --output segpy.pip.zip
+
+# Unzip the Segpy container
+unzip segpy.pip.zip
+</code></pre>
+<p>To ensure that <code>segpy.pip</code> is downloaded properly, run the following command:</p>
+<pre><code>bash /path/to/segpy.pip/launch_segpy.sh -h
+</code></pre>
+<p>If <code>segpy.pip</code> is downloaded properly, the above command should return the folllowing:</p>
+<pre><code>------------------------------------ 
+segregation pipeline version 0.0.6 is loaded
+
+------------------- 
+Usage:  segpy.pip/launch_segpy.sh [arguments]
+        mandatory arguments:
+                -d  (--dir)      = Working directory (where all the outputs will be printed) (give full path) 
+                -s  (--steps)      = Specify what steps, e.g., 2 to run just step 2, 1-3 (run steps 1 through 3). 'ALL' to run all steps.
+                                steps:
+                                0: initial setup
+                                1: create hail matrix
+                                2: run segregation
+                                3: final cleanup and formatting
+
+        optional arguments:
+                -h  (--help)      = Get the program options and exit.
+                --jobmode  = The default for the pipeline is local. If you want to run the pipeline on slurm system, use slurm as the argument. 
+                --analysis_mode  = The default for the pipeline is analysing single or multiple family. If you want to run the pipeline on case-control, use case-control as  the argumnet. 
+                --parser             = 'general': to general parsing, 'unique': drop multiplicities 
+                -v  (--vcf)      = VCF file (mandatory for steps 1-3)
+                -p  (--ped)      = PED file (mandatory for steps 1-3)
+                -c  (--config)      = config file [CURRENT: &quot;/scratch/fiorini9/segpy.pip/configs/segpy.config.ini&quot;]
+                -V  (--verbose)      = verbose output 
+
+ ------------------- 
+ For a comprehensive help, visit  https://neurobioinfo.github.io/segpy/latest/ for documentation. 
+</code></pre>
+<p>After successfully downloading <code>segpy.pip</code> we can proceed with the segregation analysis. </p>
+<p><strong><a href="#installation">⬆ back to top</a></strong></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../segpy_slurm/" class="btn btn-neutral float-right" title="Segpy SLURM">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../segpy_slurm/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+      <script src="../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
