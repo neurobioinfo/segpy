@@ -83,90 +83,95 @@ def sample_retrieve(mt, ped, outfolder):
     ##### list of sample in the affected and non-affected family
     glb_aff=[ x for x in ped.loc[ped.loc[:,'phenotype']==2,'individualid']]
     glb_naf=[ x for x in ped.loc[ped.loc[:,'phenotype']==1,'individualid']]
+    udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
+    udf_2b = udf(lambda x,ref: [x[i] for i in ref])
+    str_udf = F.udf(str_list, T.StringType())
     ##### list of family
     #################################################### Global affected
-    glb_aff_sam = hl.literal(hl.set(glb_aff))
-    glb_aff_sam_mt=mt.filter_cols(glb_aff_sam.contains(mt.s))
-    # fam_aff_mt.count()
-    ## wildtype 
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_r= glb_aff)
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_wild = hl.agg.sum(glb_aff_sam_mt.wild))
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_wild_c = hl.agg.collect(glb_aff_sam_mt.wild))
-    # no call
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_ncl = hl.agg.sum(glb_aff_sam_mt.ncl))
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_ncl_c = hl.agg.collect(glb_aff_sam_mt.ncl))
-    # variant 
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_vrt = hl.agg.sum(glb_aff_sam_mt.vrt))
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_vrt_c = hl.agg.collect(glb_aff_sam_mt.vrt))
-    # hom_var: contains identical alternate alleles
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv = hl.agg.sum(glb_aff_sam_mt.homv))
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv_c = hl.agg.collect(glb_aff_sam_mt.homv))
-    # altaf: contains  ALT allele frequency   
-    glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_altaf = (hl.agg.call_stats(glb_aff_sam_mt.GT, glb_aff_sam_mt.alleles).AF[1]))
-    # listt2=[]
-    # name2=f'{outfolder}/samp/glb_aff.csv'
-    listt2=['glb_aff_r','glb_aff_wild','glb_aff_wild_c','glb_aff_ncl','glb_aff_ncl_c','glb_aff_vrt','glb_aff_vrt_c', 'glb_aff_homv', 'glb_aff_homv_c','glb_aff_altaf']
-    df3=glb_aff_sam_mt.rows().select(*listt2).to_spark()
-    udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
-    df4=df3.select('glb_aff_r','glb_aff_wild','glb_aff_wild_c','glb_aff_ncl','glb_aff_ncl_c','glb_aff_vrt','glb_aff_vrt_c', 'glb_aff_homv', 'glb_aff_homv_c','glb_aff_altaf',udf_i('glb_aff_wild_c').alias('glb_aff_wild_c2'),udf_i('glb_aff_ncl_c').alias('glb_aff_ncl_c2'),udf_i('glb_aff_vrt_c').alias('glb_aff_vrt_c2'),udf_i('glb_aff_homv_c').alias('glb_aff_homv_c2'))
-    del df3
-    udf_2b = udf(lambda x,ref: [x[i] for i in ref])
-    df5=df4.select('glb_aff_wild',udf_2b('glb_aff_r', 'glb_aff_wild_c2').alias('glb_aff_wild_s'),'glb_aff_ncl',udf_2b('glb_aff_r', 'glb_aff_ncl_c2').alias('glb_aff_ncl_s'),'glb_aff_vrt', udf_2b('glb_aff_r', 'glb_aff_vrt_c2').alias('glb_aff_vrt_s'),'glb_aff_homv', udf_2b('glb_aff_r', 'glb_aff_homv_c2').alias('glb_aff_homv_s'),'glb_aff_altaf')
-    str_udf = F.udf(str_list, T.StringType())
-    df6=df5.select('glb_aff_wild',str_udf('glb_aff_wild_s').alias('glb_aff_wild_samp'),'glb_aff_ncl',str_udf('glb_aff_ncl_s').alias('glb_aff_ncl_samp'),'glb_aff_vrt', str_udf('glb_aff_vrt_s').alias('glb_aff_vrt_samp'),'glb_aff_homv',str_udf('glb_aff_homv_s').alias('glb_aff_homv_samp'),'glb_aff_altaf')
-    del df5
-    name_glb_csv=f'{outfolder}/samp/glb_affcsv'
-    df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name_glb_csv)
-    del df6
-    cmd_glb_aff0=f'cd {outfolder}/samp/glb_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_aff_out \; ; rm -r  ../glb_affcsv'
-    os.system(cmd_glb_aff0)  
-    cmd_prune_glb=f'cd {outfolder}/samp;' + ' sed -i glb_aff_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
-    os.system(cmd_prune_glb)
-    cmd_prune_glb_mv=f'mv {outfolder}/samp/glb_aff_out {outfolder}/glb_aff_out'
-    os.system(cmd_prune_glb_mv)
+    if len(glb_aff) > 0:
+        glb_aff_sam = hl.literal(hl.set(glb_aff))
+        glb_aff_sam_mt=mt.filter_cols(glb_aff_sam.contains(mt.s))
+        # fam_aff_mt.count()
+        ## wildtype 
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_r= glb_aff)
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_wild = hl.agg.sum(glb_aff_sam_mt.wild))
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_wild_c = hl.agg.collect(glb_aff_sam_mt.wild))
+        # no call
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_ncl = hl.agg.sum(glb_aff_sam_mt.ncl))
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_ncl_c = hl.agg.collect(glb_aff_sam_mt.ncl))
+        # variant 
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_vrt = hl.agg.sum(glb_aff_sam_mt.vrt))
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_vrt_c = hl.agg.collect(glb_aff_sam_mt.vrt))
+        # hom_var: contains identical alternate alleles
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv = hl.agg.sum(glb_aff_sam_mt.homv))
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_homv_c = hl.agg.collect(glb_aff_sam_mt.homv))
+        # altaf: contains  ALT allele frequency   
+        glb_aff_sam_mt = glb_aff_sam_mt.annotate_rows(glb_aff_altaf = (hl.agg.call_stats(glb_aff_sam_mt.GT, glb_aff_sam_mt.alleles).AF[1]))
+        # listt2=[]
+        # name2=f'{outfolder}/samp/glb_aff.csv'
+        listt2=['glb_aff_r','glb_aff_wild','glb_aff_wild_c','glb_aff_ncl','glb_aff_ncl_c','glb_aff_vrt','glb_aff_vrt_c', 'glb_aff_homv', 'glb_aff_homv_c','glb_aff_altaf']
+        df3=glb_aff_sam_mt.rows().select(*listt2).to_spark()
+        udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
+        df4=df3.select('glb_aff_r','glb_aff_wild','glb_aff_wild_c','glb_aff_ncl','glb_aff_ncl_c','glb_aff_vrt','glb_aff_vrt_c', 'glb_aff_homv', 'glb_aff_homv_c','glb_aff_altaf',udf_i('glb_aff_wild_c').alias('glb_aff_wild_c2'),udf_i('glb_aff_ncl_c').alias('glb_aff_ncl_c2'),udf_i('glb_aff_vrt_c').alias('glb_aff_vrt_c2'),udf_i('glb_aff_homv_c').alias('glb_aff_homv_c2'))
+        del df3
+        udf_2b = udf(lambda x,ref: [x[i] for i in ref])
+        df5=df4.select('glb_aff_wild',udf_2b('glb_aff_r', 'glb_aff_wild_c2').alias('glb_aff_wild_s'),'glb_aff_ncl',udf_2b('glb_aff_r', 'glb_aff_ncl_c2').alias('glb_aff_ncl_s'),'glb_aff_vrt', udf_2b('glb_aff_r', 'glb_aff_vrt_c2').alias('glb_aff_vrt_s'),'glb_aff_homv', udf_2b('glb_aff_r', 'glb_aff_homv_c2').alias('glb_aff_homv_s'),'glb_aff_altaf')
+        str_udf = F.udf(str_list, T.StringType())
+        df6=df5.select('glb_aff_wild',str_udf('glb_aff_wild_s').alias('glb_aff_wild_samp'),'glb_aff_ncl',str_udf('glb_aff_ncl_s').alias('glb_aff_ncl_samp'),'glb_aff_vrt', str_udf('glb_aff_vrt_s').alias('glb_aff_vrt_samp'),'glb_aff_homv',str_udf('glb_aff_homv_s').alias('glb_aff_homv_samp'),'glb_aff_altaf')
+        del df5
+        name_glb_csv=f'{outfolder}/samp/glb_affcsv'
+        df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name_glb_csv)
+        del df6
+        cmd_glb_aff0=f'cd {outfolder}/samp/glb_affcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_aff_out \; ; rm -r  ../glb_affcsv'
+        os.system(cmd_glb_aff0)  
+        cmd_prune_glb=f'cd {outfolder}/samp;' + ' sed -i glb_aff_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
+        os.system(cmd_prune_glb)
+        cmd_prune_glb_mv=f'mv {outfolder}/samp/glb_aff_out {outfolder}/glb_aff_out'
+        os.system(cmd_prune_glb_mv)
     # list_generated.append('glb_aff.csv')
     ##################################################### Global unaffected
     ##### generate global non-affected
-    glb_naf_sam = hl.literal(hl.set(glb_naf))
-    glb_naf_sam_mt=mt.filter_cols(glb_naf_sam.contains(mt.s))
-    # glb_naf_sam_mt.count()
-    ## wildtype 
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_r= glb_naf)
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_wild = hl.agg.sum(glb_naf_sam_mt.wild))
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_wild_c = hl.agg.collect(glb_naf_sam_mt.wild))
-    # no call
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_ncl = hl.agg.sum(glb_naf_sam_mt.ncl))
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_ncl_c = hl.agg.collect(glb_naf_sam_mt.ncl))
-    # variant 
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt = hl.agg.sum(glb_naf_sam_mt.vrt))
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt_c = hl.agg.collect(glb_naf_sam_mt.vrt))
-    # hom_var: contains identical alternate alleles
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv = hl.agg.sum(glb_naf_sam_mt.homv))
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv_c = hl.agg.collect(glb_naf_sam_mt.homv))
-    # altaf: contains  ALT allele frequency   
-    glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_altaf = (hl.agg.call_stats(glb_naf_sam_mt.GT, glb_naf_sam_mt.alleles).AF[1]))
-    # listt2=[]
-    # name2=f'{outfolder}/samp/glb_naf.csv'
-    listt2=['glb_naf_r','glb_naf_wild','glb_naf_wild_c','glb_naf_ncl','glb_naf_ncl_c','glb_naf_vrt','glb_naf_vrt_c', 'glb_naf_homv', 'glb_naf_homv_c','glb_naf_altaf']
-    # spark = SparkSession.builder.appName("myApp").getOrCreate()
-    df3=glb_naf_sam_mt.rows().select(*listt2).to_spark()
-    # udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
-    df4=df3.select('glb_naf_r','glb_naf_wild','glb_naf_wild_c','glb_naf_ncl','glb_naf_ncl_c','glb_naf_vrt','glb_naf_vrt_c', 'glb_naf_homv', 'glb_naf_homv_c','glb_naf_altaf',udf_i('glb_naf_wild_c').alias('glb_naf_wild_c2'),udf_i('glb_naf_ncl_c').alias('glb_naf_ncl_c2'),udf_i('glb_naf_vrt_c').alias('glb_naf_vrt_c2'),udf_i('glb_naf_homv_c').alias('glb_naf_homv_c2'))
-    del df3
-    # udf_2b = udf(lambda x,ref: [x[i] for i in ref])
-    df5=df4.select('glb_naf_wild',udf_2b('glb_naf_r', 'glb_naf_wild_c2').alias('glb_naf_wild_s'),'glb_naf_ncl',udf_2b('glb_naf_r', 'glb_naf_ncl_c2').alias('glb_naf_ncl_s'),'glb_naf_vrt', udf_2b('glb_naf_r', 'glb_naf_vrt_c2').alias('glb_naf_vrt_s'),'glb_naf_homv', udf_2b('glb_naf_r', 'glb_naf_homv_c2').alias('glb_naf_homv_s'),'glb_naf_altaf')
-    # str_udf = F.udf(str_list, T.StringType())
-    df6=df5.select('glb_naf_wild',str_udf('glb_naf_wild_s').alias('glb_naf_wild_samp'),'glb_naf_ncl',str_udf('glb_naf_ncl_s').alias('glb_naf_ncl_samp'),'glb_naf_vrt', str_udf('glb_naf_vrt_s').alias('glb_naf_vrt_samp'),'glb_naf_homv',str_udf('glb_naf_homv_s').alias('glb_naf_homv_samp'),'glb_naf_altaf')
-    del df5
-    name_glb_csv=f'{outfolder}/samp/glb_nafcsv'
-    df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name_glb_csv)
-    del df6
-    cmd_glb_aff0=f'cd {outfolder}/samp/glb_nafcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_naf_out \; ; rm -r  ../glb_nafcsv'
-    os.system(cmd_glb_aff0)  
-    cmd_prune_glb=f'cd {outfolder}/samp;' + ' sed -i glb_naf_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
-    os.system(cmd_prune_glb)
-    cmd_prune_glb_mv=f'mv {outfolder}/samp/glb_naf_out {outfolder}/glb_naf_out'
-    os.system(cmd_prune_glb_mv)
+    if len(glb_naf) > 0:
+        glb_naf_sam = hl.literal(hl.set(glb_naf))
+        glb_naf_sam_mt=mt.filter_cols(glb_naf_sam.contains(mt.s))
+        # glb_naf_sam_mt.count()
+        ## wildtype 
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_r= glb_naf)
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_wild = hl.agg.sum(glb_naf_sam_mt.wild))
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_wild_c = hl.agg.collect(glb_naf_sam_mt.wild))
+        # no call
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_ncl = hl.agg.sum(glb_naf_sam_mt.ncl))
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_ncl_c = hl.agg.collect(glb_naf_sam_mt.ncl))
+        # variant 
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt = hl.agg.sum(glb_naf_sam_mt.vrt))
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_vrt_c = hl.agg.collect(glb_naf_sam_mt.vrt))
+        # hom_var: contains identical alternate alleles
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv = hl.agg.sum(glb_naf_sam_mt.homv))
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_homv_c = hl.agg.collect(glb_naf_sam_mt.homv))
+        # altaf: contains  ALT allele frequency   
+        glb_naf_sam_mt = glb_naf_sam_mt.annotate_rows(glb_naf_altaf = (hl.agg.call_stats(glb_naf_sam_mt.GT, glb_naf_sam_mt.alleles).AF[1]))
+        # listt2=[]
+        # name2=f'{outfolder}/samp/glb_naf.csv'
+        listt2=['glb_naf_r','glb_naf_wild','glb_naf_wild_c','glb_naf_ncl','glb_naf_ncl_c','glb_naf_vrt','glb_naf_vrt_c', 'glb_naf_homv', 'glb_naf_homv_c','glb_naf_altaf']
+        # spark = SparkSession.builder.appName("myApp").getOrCreate()
+        df3=glb_naf_sam_mt.rows().select(*listt2).to_spark()
+        # udf_i = udf(lambda x: np.where(x)[0].tolist(), ArrayType(IntegerType()))
+        df4=df3.select('glb_naf_r','glb_naf_wild','glb_naf_wild_c','glb_naf_ncl','glb_naf_ncl_c','glb_naf_vrt','glb_naf_vrt_c', 'glb_naf_homv', 'glb_naf_homv_c','glb_naf_altaf',udf_i('glb_naf_wild_c').alias('glb_naf_wild_c2'),udf_i('glb_naf_ncl_c').alias('glb_naf_ncl_c2'),udf_i('glb_naf_vrt_c').alias('glb_naf_vrt_c2'),udf_i('glb_naf_homv_c').alias('glb_naf_homv_c2'))
+        del df3
+        # udf_2b = udf(lambda x,ref: [x[i] for i in ref])
+        df5=df4.select('glb_naf_wild',udf_2b('glb_naf_r', 'glb_naf_wild_c2').alias('glb_naf_wild_s'),'glb_naf_ncl',udf_2b('glb_naf_r', 'glb_naf_ncl_c2').alias('glb_naf_ncl_s'),'glb_naf_vrt', udf_2b('glb_naf_r', 'glb_naf_vrt_c2').alias('glb_naf_vrt_s'),'glb_naf_homv', udf_2b('glb_naf_r', 'glb_naf_homv_c2').alias('glb_naf_homv_s'),'glb_naf_altaf')
+        # str_udf = F.udf(str_list, T.StringType())
+        df6=df5.select('glb_naf_wild',str_udf('glb_naf_wild_s').alias('glb_naf_wild_samp'),'glb_naf_ncl',str_udf('glb_naf_ncl_s').alias('glb_naf_ncl_samp'),'glb_naf_vrt', str_udf('glb_naf_vrt_s').alias('glb_naf_vrt_samp'),'glb_naf_homv',str_udf('glb_naf_homv_s').alias('glb_naf_homv_samp'),'glb_naf_altaf')
+        del df5
+        name_glb_csv=f'{outfolder}/samp/glb_nafcsv'
+        df6.repartition(1).write.format("csv").mode('overwrite').option("sep","\t").option("header", "true").save(name_glb_csv)
+        del df6
+        cmd_glb_aff0=f'cd {outfolder}/samp/glb_nafcsv ; find . -type f -name \""*.csv"\" -exec mv {{}} ../glb_naf_out \; ; rm -r  ../glb_nafcsv'
+        os.system(cmd_glb_aff0)  
+        cmd_prune_glb=f'cd {outfolder}/samp;' + ' sed -i glb_naf_out -e \"s/\[\]/\[\\"\\"\]/g ; s/\[\'/\[\\"/g ;  s/\'\]/\\"\]/g ;  s/\'/\\"/g ; s/\[\]/\[\"\"\]/g \" '
+        os.system(cmd_prune_glb)
+        cmd_prune_glb_mv=f'mv {outfolder}/samp/glb_naf_out {outfolder}/glb_naf_out'
+        os.system(cmd_prune_glb_mv)
     # mt.rows().export(f'{outfolder}/out_locus0',delimiter='\t')
     # cmd_glb_csq=f'cut -f 1-2 {outfolder}/out_locus0 > {outfolder}/out_locus; rm {outfolder}/out_locus0'
     # os.system(cmd_glb_csq)
@@ -304,7 +309,6 @@ def segrun_family_wise_whole(mt, ped, outfolder, hl, csqlabel, affecteds_only, f
         cmd_paste = 'paste $(ls -rt ' +  f'{outfolder}/out_csq_*) > {outfolder}/out_csq; rm {outfolder}/out_csq_*'
         os.system(cmd_paste)
         timekeeping(step, start_time)
-    
     # processing the rest of the INFO field data
     # pseudo:   vcf INFO fields are not natively exportable as separate columns to tsv;
     #           therefore the process to do so is:

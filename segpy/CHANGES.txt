@@ -1,3 +1,5 @@
+v0.0.8, 2026-02-22
+ * Correct issue in sample id. 
 v0.0.5, 2025-09-12
  * Correct issue in case-control. 
 v0.0.6, 2024-12-12

@@ -63,7 +63,10 @@ def export_counts(mt, prefix, outfile):
 
 # generate wild/ncl/vrt/homv counts for one matrixTable for multiple family
 def generate_counts_m(mt, fam, sample_list,ped):
-    fam_aff=[ x for x in ped.loc[ped.loc[:,'familyid']==fam,'individualid']]
+    # fam_aff=[ x for x in ped.loc[ped.loc[:,'familyid']==fam,'individualid']]
+    fam_aff=sample_list
+    if not sample_list:
+        fam_aff=[ x for x in ped.loc[ped.loc[:,'familyid']==fam,'individualid']]
     aff_sam = hl.literal(hl.set(fam_aff))
     aff_sam2=mt.filter_cols(aff_sam.contains(mt.s))
     if len(sample_list) > 0:
