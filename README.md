@@ -1,4 +1,4 @@
-# Segpy: a streamlined, user-friendly pipline for variant segregation analysis
+# Segpy: a streamlined, user-friendly pipeline for variant segregation analysis
 
 
 [![](https://img.shields.io/badge/container-red)](https://zenodo.org/records/18807369/files/segpy.pip.zip?download=1) [![](https://img.shields.io/badge/Documentation-segpy-blue)](https://neurobioinfo.github.io/segpy/latest/) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14503733.svg)](https://doi.org/10.5281/zenodo.17575264)
